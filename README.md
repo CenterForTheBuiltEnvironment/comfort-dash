@@ -1,5 +1,8 @@
 # comfort-dash
-Revision of the CBE Comfort Tool using Dash.
+Revision of the CBE Comfort Tool using Dash. 
+<br>
+<br>
+We will use this for links and resources for now. Later on, this should be a proper README like in the [CBE Tool Template](https://github.com/CenterForTheBuiltEnvironment/cbe-tool-template) repo.
 
 ### Project resources:
 - [Original CBE Comfort Tool Repository](https://github.com/CenterForTheBuiltEnvironment/comfort_tool)
