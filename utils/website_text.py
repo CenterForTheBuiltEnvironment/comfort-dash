@@ -12,3 +12,9 @@ class TextNavBar(Enum):
     settings: str = "Settings"
     about: str = "About"
     devices: str = "Devices"
+
+
+class TextHome(Enum):
+    model_selection = "Select model:"
+    functionality_selection = "Select functionality:"
+    chart_selection = "Select chart:"

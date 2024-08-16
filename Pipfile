@@ -13,6 +13,7 @@ numpy = "*"
 psychrolib = "*"
 pythermalcomfort = "*"
 icecream = "*"
+pydantic = "*"
 
 [dev-packages]
 pytest-playwright = "*"
