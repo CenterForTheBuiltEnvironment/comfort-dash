@@ -2,9 +2,9 @@
 <br />
 <div align="center">
 
-[//]: # (  <a href="https://github.com/Environmental-Measurement-Unit-Systems/dashboard/blob/main/assets/media/emu_logo_white.png">)
-[//]: # (    <img src="assets/media/emu_logo_white.png" alt="Logo" width="80">)
-[//]: # (  </a>)
+  <a href="https://github.com/Environmental-Measurement-Unit-Systems/dashboard/blob/main/assets/media/CBE-logo-2018.png">
+    <img src="assets/media/CBE-logo-2018.png" alt="Logo" width="80">
+  </a>
 
 <h3 align="center">CBE Thermal Comfort Tool</h3>
 
@@ -153,8 +153,8 @@ pipenv requirements --dev > dev-requirements.txt
 gcloud config set account federicotartarini@gmail.com
 python -m pytest tests/test_login.py --base-url http://0.0.0.0:9090
 python -m pytest --numprocesses 3 --base-url http://0.0.0.0:9090
-gcloud builds submit --project=emu-systems --substitutions=_REPO_NAME="comfort-tool-v2-test"
-gcloud builds submit --project=emu-systems --substitutions=_REPO_NAME="comfort-tool-v2"
+gcloud builds submit --project=comfort-327718 --substitutions=_REPO_NAME="comfort-tool-v2-test"
+gcloud builds submit --project=comfort-327718 --substitutions=_REPO_NAME="comfort-tool-v2"
 ```
 
 ### Kill application running locally
