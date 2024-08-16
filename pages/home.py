@@ -20,11 +20,11 @@ layout = dmc.Stack(
             children=[
                 dmc.GridCol(
                     model_selection(),
-                    span=6,
+                    span={"base": 12, "sm": 6},
                 ),
                 dmc.GridCol(
                     functionality_selection(),
-                    span=6,
+                    span={"base": 12, "sm": 6},
                 ),
             ],
             gutter="xl",
@@ -34,7 +34,7 @@ layout = dmc.Stack(
                 my_card(
                     title="Inputs",
                     children=input_environmental_personal(),
-                    span=3,
+                    span={"base": 12, "sm": 3},
                 ),
                 my_card(
                     title="Results and Visualization",
@@ -67,7 +67,7 @@ layout = dmc.Stack(
                             ),
                         ],
                     ),
-                    span=9,
+                    span={"base": 12, "sm": 9},
                 ),
             ],
             gutter="xl",
