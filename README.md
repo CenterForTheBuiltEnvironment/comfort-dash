@@ -211,7 +211,7 @@ Project Link: [CenterForTheBuiltEnvironment/comfort-dash](https://github.com/Cen
 ### Teams & responsibilities
 |  Group   |  Task                 |  Team                        | Responsibilites                                      | 
 |----------|-----------------------|------------------------------|------------------------------------------------------|
-|  -       |  **Admin**            | Revolving, weekly            |  Meetings & communication (e.g. notes, agenda        |
+|  -       |  **Admin**            | Revolving, weekly            |  Meetings & communication (e.g. notes, agenda)       |
 |  A       |  **Front-End**        | 3-4 people                   |  Front-End design and Dash implementation            |
 |  A       |  **Visuals**          | 2 people                     |  Develop plots for main UI                           |
 |  B       |  **Data Management**  | 2 people                     |  Manage use of data within app                       |
