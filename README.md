@@ -2,7 +2,7 @@
 <br />
 <div align="center">
 
-  <a href="https://github.com/Environmental-Measurement-Unit-Systems/dashboard/blob/main/assets/media/CBE-logo-2018.png">
+  <a href="https://github.com/CenterForTheBuiltEnvironment/comfort-dash/blob/main/assets/media/CBE-logo-2018.png">
     <img src="assets/media/CBE-logo-2018.png" alt="Logo" width="80">
   </a>
 
@@ -12,7 +12,7 @@
     This is the official repository for the CBE Thermal Comfort Tool
     <br />
     <br />
-    <a href="https://dashboard-b7zdid2ocq-ts.a.run.app/">View Demo</a>
+    <a href="https://comfort-tool-v2-test-6ncu37myea-uc.a.run.app/">View Demo</a>
     ·
     <a href="https://github.com/CenterForTheBuiltEnvironment/comfort-dash/issues/new">Report Bug</a>
     ·
@@ -165,6 +165,7 @@ pipenv requirements --dev > dev-requirements.txt
 gcloud config set account federicotartarini@gmail.com
 python -m pytest tests/test_public_urls.py --base-url http://0.0.0.0:9090
 python -m pytest --numprocesses 3 --base-url http://0.0.0.0:9090
+python -m pytest --numprocesses 3 --base-url https://comfort-tool-v2-test-6ncu37myea-uc.a.run.app
 gcloud builds submit --project=comfort-327718 --substitutions=_REPO_NAME="comfort-tool-v2-test"
 gcloud builds submit --project=comfort-327718 --substitutions=_REPO_NAME="comfort-tool-v2"
 ```
@@ -194,7 +195,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Federico Tartarini - federicotartarini@gmail.com
 
-Project Link: [Environmental-Measurement-Unit-Systems/dashboard](https://github.com/Environmental-Measurement-Unit-Systems/dashboard)
+Project Link: [CenterForTheBuiltEnvironment/comfort-dash](https://github.com/CenterForTheBuiltEnvironment/comfort-dash)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -220,18 +221,18 @@ Project Link: [Environmental-Measurement-Unit-Systems/dashboard](https://github.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/Environmental-Measurement-Unit-Systems/dashboard.svg?style=for-the-badge
-[contributors-url]: https://github.com/Environmental-Measurement-Unit-Systems/dashboard/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Environmental-Measurement-Unit-Systems/dashboard.svg?style=for-the-badge
-[forks-url]: https://github.com/Environmental-Measurement-Unit-Systems/dashboard/network/members
-[stars-shield]: https://img.shields.io/github/stars/Environmental-Measurement-Unit-Systems/dashboard.svg?style=for-the-badge
-[stars-url]: https://github.com/Environmental-Measurement-Unit-Systems/dashboard/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Environmental-Measurement-Unit-Systems/dashboard.svg?style=for-the-badge
-[issues-url]: https://github.com/Environmental-Measurement-Unit-Systems/dashboard/issues
-[license-shield]: https://img.shields.io/github/license/Environmental-Measurement-Unit-Systems/dashboard.svg?style=for-the-badge
-[license-url]: https://github.com/Environmental-Measurement-Unit-Systems/dashboard/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/CenterForTheBuiltEnvironment/comfort-dash.svg?style=for-the-badge
+[contributors-url]: https://github.com/CenterForTheBuiltEnvironment/comfort-dash/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/CenterForTheBuiltEnvironment/comfort-dash.svg?style=for-the-badge
+[forks-url]: https://github.com/CenterForTheBuiltEnvironment/comfort-dash/network/members
+[stars-shield]: https://img.shields.io/github/stars/CenterForTheBuiltEnvironment/comfort-dash.svg?style=for-the-badge
+[stars-url]: https://github.com/CenterForTheBuiltEnvironment/comfort-dash/stargazers
+[issues-shield]: https://img.shields.io/github/issues/CenterForTheBuiltEnvironment/comfort-dash.svg?style=for-the-badge
+[issues-url]: https://github.com/CenterForTheBuiltEnvironment/comfort-dash/issues
+[license-shield]: https://img.shields.io/github/license/CenterForTheBuiltEnvironment/comfort-dash.svg?style=for-the-badge
+[license-url]: https://github.com/CenterForTheBuiltEnvironment/comfort-dash/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/linkedin_username
+[linkedin-url]: https://www.linkedin.com/in/federico-tartarini/
 [product-screenshot]: images/screenshot.png
 [Python.org]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
 [Python-url]: https://www.python.org/
