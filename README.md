@@ -127,6 +127,18 @@ If you have a suggestion that would make this better, please fork the repo and c
 I wrote some tests with playwright to make sure the application is displaying properly.
 All the tests are located in the `tests` folder.
 
+In order to run the tests, you need to have the application running locally.
+
+```bash
+python app.py
+``` 
+
+You will also need to install the playwright dependencies, [more info here](https://playwright.dev/python/docs/intro):
+
+```bash
+playwright install
+```
+
 #### Test generation
 
 Detailed guide on how to generate tests can be found [here](https://playwright.dev/python/docs/codegen)
@@ -151,7 +163,7 @@ gcloud components update
 pipenv requirements > requirements.txt
 pipenv requirements --dev > dev-requirements.txt
 gcloud config set account federicotartarini@gmail.com
-python -m pytest tests/test_login.py --base-url http://0.0.0.0:9090
+python -m pytest tests/test_public_urls.py --base-url http://0.0.0.0:9090
 python -m pytest --numprocesses 3 --base-url http://0.0.0.0:9090
 gcloud builds submit --project=comfort-327718 --substitutions=_REPO_NAME="comfort-tool-v2-test"
 gcloud builds submit --project=comfort-327718 --substitutions=_REPO_NAME="comfort-tool-v2"
