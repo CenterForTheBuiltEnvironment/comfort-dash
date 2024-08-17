@@ -39,7 +39,9 @@ class Stores(Enum):
 
 class MODELS(Enum):
     PMV: str = "PMV - ASHRAE 55"
-    PPD: str = "ppd"
+    Adaptive: str = "Adaptive - ASHRAE 55"
+    EN: str = "Adaptive - EN 16798"
+
 
 
 class CHARTS(Enum):
