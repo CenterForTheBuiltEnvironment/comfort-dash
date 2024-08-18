@@ -3,6 +3,7 @@ from enum import Enum
 from dataclasses import dataclass
 from pydantic import BaseModel
 
+
 class Dimensions(Enum):
     default_container_width = "md"
 
@@ -18,7 +19,6 @@ class ElementsIDs(Enum):
     MODEL_SELECTION = "id-model-selection"
     CHART_SELECTION = "id-chart-selection"
     CHART_CONTAINER = "chart-container"
-    SPEED_SELECTION = "id-speed-selection"
     URL = "url"
     FOOTER = "id-footer"
 
@@ -40,7 +40,7 @@ class Stores(Enum):
 class MODELS(Enum):
     PMV: str = "PMV - ASHRAE 55"
     Adaptive: str = "Adaptive - ASHRAE 55"
-    EN : str = "EN - 16798"
+    EN: str = "Adaptive - EN 16798"
 
 
 
