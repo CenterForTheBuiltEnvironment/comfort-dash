@@ -4,7 +4,7 @@ import dash_mantine_components as dmc
 from components.charts import chart_example
 from components.functionality_selection import functionality_selection
 from components.input_environmental_personal import input_environmental_personal
-from components.dropdowns import model_selection, chart_selection
+from components.dropdowns import model_selection, chart_selection, Ash55_air_speed_selection
 from components.my_card import my_card
 from utils.my_config_file import (
     URLS,
@@ -36,7 +36,10 @@ layout = dmc.Stack(
                     children=input_environmental_personal(''),
                     id = 'input_card',
                     span={"base": 12, "sm": 3},
+
+
                 ),
+
                 my_card(
                     title="Results and Visualization",
                     children=dmc.Stack(

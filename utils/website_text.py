@@ -18,3 +18,4 @@ class TextHome(Enum):
     model_selection = "Select model:"
     functionality_selection = "Select functionality:"
     chart_selection = "Select chart:"
+    speed_selection = "Speed:"

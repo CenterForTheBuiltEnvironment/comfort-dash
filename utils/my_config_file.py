@@ -18,6 +18,7 @@ class ElementsIDs(Enum):
     NAVBAR_ID_ABOUT = "id-nav-about"
     MODEL_SELECTION = "id-model-selection"
     CHART_SELECTION = "id-chart-selection"
+    SPEED_SELECTION = "id-speed-selection"
     CHART_CONTAINER = "chart-container"
     URL = "url"
     FOOTER = "id-footer"
@@ -40,7 +41,7 @@ class Stores(Enum):
 class MODELS(Enum):
     PMV: str = "PMV - ASHRAE 55"
     Adaptive: str = "Adaptive - ASHRAE 55"
-    EN : str = "EN - 16798"
+    EN: str = "Adaptive - EN 16798"
 
 
 
@@ -57,6 +58,11 @@ class ModelInputsInfo(BaseModel):
     step: float
     value: float
 
+class SPEEDS(Enum):
+    s_1: str = "0.3 m/s (59fpm)"
+    s_2: str = "0.6 m/s (118fpm)"
+    S_3: str = "0.9 m/s (177fpm)"
+    s_4: str = "1.2 m/s (236fpm)"
 
 class ModelInputs(BaseModel):
     TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
@@ -125,5 +131,16 @@ class ModelInputs3(BaseModel):
         name="Prevailing mean outdoor temperature",
     )
     # AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
-    #
+    #     unit="m/s",
+    #     min = 0.3,
+    #     max=1.2,
+    # #     min=min(option["value"] for option in Ash55_air_speed_selection()),
+    # #     max=max(option["value"] for option in Ash55_air_speed_selection()),
+    #     step=0.3,
+    # #     value=Ash55_air_speed_selection()[0]["value"],
+    #     name="Air Speed",
+    # #     options=Ash55_air_speed_selection()
+    # #
+    # #
     # )
+
