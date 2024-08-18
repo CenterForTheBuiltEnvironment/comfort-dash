@@ -1,6 +1,7 @@
 from utils.my_config_file import ModelInputs,ModelInputsInfo, ModelInputs2, ModelInputs3
 import dash_mantine_components as dmc
 from dataclasses import fields
+from components.dropdowns import Ash55_air_speed_selection
 
 
 def input_environmental_personal(selected_model):
@@ -15,6 +16,7 @@ def input_environmental_personal(selected_model):
         print("PMV")
     elif selected_model == 'Adaptive - ASHRAE 55':
         model_inputs = ModelInputs3()
+        # inputs.append(Ash55_air_speed_selection())
 
     for var_name, values in dict(model_inputs).items():
         input_filed = dmc.NumberInput(
@@ -27,6 +29,10 @@ def input_environmental_personal(selected_model):
         )
         inputs.append(input_filed)
 
+    if selected_model == 'Adaptive - ASHRAE 55':
+        inputs.append(Ash55_air_speed_selection())
+
+
     return dmc.Paper(
     children=[
         dmc.Text("Inputs", mb="xs", fw=700),
@@ -34,4 +40,4 @@ def input_environmental_personal(selected_model):
     ],
     shadow="md",
     p="md"
-)
+    )

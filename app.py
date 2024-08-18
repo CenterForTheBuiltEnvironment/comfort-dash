@@ -13,13 +13,16 @@ from utils.my_config_file import (
     Stores,
     ElementsIDs,
     Dimensions,
+    ModelInputs3
 )
 from utils.website_text import app_name
 
 from dash.dependencies import Input, Output
 from components.dropdowns import dd_model
+from components.drop_down_inline import generate_dropdown_inline
 from components.input_environmental_personal import input_environmental_personal
 install()
+# from components.dropdowns import Ash55_air_speed_selection
 ic.configureOutput(includeContext=True)
 
 # try:
@@ -189,7 +192,7 @@ def update_graph_content(selected_model):
             dmc.Center(dmc.Text("PPD = 0.06")),
             dmc.Center(dmc.Text("Category = |")),
         ]
-    if selected_model == 'PMV - ASHRAE 55':
+    elif selected_model == 'PMV - ASHRAE 55':
         grid_content = [
             dmc.Center(dmc.Text("PMV = 0.6")),
             dmc.Center(dmc.Text("PPD = 3")),
@@ -203,6 +206,10 @@ def update_graph_content(selected_model):
             dmc.Center(dmc.Text("PPD = 3")),
             dmc.Center(dmc.Text("SET = 29.9")),
         ]
+    else:
+        # unknown model selection
+        grid_content = [dmc.Center(dmc.Text("Unknown model selection"))]
+
     return grid_content
 if __name__ == "__main__":
     app.run_server(
