@@ -5,7 +5,7 @@ from utils.website_text import TextHome
 dd_model = {
     "id": ElementsIDs.MODEL_SELECTION.value,
     "question": TextHome.model_selection.value,
-    "options": [MODELS.PMV.value, MODELS.PPD.value, MODELS.EN.value],
+    "options": [MODELS.PMV.value, MODELS.Adaptive.value, MODELS.EN.value],
     "multi": False,
     "default": MODELS.PMV.value,
 }
@@ -26,3 +26,4 @@ dd_chart = {
 
 def chart_selection():
     return generate_dropdown_inline(dd_chart, clearable=False)
+

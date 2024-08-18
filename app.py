@@ -197,6 +197,12 @@ def update_graph_content(selected_model):
             dmc.Center(dmc.Text("Result 6")),
             dmc.Center(dmc.Text("Result 7")),
         ]
+    elif selected_model == 'Adaptive - ASHRAE 55':
+        grid_content = [
+            dmc.Center(dmc.Text("PMV = 0.6")),
+            dmc.Center(dmc.Text("PPD = 3")),
+            dmc.Center(dmc.Text("SET = 29.9")),
+        ]
     return grid_content
 if __name__ == "__main__":
     app.run_server(

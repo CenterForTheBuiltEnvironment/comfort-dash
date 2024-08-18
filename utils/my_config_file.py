@@ -39,8 +39,9 @@ class Stores(Enum):
 
 class MODELS(Enum):
     PMV: str = "PMV - ASHRAE 55"
-    PPD: str = "ppd"
+    Adaptive: str = "Adaptive - ASHRAE 55"
     EN : str = "EN - 16798"
+
 
 
 class CHARTS(Enum):
@@ -81,9 +82,9 @@ class ModelInputs(BaseModel):
     CLOTHING: ModelInputsInfo = ModelInputsInfo(
         unit="clo", min=0.5, max=2.0, step=0.1, value=0.5, name="Clothing"
     )
-    ACTIVITY: ModelInputsInfo = ModelInputsInfo(
-        unit="met", min=0.0, max=10.0, step=0.1, value=1.0, name="Activity"
-    )
+    # ACTIVITY: ModelInputsInfo = ModelInputsInfo(
+    #     unit="met", min=0.0, max=10.0, step=0.1, value=1.0, name="Activity"
+    # )
 
 
 class ModelInputs2(BaseModel):
@@ -110,3 +111,19 @@ class ModelInputs2(BaseModel):
     DYNAMIC_CLOTHING: ModelInputsInfo = ModelInputsInfo(
         unit="clo", min=0.5, max=2.0, step=0.1, value=0.61, name="Dynamic Clothing insulation"
     )
+
+class ModelInputs3(BaseModel):
+    AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
+        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Temperature"
+    )
+    MRT: ModelInputsInfo = ModelInputsInfo(
+        unit="°C",
+        min=10.0,
+        max=40.0,
+        step=0.1,
+        value=25.0,
+        name="Prevailing mean outdoor temperature",
+    )
+    # AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
+    #
+    # )

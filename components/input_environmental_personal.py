@@ -1,4 +1,4 @@
-from utils.my_config_file import ModelInputs,ModelInputsInfo, ModelInputs2
+from utils.my_config_file import ModelInputs,ModelInputsInfo, ModelInputs2, ModelInputs3
 import dash_mantine_components as dmc
 from dataclasses import fields
 
@@ -13,6 +13,8 @@ def input_environmental_personal(selected_model):
     elif selected_model == 'PMV - ASHRAE 55':
         model_inputs = ModelInputs()
         print("PMV")
+    elif selected_model == 'Adaptive - ASHRAE 55':
+        model_inputs = ModelInputs3()
 
     for var_name, values in dict(model_inputs).items():
         input_filed = dmc.NumberInput(
