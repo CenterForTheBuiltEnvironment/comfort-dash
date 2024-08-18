@@ -32,8 +32,9 @@ layout = dmc.Stack(
         dmc.Grid(
             children=[
                 my_card(
-                    title="Inputs",
-                    children=input_environmental_personal(),
+                    title="",
+                    children=input_environmental_personal(''),
+                    id = 'input_card',
                     span={"base": 12, "sm": 3},
                 ),
                 my_card(
@@ -45,6 +46,7 @@ layout = dmc.Stack(
                                 cols=3,
                                 spacing="md",
                                 verticalSpacing="md",
+                                id = 'graph-container',
                                 children=[
                                     dmc.Center(dmc.Text("PMV = 0.5")),
                                     dmc.Center(
@@ -67,6 +69,7 @@ layout = dmc.Stack(
                             ),
                         ],
                     ),
+                    
                     span={"base": 12, "sm": 9},
                 ),
             ],

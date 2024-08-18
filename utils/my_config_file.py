@@ -40,6 +40,7 @@ class Stores(Enum):
 class MODELS(Enum):
     PMV: str = "PMV - ASHRAE 55"
     PPD: str = "ppd"
+    EN : str = "EN - 16798"
 
 
 class CHARTS(Enum):
@@ -82,4 +83,30 @@ class ModelInputs(BaseModel):
     )
     ACTIVITY: ModelInputsInfo = ModelInputsInfo(
         unit="met", min=0.0, max=10.0, step=0.1, value=1.0, name="Activity"
+    )
+
+
+class ModelInputs2(BaseModel):
+    AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
+        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Air Temperature"
+    )
+    MRT: ModelInputsInfo = ModelInputsInfo(
+        unit="°C",
+        min=10.0,
+        max=40.0,
+        step=0.1,
+        value=25.0,
+        name="Mean Radiant Temperature",
+    )
+    AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
+        unit="m/s", min=0.0, max=1.0, step=0.1, value=0.1, name="Air Speed"
+    )
+    RH: ModelInputsInfo = ModelInputsInfo(
+        unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"
+    )
+    MET: ModelInputsInfo = ModelInputsInfo(
+        unit="met", min=0.7, max=2.0, step=0.1, value=1, name="Metabolic Rate"
+    )
+    DYNAMIC_CLOTHING: ModelInputsInfo = ModelInputsInfo(
+        unit="clo", min=0.5, max=2.0, step=0.1, value=0.61, name="Dynamic Clothing insulation"
     )

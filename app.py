@@ -16,6 +16,9 @@ from utils.my_config_file import (
 )
 from utils.website_text import app_name
 
+from dash.dependencies import Input, Output
+from components.dropdowns import dd_model
+from components.input_environmental_personal import input_environmental_personal
 install()
 ic.configureOutput(includeContext=True)
 
@@ -165,6 +168,36 @@ app.layout = dmc.MantineProvider(
 #         mimetype="text/xml",
 #     )
 
+@app.callback(
+    Output('input_card','children'),
+    Output('graph-container','children'),
+    Input(dd_model['id'],'value')
+
+)
+
+def capture_selected_model(selected_model):
+    print(selected_model)
+    input_content = input_environmental_personal(selected_model)
+    graph_content = update_graph_content(selected_model)
+
+    return input_content,graph_content
+
+def update_graph_content(selected_model):
+    if selected_model == 'EN - 16798':
+        grid_content = [
+            dmc.Center(dmc.Text("PMV = -0.16")),
+            dmc.Center(dmc.Text("PPD = 0.06")),
+            dmc.Center(dmc.Text("Category = |")),
+        ]
+    if selected_model == 'PMV - ASHRAE 55':
+        grid_content = [
+            dmc.Center(dmc.Text("PMV = 0.6")),
+            dmc.Center(dmc.Text("PPD = 3")),
+            dmc.Center(dmc.Text("SET = 29.9")),
+            dmc.Center(dmc.Text("Result 6")),
+            dmc.Center(dmc.Text("Result 7")),
+        ]
+    return grid_content
 if __name__ == "__main__":
     app.run_server(
         debug=Config.DEBUG.value,

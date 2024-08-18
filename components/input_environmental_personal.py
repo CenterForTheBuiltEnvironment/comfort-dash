@@ -1,11 +1,20 @@
-from utils.my_config_file import ModelInputs, ModelInputsInfo
+from utils.my_config_file import ModelInputs,ModelInputsInfo, ModelInputs2
 import dash_mantine_components as dmc
 from dataclasses import fields
 
 
-def input_environmental_personal():
+def input_environmental_personal(selected_model):
     inputs = []
-    for var_name, values in dict(ModelInputs()).items():
+
+    model_inputs = ModelInputs()
+    if selected_model =='EN - 16798':
+        print("EN")
+        model_inputs = ModelInputs2()
+    elif selected_model == 'PMV - ASHRAE 55':
+        model_inputs = ModelInputs()
+        print("PMV")
+
+    for var_name, values in dict(model_inputs).items():
         input_filed = dmc.NumberInput(
             label=values.name,
             description=f"From {values.min} to {values.max}",
@@ -16,4 +25,11 @@ def input_environmental_personal():
         )
         inputs.append(input_filed)
 
-    return dmc.Stack(inputs, gap="xs")
+    return dmc.Paper(
+    children=[
+        dmc.Text("Inputs", mb="xs", fw=700),
+        dmc.Stack(inputs, gap="xs")
+    ],
+    shadow="md",
+    p="md"
+)
