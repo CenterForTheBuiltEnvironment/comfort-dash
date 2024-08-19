@@ -209,13 +209,14 @@ Project Link: [CenterForTheBuiltEnvironment/comfort-dash](https://github.com/Cen
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Teams & responsibilities
-|  Group   |  Task                 |  Team                                            | Responsibilites                                      | 
+|  Group   |  Task                 |  Team                                            | Main focus                                           | 
 |----------|-----------------------|--------------------------------------------------|------------------------------------------------------|
 |  -       |  **Admin**            | Revolving, weekly                                |  Meetings & communication (e.g. notes, agenda)       |
 |  A       |  **Front-End**        | Ruixin Wu, Jiaming Zheng, Xuhui Wang, Zhou Tong  |  Front-End design and Dash implementation            |
 |  A       |  **Visuals**          | Jiadong Zhang, Yan Zhang                         |  Develop plots for main UI                           |
-|  B       |  **Data Management**  | 2 people                                         |  Manage use of data within app                       |
-|  B       |  **Back-End**         | 3-4 people                                       |  Develop app back-end                                |
+|  B       |  **Data Management**  | Shiyi Shen, Hang Xu                              |  Manage use of data within app                       |
+|  B       |  **Back-End**         | Yinyan Liu, Junan Lu, Jiniig Bai, Chao Jiang     |  Develop app back-end                                |
+|  -       |  **Testing**          | Haozhen Li                                       |  Writing tests for the app                           |
 
 
 
