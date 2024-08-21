@@ -3,11 +3,24 @@ import dash_mantine_components as dmc
 from dash import Input, Output, State, html, ctx
 from dash import callback
 
-from utils.my_config_file import URLS, ElementsIDs, Dimensions
+from utils.my_config_file import URLS, ElementsIDs, Dimensions, Tool_URLS
 from utils.website_text import TextNavBar, app_name
 
 
-
+tool_items = [
+    {"name": TextNavBar.tool1.value, "href": Tool_URLS.Tools1.value},
+    {"name": TextNavBar.tool2.value, "href": Tool_URLS.Tools2.value},
+    {"name": TextNavBar.tool3.value, "href": Tool_URLS.Tools3.value},
+    {"name": TextNavBar.tool4.value, "href": Tool_URLS.Tools4.value},
+    {"name": TextNavBar.tool5.value, "href": Tool_URLS.Tools5.value},
+    {"name": TextNavBar.tool6.value, "href": Tool_URLS.Tools6.value},
+    {"name": TextNavBar.tool7.value, "href": Tool_URLS.Tools7.value},
+    {"name": TextNavBar.tool8.value, "href": Tool_URLS.Tools8.value},
+    {"name": TextNavBar.tool9.value, "href": Tool_URLS.Tools9.value},
+    {"name": TextNavBar.tool10.value, "href": Tool_URLS.Tools10.value},
+    {"name": TextNavBar.tool11.value, "href": Tool_URLS.Tools11.value},
+    {"name": TextNavBar.tool12.value, "href": Tool_URLS.Tools12.value},
+]
 
 def my_navbar():
     return html.Div(
@@ -106,38 +119,26 @@ def my_navbar():
                                                     id=ElementsIDs.NAVBAR_ID_DOCUMENT.value,
                                                 )
                                             ),
-                                            # dbc.NavItem(
-                                            #     dbc.NavLink(
-                                            #         TextNavBar.tools.value,
-                                            #         href=URLS.Tools.value,
-                                            #         style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
-                                            #         id=ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value,
-                                            #     )
-                                            # ),
                                             dbc.DropdownMenu(
-                                                label=TextNavBar.tools.value,
-                                                children=[
+                                                [
                                                     dbc.DropdownMenuItem(
-                                                        "Tool 1", href="https://cbe.berkeley.edu/research/cbe-thermal-comfort-tool/",
-                                                        style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
-                                                    ),
-                                                    dbc.DropdownMenuItem(
-                                                        "Tool 2", href="https://cbe.berkeley.edu/research/clima-tool/",
-                                                        style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
-                                                    ),
-                                                    dbc.DropdownMenuItem(
-                                                        "Tool 3", href="https://cbe.berkeley.edu/research/advanced-ceiling-fan-design-tool/",
-                                                        style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
-                                                    ),
+                                                        item["name"],
+                                                        href=item["href"],
+                                                        style={"padding": "0 10px", "margin": "0", "color": "#0078c2"}
+                                                    )
+                                                    for item in tool_items
                                                 ],
-                                                nav=True,
-                                                in_navbar=True,
-                                                # style={"padding": "0 10px", "margin": "0", "color": "#black", "backgroundColor": "#f8f9fa"},
-                                                style={"backgroundColor": "#0078c2", "color": "#0078c2"},
-                                                # className="bg-light text-primary",
-
+                                                label=TextNavBar.tools.value,
+                                                # className="m-1",
+                                                toggle_style={
+                                                    "background": "white",
+                                                    "color": "#0078c2",
+                                                    "borderColor": "rgba(255,255,255,0.2)",
+                                                    "marginTop": "-8px"
+                                                },
+                                                style={"marginLeft": "-50px"},
                                                 id=ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value,
-                                            ),
+                                            )
                                         ],
                                         # Make the text stick on right
                                         style={"width": "100%", "justify-content": "flex-end"},
@@ -208,7 +209,7 @@ def my_navbar_only_logo():
         # Input(ElementsIDs.NAVBAR_ID_HOME.value, "n_clicks"),
         Input(ElementsIDs.NAVBAR_ID_ABOUT.value, "n_clicks"),
         Input(ElementsIDs.NAVBAR_ID_DOCUMENT.value, "n_clicks"),
-        Input(ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value, "n_clicks"),
+        # Input(ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value, "n_clicks"),
         # Input(ElementsIDs.NAVBAR_ID_SETTINGS.value, "n_clicks"),
         # Input(ElementsIDs.NAVBAR_ID_ABOUT.value, "n_clicks"),
     ],

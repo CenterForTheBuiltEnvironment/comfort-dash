@@ -34,11 +34,23 @@ class Config(Enum):
 class URLS(Enum):
     HOME: str = "/"
     ABOUT: str = "/about"
-    Documentation: str= "/https://github.com/CenterForTheBuiltEnvironment/comfort-dash"
+    Documentation: str= "/documentation"
+    Tools: str= "/moreCBETools"
+
+
+class Tool_URLS(Enum):
     Tools1: str = "https://cbe.berkeley.edu/research/cbe-thermal-comfort-tool/"
     Tools2: str = "https://cbe.berkeley.edu/research/clima-tool/"
     Tools3: str = "https://cbe.berkeley.edu/research/advanced-ceiling-fan-design-tool/"
-    Tools: str= "/moreCBETools"
+    Tools4: str = "https://cbe.berkeley.edu/research/guidebook-on-fans-for-cooling-people/"
+    Tools5: str = "https://cbe.berkeley.edu/research/occupant-survey-and-building-benchmarking/"
+    Tools6: str = "https://cbe.berkeley.edu/research/cbe-rad-tool-early-design-tool-for-high-thermal-mass-radiant-systems/"
+    Tools7: str = "https://cbe.berkeley.edu/research/setpoint-energy-savings-calculator/"
+    Tools8: str = "https://cbe.berkeley.edu/research/cbe-3d-mean-radiant-temperature-tool/"
+    Tools9: str = "https://cbe.berkeley.edu/research/underfloor-air-distribution-ufad-cooling-load-design-tool/"
+    Tools10: str = "https://cbe.berkeley.edu/research/global-comfort-data-visualization-tools/"
+    Tools11: str = "https://cbe.berkeley.edu/research/python-package-for-thermal-comfort/"
+    Tools12: str = "https://cbe.berkeley.edu/research/energy-performance-modeling-underfloor-air-distribution-systems/"
 
 
 class Stores(Enum):
