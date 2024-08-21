@@ -8,7 +8,7 @@ def input_environmental_personal(selected_model):
     inputs = []
 
     model_inputs = ModelInputs()
-    if selected_model =='EN - 16798':
+    if selected_model =='Adaptive - EN 16798':
         print("EN")
         model_inputs = ModelInputs2()
     elif selected_model == 'PMV - ASHRAE 55':
