@@ -5,6 +5,13 @@ app_name = "CBE Thermal Comfort Tool"
 
 class TextFooter(Enum):
     acknowledgment = "This application has been developed by the Center for the Built Environment and the University of Sydney."
+    copy_right  = "Copyright © 2024 The Center for the Built Environment and UC Regents. All right reserved. " 
+    cite = "Tartarini, F., Schiavon, S., Cheung, T., Hoyt, T., 2020. CBE Thermal Comfort Tool : online tool for thermal comfort calculations and visualizations. SoftwareX 12, 100563. "
+    cite_link = "https://doi.org/10.1016/j.softx.2020.100563."
+    contact_us = "Contact us"
+    report_issues = "Report issues"
+    see_changelog = "See Changelog"
+    version = "Version.X.Y.Z"
 
 
 class TextNavBar(Enum):
