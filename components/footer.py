@@ -114,7 +114,7 @@ def my_footer():
                 ),
                 style={
                     "background": "#3375BC",
-                    "position": "relavtive",
+                    "position": "absolute",
                     "bottom": 0,
                     "width": "100%",
                     "min-height": "5rem",
@@ -136,7 +136,7 @@ def my_footer():
                                 ),
                                 dmc.GridCol(
                                     dmc.Text(
-                                        TextFooter.version.value,
+                                        TextFooter.version.value, 
                                         style={"color":"white","fontSize":"9px"}
                                     ),
                                     ml="10px",
@@ -165,8 +165,9 @@ def my_footer():
                         "background": "#1B3A76", 
                         "width": "100%",
                         "min-height": "1rem",
+                        "position": "fixed",
+                        "bottom":0,
                     },
                 ),
             ]
         )
-
