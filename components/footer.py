@@ -62,12 +62,15 @@ def my_footer():
                                 span=1.5,
                             ),
                             dmc.GridCol(
-                                dmc.Image(
-                                    src="/assets/media/github-white-transparent.png",
-                                    maw=40,
-                                    mt="7px",
-                                    mb="none",
-                                    alt="logo",
+                                html.A(
+                                    dmc.Image(
+                                        src="/assets/media/github-white-transparent.png",
+                                        maw=40,
+                                        mt="7px",
+                                        mb="none",
+                                        alt="logo",
+                                    ),
+                                    href="https://github.com/CenterForTheBuiltEnvironment/comfort-dash"
                                 ),
                                 span=1,
                         ),
@@ -114,7 +117,7 @@ def my_footer():
                 ),
                 style={
                     "background": "#3375BC",
-                    "position": "absolute",
+                    "position": "fixed",
                     "bottom": 0,
                     "width": "100%",
                     "min-height": "5rem",
@@ -132,7 +135,7 @@ def my_footer():
                                         style={"color":"white","fontSize":"9px"}
                                     ),
                                     ml="-10px",
-                                    span=10,
+                                    span="10",
                                 ),
                                 dmc.GridCol(
                                     dmc.Text(
