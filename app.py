@@ -186,7 +186,7 @@ def capture_selected_model(selected_model):
     return input_content,graph_content
 
 def update_graph_content(selected_model):
-    if selected_model == 'EN - 16798':
+    if selected_model == 'Adaptive - EN 16798':
         grid_content = [
             dmc.Center(dmc.Text("PMV = -0.16")),
             dmc.Center(dmc.Text("PPD = 0.06")),
