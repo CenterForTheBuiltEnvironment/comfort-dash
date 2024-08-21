@@ -112,31 +112,37 @@ def my_navbar():
                                                 )
                                             ),
                                             dbc.NavItem(
+
                                                 dbc.NavLink(
                                                     TextNavBar.documentation.value,
                                                     href="https://github.com/CenterForTheBuiltEnvironment/comfort-dash",
                                                     style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
                                                     id=ElementsIDs.NAVBAR_ID_DOCUMENT.value,
-                                                )
+
+                                                ),
+
                                             ),
                                             dbc.DropdownMenu(
                                                 [
                                                     dbc.DropdownMenuItem(
                                                         item["name"],
                                                         href=item["href"],
-                                                        style={"padding": "0 10px", "margin": "0", "color": "#0078c2"}
+                                                        style={"padding": "0 10px", "margin": "0"},
+
                                                     )
                                                     for item in tool_items
                                                 ],
                                                 label=TextNavBar.tools.value,
+                                                align_end=True,
                                                 # className="m-1",
                                                 toggle_style={
                                                     "background": "white",
                                                     "color": "#0078c2",
                                                     "borderColor": "rgba(255,255,255,0.2)",
-                                                    "marginTop": "-8px"
+                                                    "marginTop": "-8px",
+
                                                 },
-                                                style={"marginLeft": "-50px"},
+                                                # style={"marginLeft": "-5000px"},
                                                 id=ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value,
                                             )
                                         ],
