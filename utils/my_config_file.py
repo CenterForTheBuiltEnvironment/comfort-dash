@@ -22,6 +22,8 @@ class ElementsIDs(Enum):
     CHART_CONTAINER = "chart-container"
     URL = "url"
     FOOTER = "id-footer"
+    NAVBAR_ID_DOCUMENT = "id-nav-documentation"
+    NAVBAR_ID_MORE_CBE_TOOLS = "id-nav-more-cbe-tools"
 
 
 class Config(Enum):
@@ -32,6 +34,8 @@ class Config(Enum):
 class URLS(Enum):
     HOME: str = "/"
     ABOUT: str = "/about"
+    Documentation: str= "/documentation"
+    Tools: str= "/moreCBETools"
 
 
 class Stores(Enum):

@@ -1,5 +1,12 @@
 # Meeting Notes
 
+## Meeting ##, 22-08-2024
+Attendees: XX, YY, ZZ
+
+Agenda:
+- Working on branches, pull requests and merging
+
+
 ## Meeting ##, DD-MM-YYYY
 Attendees: XX, YY, ZZ
 
