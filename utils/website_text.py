@@ -19,6 +19,8 @@ class TextNavBar(Enum):
     settings: str = "Settings"
     about: str = "About"
     devices: str = "Devices"
+    documentation: str = "Documentation"
+    tools: str = "More CBE Tools"
 
 
 class TextHome(Enum):
