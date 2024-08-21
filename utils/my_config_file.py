@@ -34,7 +34,10 @@ class Config(Enum):
 class URLS(Enum):
     HOME: str = "/"
     ABOUT: str = "/about"
-    Documentation: str= "/documentation"
+    Documentation: str= "/https://github.com/CenterForTheBuiltEnvironment/comfort-dash"
+    Tools1: str = "https://cbe.berkeley.edu/research/cbe-thermal-comfort-tool/"
+    Tools2: str = "https://cbe.berkeley.edu/research/clima-tool/"
+    Tools3: str = "https://cbe.berkeley.edu/research/advanced-ceiling-fan-design-tool/"
     Tools: str= "/moreCBETools"
 
 

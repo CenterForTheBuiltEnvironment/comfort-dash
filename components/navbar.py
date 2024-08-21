@@ -9,6 +9,162 @@ from utils.website_text import TextNavBar, app_name
 
 
 
+# def my_navbar():
+#     return html.Div(
+#         dbc.Navbar(
+#             html.Div(
+#                 dmc.Grid(
+#                     [
+#                         # Logo Column
+#                         dmc.GridCol(
+#                             [
+#                                 html.A(
+#                                     dbc.Row(
+#                                         [
+#                                             dbc.Col(
+#                                                 html.Img(
+#                                                     src="/assets/media/CBE-logo-2018.png",
+#                                                     height="100px",
+#                                                     width="auto",
+#                                                     alt="logo website navbar",
+#                                                 ),
+#                                                 width="auto",
+#                                             ),
+#                                         ],
+#                                         align="center",
+#                                         className="g-0",
+#                                     ),
+#                                     href=URLS.HOME.value,
+#                                     style={"textDecoration": "none"},
+#                                 ),
+#                             ],
+#                             span="auto",  # Logo takes up 2 spans
+#                             className="d-flex justify-content-start",  # Align the logo to the left
+#                         ),
+#
+#                         # Center H1 Column
+#                         dmc.GridCol(
+#                             [
+#                                 html.H1(
+#                                     app_name,
+#                                     style={
+#                                         "textAlign": "center",
+#                                         "color": "#0b2672",
+#                                         "margin": "0",
+#                                         "width": "100%",
+#                                         "fontWeight": "bold",
+#                                         # "lineHeight": "180px",
+#                                         "paddingBottom": "1px",
+#                                     },
+#                                 )
+#                             ],
+#                             span="auto",
+#                             className="d-flex justify-content-center align-items-center",
+#                         ),
+#                         dmc.GridCol(
+#                             [
+#                                 dbc.NavbarToggler(
+#                                     dmc.Burger(
+#                                         id=ElementsIDs.NAVBAR_BURGER_BUTTON.value,
+#                                         opened=False,
+#                                         color="black",
+#                                     ),
+#                                     id=ElementsIDs.NAVBAR_TOGGLER.value,
+#                                     n_clicks=0,
+#                                 )
+#                             ],
+#                             span="content",
+#                             className="py-0",
+#                         ),
+#                         # Navigation Links Column
+#                         dmc.GridCol(
+#                             [
+#                                 dbc.Collapse(
+#                                     dbc.Nav(
+#                                         children=[
+#                                             # dbc.NavItem(
+#                                             #     dbc.NavLink(
+#                                             #         TextNavBar.home.value,
+#                                             #         href=URLS.HOME.value,
+#                                             #         style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
+#                                             #         id=ElementsIDs.NAVBAR_ID_HOME.value,
+#                                             #     ),
+#                                             # ),
+#                                             dbc.NavItem(
+#                                                 dbc.NavLink(
+#                                                     TextNavBar.about.value,
+#                                                     href=URLS.ABOUT.value,
+#                                                     style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
+#                                                     id=ElementsIDs.NAVBAR_ID_ABOUT.value,
+#                                                 )
+#                                             ),
+#                                             dbc.NavItem(
+#                                                 dbc.NavLink(
+#                                                     TextNavBar.documentation.value,
+#                                                     href="https://github.com/CenterForTheBuiltEnvironment/comfort-dash",
+#                                                     style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
+#                                                     id=ElementsIDs.NAVBAR_ID_DOCUMENT.value,
+#                                                 )
+#                                             ),
+#                                             # dbc.NavItem(
+#                                             #     dbc.NavLink(
+#                                             #         TextNavBar.tools.value,
+#                                             #         href=URLS.Tools.value,
+#                                             #         style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
+#                                             #         id=ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value,
+#                                             #     )
+#                                             # ),
+#                                             dbc.DropdownMenu(
+#                                                 label=TextNavBar.tools.value,
+#                                                 children=[
+#                                                     dbc.DropdownMenuItem(
+#                                                         "Tool 1", href="https://cbe.berkeley.edu/research/cbe-thermal-comfort-tool/",
+#                                                         style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
+#                                                     ),
+#                                                     dbc.DropdownMenuItem(
+#                                                         "Tool 2", href="https://cbe.berkeley.edu/research/clima-tool/",
+#                                                         style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
+#                                                     ),
+#                                                     dbc.DropdownMenuItem(
+#                                                         "Tool 3", href="https://cbe.berkeley.edu/research/advanced-ceiling-fan-design-tool/",
+#                                                         style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
+#                                                     ),
+#                                                 ],
+#                                                 nav=True,
+#                                                 in_navbar=True,
+#                                                 # style={"padding": "0 10px", "margin": "0", "color": "#black", "backgroundColor": "#f8f9fa"},
+#                                                 style={"backgroundColor": "#f8f9fa", "color": "#0078c2"},
+#                                                 className="bg-light text-primary",
+#
+#                                                 id=ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value,
+#                                             ),
+#                                         ],
+#                                         # Make the text stick on right
+#                                         style={"width": "100%", "justify-content": "flex-end"},
+#                                     ),
+#                                     id=ElementsIDs.NAVBAR_COLLAPSE.value,
+#                                     is_open=False,
+#                                     navbar=True,
+#                                 ),
+#                             ],
+#                             span="auto",
+#                             className="py-0",
+#                             # style={"whiteSpace": "nowrap", "paddingRight": "0", "marginRight": "0"},
+#                         )
+#                     ],
+#                     justify="space-between",
+#                     align="center",
+#                     className="w-100",  # Ensure full width
+#                 ),
+#                 style={"flex": 1},
+#                 className="d-flex justify-content-between align-items-center w-100",  # Flexbox layout for full width
+#             ),
+#             color="white",
+#             dark=True,
+#         ),
+#         id=ElementsIDs.NAVBAR.value,
+#     )
+
 def my_navbar():
     return html.Div(
         dbc.Navbar(
@@ -53,7 +209,6 @@ def my_navbar():
                                         "margin": "0",
                                         "width": "100%",
                                         "fontWeight": "bold",
-                                        # "lineHeight": "180px",
                                         "paddingBottom": "1px",
                                     },
                                 )
@@ -82,14 +237,6 @@ def my_navbar():
                                 dbc.Collapse(
                                     dbc.Nav(
                                         children=[
-                                            # dbc.NavItem(
-                                            #     dbc.NavLink(
-                                            #         TextNavBar.home.value,
-                                            #         href=URLS.HOME.value,
-                                            #         style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
-                                            #         id=ElementsIDs.NAVBAR_ID_HOME.value,
-                                            #     ),
-                                            # ),
                                             dbc.NavItem(
                                                 dbc.NavLink(
                                                     TextNavBar.about.value,
@@ -101,21 +248,49 @@ def my_navbar():
                                             dbc.NavItem(
                                                 dbc.NavLink(
                                                     TextNavBar.documentation.value,
-                                                    href=URLS.Documentation.value,
+                                                    href="https://cbe-berkeley.gitbook.io/thermal-comfort-tool/help/help",
                                                     style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
                                                     id=ElementsIDs.NAVBAR_ID_DOCUMENT.value,
                                                 )
                                             ),
-                                            dbc.NavItem(
-                                                dbc.NavLink(
-                                                    TextNavBar.tools.value,
-                                                    href=URLS.Tools.value,
-                                                    style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
-                                                    id=ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value,
-                                                )
-                                            ),
+                                            # Dropdown Menu for More CBE Tools
+                                            # dbc.DropdownMenu(
+                                            #     style={"color": "black"},
+                                            #     label=TextNavBar.tools.value,
+                                            #     children=[
+                                            #         dbc.DropdownMenuItem(
+                                            #             "Tool 1", href=URLS.Tools1.value,
+                                            #             style={"color": "#0078c2"},
+                                            #
+                                            #         ),
+                                            #         dbc.DropdownMenuItem(
+                                            #             "Tool 2", href=URLS.Tools2.value,
+                                            #             style={"color": "#0078c2"},
+                                            #         ),
+                                            #         dbc.DropdownMenuItem(
+                                            #             "Tool 3", href=URLS.Tools3.value,
+                                            #             style={"color": "#0078c2"},
+                                            #         ),
+                                            #     ],
+                                            #     # nav=True,
+                                            #     # in_navbar=True,
+
+                                            #
+                                            #     # className="text-primary",
+                                            #     id=ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value,
+                                            # ),
+
+
+
+                                            dbc.DropdownMenu(
+                                                label="Menu",
+                                                children=[
+                                                    dbc.DropdownMenuItem("Item 1"),
+                                                    dbc.DropdownMenuItem("Item 2"),
+                                                    dbc.DropdownMenuItem("Item 3"),
+                                                ],
+                                            )
                                         ],
-                                        # Make the text stick on right
                                         style={"width": "100%", "justify-content": "flex-end"},
                                     ),
                                     id=ElementsIDs.NAVBAR_COLLAPSE.value,
@@ -125,7 +300,6 @@ def my_navbar():
                             ],
                             span="auto",
                             className="py-0",
-                            # style={"whiteSpace": "nowrap", "paddingRight": "0", "marginRight": "0"},
                         )
                     ],
                     justify="space-between",
@@ -140,7 +314,6 @@ def my_navbar():
         ),
         id=ElementsIDs.NAVBAR.value,
     )
-
 
 def my_navbar_only_logo():
     return html.Div(
@@ -158,9 +331,9 @@ def my_navbar_only_logo():
                 style={
                     "display": "flex",
                     "alignItems": "center",
-                    "justifyContent": "flex-start",  # 将内容对齐到左侧
-                    "padding": "0",  # 去除内边距
-                    "margin": "0",  # 去除外边距
+                    "justifyContent": "flex-start",
+                    "padding": "0",
+                    "margin": "0",
                 },
                 className="p-1",
                 size=Dimensions.default_container_width.value,
