@@ -158,9 +158,9 @@ def my_navbar_only_logo():
                 style={
                     "display": "flex",
                     "alignItems": "center",
-                    "justifyContent": "flex-start",  # 将内容对齐到左侧
-                    "padding": "0",  # 去除内边距
-                    "margin": "0",  # 去除外边距
+                    "justifyContent": "flex-start",
+                    "padding": "0",
+                    "margin": "0",
                 },
                 className="p-1",
                 size=Dimensions.default_container_width.value,
