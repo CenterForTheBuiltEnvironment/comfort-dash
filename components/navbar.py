@@ -66,7 +66,6 @@ def my_navbar():
                                         "margin": "0",
                                         "width": "100%",
                                         "fontWeight": "bold",
-                                        # "lineHeight": "180px",
                                         "paddingBottom": "1px",
                                     },
                                 )
@@ -95,14 +94,6 @@ def my_navbar():
                                 dbc.Collapse(
                                     dbc.Nav(
                                         children=[
-                                            # dbc.NavItem(
-                                            #     dbc.NavLink(
-                                            #         TextNavBar.home.value,
-                                            #         href=URLS.HOME.value,
-                                            #         style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
-                                            #         id=ElementsIDs.NAVBAR_ID_HOME.value,
-                                            #     ),
-                                            # ),
                                             dbc.NavItem(
                                                 dbc.NavLink(
                                                     TextNavBar.about.value,
@@ -134,7 +125,6 @@ def my_navbar():
                                                 ],
                                                 label=TextNavBar.tools.value,
                                                 align_end=True,
-                                                # className="m-1",
                                                 toggle_style={
                                                     "background": "white",
                                                     "color": "#0078c2",
@@ -156,7 +146,6 @@ def my_navbar():
                             ],
                             span="auto",
                             className="py-0",
-                            # style={"whiteSpace": "nowrap", "paddingRight": "0", "marginRight": "0"},
                         )
                     ],
                     justify="space-between",
@@ -184,7 +173,6 @@ def my_navbar_only_logo():
                         alt="logo website navbar",
                     ),
                 ),
-                # style={"flex": 1},
                 style={
                     "display": "flex",
                     "alignItems": "center",
@@ -212,22 +200,12 @@ def my_navbar_only_logo():
     ],
     [
         Input(ElementsIDs.NAVBAR_TOGGLER.value, "n_clicks"),
-        # Input(ElementsIDs.NAVBAR_ID_HOME.value, "n_clicks"),
         Input(ElementsIDs.NAVBAR_ID_ABOUT.value, "n_clicks"),
         Input(ElementsIDs.NAVBAR_ID_DOCUMENT.value, "n_clicks"),
-        # Input(ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value, "n_clicks"),
-        # Input(ElementsIDs.NAVBAR_ID_SETTINGS.value, "n_clicks"),
-        # Input(ElementsIDs.NAVBAR_ID_ABOUT.value, "n_clicks"),
     ],
     prevent_initial_call=True,
 )
-# def toggle_navbar_collapse(is_open, burger_state, *args):
-#     trigger = ctx.triggered_id
-#     if trigger == ElementsIDs.NAVBAR_TOGGLER.value:
-#         return not is_open, burger_state
-#     elif is_open:
-#         return False, not burger_state
-#     return is_open, burger_state
+
 
 def toggle_navbar_collapse(is_open, burger_state, *args):
     trigger = ctx.triggered_id
