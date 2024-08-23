@@ -3,6 +3,7 @@ from utils.my_config_file import (
     ModelInputsInfo,
     ModelInputsPmvAshrae55,
     ModelInputsAdaptiveEN16798,
+    MODELS
 )
 import dash_mantine_components as dmc
 from components.dropdowns import Ash55_air_speed_selection

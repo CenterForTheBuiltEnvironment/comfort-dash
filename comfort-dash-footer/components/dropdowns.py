@@ -7,9 +7,9 @@ from utils.website_text import TextHome
 dd_model = {
     "id": ElementsIDs.MODEL_SELECTION.value,
     "question": TextHome.model_selection.value,
-    "options": [MODELS.PMV.value, MODELS.Adaptive.value, MODELS.EN.value],
+    "options": [MODELS.PMV_ashrae.value, MODELS.Adaptive_ashrae.value, MODELS.Adaptive_EN.value],
     "multi": False,
-    "default": MODELS.PMV.value,
+    "default": MODELS.PMV_ashrae.value,
 }
 
 
@@ -46,14 +46,17 @@ en_chart = {
 
 
 def chart_selection(selected_model):
-    if selected_model == "PMV - ASHRAE 55":
-        return generate_dropdown_inline(ashare_chart, clearable=False)
-    elif selected_model == "Adaptive - ASHRAE 55":
-        return generate_dropdown_inline(ashare_chart, clearable=False)
-    elif selected_model == "Adaptive - EN 16798":
-        return generate_dropdown_inline(en_chart, clearable=False)
-    else:
-        return generate_dropdown_inline(ashare_chart, clearable=False)
+
+    chart_inputs = ashare_chart
+    
+    if selected_model == MODELS.PMV_ashrae.value:
+        chart_inputs = ashare_chart
+    elif selected_model == MODELS.Adaptive_ashrae:
+        chart_inputs = ashare_chart
+    elif selected_model == MODELS.Adaptive_EN:
+        chart_inputs = en_chart
+    
+    return generate_dropdown_inline(chart_inputs, clearable=False)
 
 
 ashare_air_speed = {
