@@ -1,13 +1,13 @@
 from scipy._lib.cobyqa.models import Models
 
 from components.drop_down_inline import generate_dropdown_inline
-from utils.my_config_file import ElementsIDs, MODELS, CHARTS, SPEEDS
+from utils.my_config_file import ElementsIDs, MODELS, CHARTS, AdaptiveAshraeSpeeds,AdaptiveENSpeeds
 from utils.website_text import TextHome
 
 dd_model = {
     "id": ElementsIDs.MODEL_SELECTION.value,
     "question": TextHome.model_selection.value,
-    "options": [MODELS.PMV_ashrae.value, MODELS.Adaptive_ashrae.value, MODELS.Adaptive_EN.value],
+    "options": [MODELS.PMV_ashrae.value, MODELS.Adaptive_ashrae.value, MODELS.PMV_EN.value, MODELS.Adaptive_EN.value],
     "multi": False,
     "default": MODELS.PMV_ashrae.value,
 }
@@ -32,7 +32,7 @@ ashare_chart = {
     "default": CHARTS.Psychrometric_operative.value,
 }
 
-en_chart = {
+pmv_en_chart = {
     "id": ElementsIDs.CHART_SELECTION.value,
     "question": TextHome.chart_selection.value,
     "options": [
@@ -46,27 +46,40 @@ en_chart = {
 
 
 def chart_selection(selected_model):
-
     chart_inputs = ashare_chart
 
     if selected_model == "PMV - ASHRAE 55":
         chart_inputs = ashare_chart
     elif selected_model == "Adaptive - ASHRAE 55":
-        chart_inputs = ashare_chart
+        return 
     elif selected_model == "Adaptive - EN 16798":
-        chart_inputs = en_chart
+        return
+    elif selected_model == "PMV - EN 16798":
+        chart_inputs = pmv_en_chart
     
     return generate_dropdown_inline(chart_inputs, clearable=False)
 
 
-ashare_air_speed = {
+adaptive_ashare_air_speed = {
     "id": ElementsIDs.SPEED_SELECTION.value,
     "question": TextHome.speed_selection.value,
-    "options": [SPEEDS.s_1.value, SPEEDS.s_2.value, SPEEDS.S_3.value, SPEEDS.s_4.value],
+    "options": [AdaptiveAshraeSpeeds.s_1.value, AdaptiveAshraeSpeeds.s_2.value, AdaptiveAshraeSpeeds.S_3.value, AdaptiveAshraeSpeeds.s_4.value],
     "multi": False,
-    "default": SPEEDS.s_1.value,
+    "default": AdaptiveAshraeSpeeds.s_1.value,
+}
+
+adaptive_en_air_speed = {
+    "id": ElementsIDs.SPEED_SELECTION.value,
+    "question": TextHome.speed_selection.value,
+    "options": [AdaptiveENSpeeds.s_1.value, AdaptiveENSpeeds.s_2.value, AdaptiveENSpeeds.S_3.value, AdaptiveENSpeeds.s_4.value],
+    "multi": False,
+    "default": AdaptiveENSpeeds.s_2.value,
 }
 
 
+
 def Ash55_air_speed_selection():
-    return generate_dropdown_inline(ashare_air_speed, clearable=False)
+    return generate_dropdown_inline(adaptive_ashare_air_speed, clearable=False)
+
+def En16798_air_speed_selection():
+    return generate_dropdown_inline(adaptive_en_air_speed, clearable=False)
