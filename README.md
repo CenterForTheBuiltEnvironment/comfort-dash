@@ -215,7 +215,7 @@ Project Link: [CenterForTheBuiltEnvironment/comfort-dash](https://github.com/Cen
 |  A       |  **Front-End**        | Ruixin Wu, Jiaming Zheng, Xuhui Wang, Zhou Tong  |  Front-End design and Dash implementation            |
 |  A       |  **Visuals**          | Jiadong Zhang, Yan Zhang                         |  Develop plots for main UI                           |
 |  B       |  **Data Management**  | Shiyi Shen, Haozhen Li                           |  Manage use of data within app                       |
-|  B       |  **Back-End**         | Yinyan Liu, Junan Lu, Jiniig Bai, Chao Jiang     |  Develop app back-end                                |
+|  B       |  **Back-End**         | Yinyan Liu, Junan Lu, Jinjia Bai, Chao Jiang     |  Develop app back-end                                |
 |  -       |  **Testing**          | Haozhen Li                                       |  Writing tests for the app                           |
 
 
