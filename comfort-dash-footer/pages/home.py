@@ -44,7 +44,7 @@ layout = dmc.Stack(
                     title="Results and Visualization",
                     children=dmc.Stack(
                         [
-                            html.Div(id="chart-select",children=chart_selection('')),
+                            html.Div(id="chart-select", children=chart_selection("")),
                             dmc.SimpleGrid(
                                 cols=3,
                                 spacing="md",
