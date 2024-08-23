@@ -20,6 +20,7 @@ from dash.dependencies import Input, Output
 from components.dropdowns import dd_model
 from components.input_environmental_personal import input_environmental_personal
 from components.dropdowns import chart_selection
+from utils.my_config_file import MODELS
 
 install()
 # from components.dropdowns import Ash55_air_speed_selection
@@ -194,7 +195,7 @@ def update_graph_content(selected_model):
             dmc.Center(dmc.Text("PPD = 0.06")),
             dmc.Center(dmc.Text("Category = |")),
         ]
-    elif selected_model == "PMV - ASHRAE 55":
+    elif selected_model == "Adaptive - ASHRAE 55":
         grid_content = [
             dmc.Center(dmc.Text("PMV = 0.6")),
             dmc.Center(dmc.Text("PPD = 3")),
@@ -202,16 +203,13 @@ def update_graph_content(selected_model):
             dmc.Center(dmc.Text("Result 6")),
             dmc.Center(dmc.Text("Result 7")),
         ]
-    elif selected_model == "Adaptive - ASHRAE 55":
+    elif selected_model == "PMV - ASHRAE 55":
         grid_content = [
             dmc.Center(dmc.Text("PMV = 0.6")),
             dmc.Center(dmc.Text("PPD = 3")),
             dmc.Center(dmc.Text("SET = 29.9")),
         ]
-    else:
-        # unknown model selection
-        grid_content = [dmc.Center(dmc.Text("Unknown model selection"))]
-
+        
     return grid_content
 
 
