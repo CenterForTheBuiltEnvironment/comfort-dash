@@ -80,6 +80,7 @@ class Stores(Enum):
 
 class MODELS(Enum):
     PMV_ashrae: str = "PMV - ASHRAE 55"
+    PMV_EN: str = "PMV - EN 16798"
     Adaptive_ashrae: str = "Adaptive - ASHRAE 55"
     Adaptive_EN: str = "Adaptive - EN 16798"
 
@@ -93,6 +94,27 @@ class CHARTS(Enum):
     Thermal_heat: str = "Thermal heat losses vs. air temperature"
     Set_outputs: str = "SET outputs chart"
 
+class AdaptiveEN(Enum):
+    class_I: str = "Class I acceptability limits = Operative temperature: 24.1 to 29.1 °C"
+    class_II: str = "Class II acceptability limits = Operative temperature: 23.1 to 30.1 °C"
+    class_III: str = "Class III acceptability limits = Operative temperature: 22.1 to 31.1 °C"
+    adaptive_chart: str = "Adaptive chart"
+
+class AdaptiveAshrae(Enum):
+    acceptability_limits_80: str = "80% acceptability limits = Operative temperature: 22.1 to 29.1 °C"
+    acceptability_limits_90: str = "90% acceptability limits = Operative temperature: 23.1 to 28.1 °C"
+    adaptive_chart: str = "Adaptive chart"
+
+class PmvAshraeResultCard(Enum):
+    pmv: str = "PMV = -0.16"
+    ppd: str = "PPD = 6 %"
+    sensation: str = "Sensation = Neutral"
+    set: str = "SET = 24.8 °C"
+
+class PmvENResultCard(Enum):
+    pmv: str = "PMV = -0.16"
+    ppd: str = "PPD = 6 %"
+    set: str = "SET = |"
 
 class ModelInputsInfo(BaseModel):
     name: str
@@ -103,12 +125,17 @@ class ModelInputsInfo(BaseModel):
     value: float
 
 
-class SPEEDS(Enum):
+class AdaptiveAshraeSpeeds(Enum):
     s_1: str = "0.3 m/s (59fpm)"
     s_2: str = "0.6 m/s (118fpm)"
     S_3: str = "0.9 m/s (177fpm)"
     s_4: str = "1.2 m/s (236fpm)"
 
+class AdaptiveENSpeeds(Enum):
+    s_1: str = "lower than 0.6 m/s (118fpm)"
+    s_2: str = "0.6 m/s (118fpm)"
+    S_3: str = "0.9 m/s (177fpm)"
+    s_4: str = "1.2 m/s (236fpm)" 
 
 class ModelInputsPmvAshrae55(BaseModel):
     TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
@@ -134,12 +161,9 @@ class ModelInputsPmvAshrae55(BaseModel):
     CLOTHING: ModelInputsInfo = ModelInputsInfo(
         unit="clo", min=0.5, max=2.0, step=0.1, value=0.5, name="Clothing"
     )
-    # ACTIVITY: ModelInputsInfo = ModelInputsInfo(
-    #     unit="met", min=0.0, max=10.0, step=0.1, value=1.0, name="Activity"
-    # )
 
 
-class ModelInputsAdaptiveEN16798(BaseModel):
+class ModelInputsPmvEN16798(BaseModel):
     AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
         unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Air Temperature"
     )
@@ -167,6 +191,27 @@ class ModelInputsAdaptiveEN16798(BaseModel):
         step=0.1,
         value=0.61,
         name="Dynamic Clothing insulation",
+    )
+
+class ModelInputsAdaptiveEN16798(BaseModel):
+    AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
+        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Air Temperature"
+    )
+    MRT: ModelInputsInfo = ModelInputsInfo(
+        unit="°C",
+        min=10.0,
+        max=40.0,
+        step=0.1,
+        value=25.0,
+        name="Mean Radiant Temperature",
+    )
+    RUNNING_MEAN_OUTDOOR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
+        unit="°C",
+        min=10.0,
+        max=40.0,
+        step=0.1,
+        value=25.0,
+        name="Running Mean Outdoor Temperature"
     )
 
 
