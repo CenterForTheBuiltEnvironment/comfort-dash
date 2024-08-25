@@ -38,7 +38,7 @@ layout = dmc.Stack(
                     title="",
                     children=input_environmental_personal(""),
                     id="input_card",
-                    span={"base": 12, "sm": 3},
+                    span={"base": 12, "sm": 5},
                 ),
                 my_card(
                     title="Results and Visualization",
@@ -72,7 +72,7 @@ layout = dmc.Stack(
                             ),
                         ],
                     ),
-                    span={"base": 12, "sm": 9},
+                    span={"base": 12, "sm": 7},
                 ),
             ],
             gutter="xl",
