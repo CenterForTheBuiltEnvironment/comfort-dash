@@ -59,13 +59,13 @@ pmv_en_chart = {
 def chart_selection(selected_model):
     chart_inputs = ashare_chart
 
-    if selected_model == "PMV - ASHRAE 55":
+    if selected_model == MODELS.PMV_ashrae.value:
         chart_inputs = ashare_chart
-    elif selected_model == "Adaptive - ASHRAE 55":
+    elif selected_model == MODELS.Adaptive_ashrae.value:
         return
-    elif selected_model == "Adaptive - EN 16798":
+    elif selected_model == MODELS.Adaptive_EN.value:
         return
-    elif selected_model == "PMV - EN 16798":
+    elif selected_model == MODELS.PMV_EN.value:
         chart_inputs = pmv_en_chart
 
     return generate_dropdown_inline(chart_inputs, clearable=False)

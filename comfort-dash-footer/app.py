@@ -198,11 +198,11 @@ def capture_selected_model(selected_model):
 
 def change_cols(selected_model):
     if (
-        selected_model == "Adaptive - EN 16798"
-        or selected_model == "Adaptive - ASHRAE 55"
+        selected_model == MODELS.Adaptive_EN.value
+        or selected_model == MODELS.Adaptive_ashrae.value
     ):
         cols = 1
-    elif selected_model == "PMV - ASHRAE 55" or selected_model == "PMV - EN 16798":
+    elif selected_model == MODELS.PMV_ashrae.value or selected_model == MODELS.PMV_EN.value:
         cols = 3
     return cols
 
