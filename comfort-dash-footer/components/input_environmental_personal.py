@@ -14,16 +14,16 @@ def input_environmental_personal(selected_model):
     inputs = []
 
     model_inputs = ModelInputsPmvAshrae55()
-    if selected_model == "Adaptive - EN 16798":
+    if selected_model == MODELS.Adaptive_EN.value:
 
         model_inputs = ModelInputsAdaptiveEN16798()
-    elif selected_model == "PMV - ASHRAE 55":
+    elif selected_model == MODELS.PMV_ashrae.value:
         model_inputs = ModelInputsPmvAshrae55()
 
-    elif selected_model == "Adaptive - ASHRAE 55":
+    elif selected_model == MODELS.Adaptive_ashrae.value:
         model_inputs = ModelInputsAdaptiveAshrae55()
 
-    elif selected_model == "PMV - EN 16798":
+    elif selected_model == MODELS.PMV_EN.value:
         model_inputs = ModelInputsPmvEN16798()
 
     for var_name, values in dict(model_inputs).items():
@@ -37,10 +37,10 @@ def input_environmental_personal(selected_model):
         )
         inputs.append(input_filed)
 
-    if selected_model == "Adaptive - ASHRAE 55":
+    if selected_model == MODELS.Adaptive_ashrae.value:
         inputs.append(Ash55_air_speed_selection())
 
-    if selected_model == "Adaptive - EN 16798":
+    if selected_model == MODELS.Adaptive_EN.value:
         inputs.append(En16798_air_speed_selection())
 
     return dmc.Paper(

@@ -209,27 +209,27 @@ def change_cols(selected_model):
 
 def update_graph_content(selected_model):
 
-    if selected_model == "Adaptive - EN 16798":
+    if selected_model == MODELS.Adaptive_EN.value:
         grid_content = [
             dmc.Center(dmc.Text(AdaptiveEN.class_III.value)),
             dmc.Center(dmc.Text(AdaptiveEN.class_II.value)),
             dmc.Center(dmc.Text(AdaptiveEN.class_I.value)),
             dmc.Center(dmc.Text(AdaptiveEN.adaptive_chart.value)),
         ]
-    elif selected_model == "Adaptive - ASHRAE 55":
+    elif selected_model == MODELS.Adaptive_ashrae.value:
         grid_content = [
             dmc.Center(dmc.Text(AdaptiveAshrae.acceptability_limits_80.value)),
             dmc.Center(dmc.Text(AdaptiveAshrae.acceptability_limits_90.value)),
             dmc.Center(dmc.Text(AdaptiveAshrae.adaptive_chart.value)),
         ]
-    elif selected_model == "PMV - ASHRAE 55":
+    elif selected_model == MODELS.PMV_ashrae.value:
         grid_content = [
             dmc.Center(dmc.Text(PmvAshraeResultCard.pmv.value)),
             dmc.Center(dmc.Text(PmvAshraeResultCard.ppd.value)),
             dmc.Center(dmc.Text(PmvAshraeResultCard.sensation.value)),
             dmc.Center(dmc.Text(PmvAshraeResultCard.set.value)),
         ]
-    elif selected_model == "PMV - EN 16798":
+    elif selected_model == MODELS.PMV_EN.value:
         grid_content = [
             dmc.Center(dmc.Text(PmvENResultCard.pmv.value)),
             dmc.Center(dmc.Text(PmvENResultCard.ppd.value)),
