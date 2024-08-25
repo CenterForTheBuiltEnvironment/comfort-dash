@@ -7,4 +7,6 @@ def chart_example():
     df = df[df.country.isin(countries)]
 
     fig = px.area(df, x="year", y="pop", color="continent", line_group="country")
+
+    
     return fig

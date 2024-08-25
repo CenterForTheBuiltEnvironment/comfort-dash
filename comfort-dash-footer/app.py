@@ -237,16 +237,14 @@ def update_graph_content(selected_model):
         ]
     return grid_content
 
-# def generate_buttons(selected_model):
+    # def generate_buttons(selected_model):
     return generate_dropdown_inline()
-
-
 
 
 if __name__ == "__main__":
     app.run_server(
         debug=Config.DEBUG.value,
-        host="0.0.0.0",
+        host="127.0.0.1",
         port=os.environ.get("PORT_APP", 9090),
         processes=1,
         threaded=True,

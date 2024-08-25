@@ -7,7 +7,13 @@ from utils.my_config_file import (
     MODELS,
 )
 import dash_mantine_components as dmc
-from components.dropdowns import Ash55_air_speed_selection, En16798_air_speed_selection
+from components.dropdowns import (
+    Ash55_air_speed_selection, 
+    En16798_air_speed_selection, 
+    En16798_relative_humidity_selection,
+    En16798_relative_metabolic_selection,
+    En16798_relative_clothing_selection,
+)
 
 
 def input_environmental_personal(selected_model):
@@ -43,9 +49,53 @@ def input_environmental_personal(selected_model):
     if selected_model == MODELS.Adaptive_EN.value:
         inputs.append(En16798_air_speed_selection())
 
+
+    #input right
+    inputs_right = []
+    
+    model_inputs = ModelInputsPmvAshrae55()
+    if selected_model == MODELS.PMV_EN.value:
+        model_inputs = ModelInputsAdaptiveEN16798()
+        inputs_right.append(dmc.Space(h=323))
+        inputs_right.append(En16798_relative_humidity_selection())
+        inputs_right.append(dmc.Space(h=26))
+        inputs_right.append(En16798_relative_metabolic_selection())
+        inputs_right.append(dmc.Space(h=45))
+        inputs_right.append(En16798_relative_clothing_selection())
+
+    # elif selected_model == MODELS.PMV_ashrae.value:
+    #     model_inputs = ModelInputsPmvAshrae55()
+
+    # elif selected_model == MODELS.Adaptive_ashrae.value:
+    #     model_inputs = ModelInputsAdaptiveAshrae55()
+
+    # elif selected_model == MODELS.PMV_EN.value:
+    #     model_inputs = ModelInputsPmvEN16798()
+
+    # if selected_model == MODELS.Adaptive_ashrae.value:
+    #     inputs_right.append(Ash55_air_speed_selection())
+
+    # if selected_model == MODELS.Adaptive_EN.value:
+    #     inputs_right.append(En16798_air_speed_selection())
+
+
     return dmc.Paper(
-        # children=[dmc.Text("Inputs", mb="xs", fw=700), dmc.GridCol(dmc.Stack(inputs, gap="xs"),span={"base":12,"sm":7}),generate_buttons()],
-        children=[dmc.Text("Inputs", mb="xs", fw=700), dmc.GridCol(dmc.Stack(inputs, gap="xs"),span={"base":12,"sm":7})],
+        children=[
+        dmc.Text("Inputs", mb="xs", fw=700),
+        dmc.Grid(
+            children=[
+                dmc.GridCol(
+                    dmc.Stack(inputs,gap="xs"),  
+                    span={"base": 12, "sm": 5}
+                ),
+                dmc.GridCol(
+                    dmc.Stack(inputs_right,gap="xs"),
+                    span={"base": 12, "sm": 7}
+                ),
+            ],
+            gutter="xs",  
+        ),
+    ],
         shadow="md",
         p="md",
     )
