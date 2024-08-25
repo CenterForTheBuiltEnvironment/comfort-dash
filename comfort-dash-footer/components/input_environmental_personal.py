@@ -4,10 +4,10 @@ from utils.my_config_file import (
     ModelInputsPmvAshrae55,
     ModelInputsAdaptiveEN16798,
     ModelInputsPmvEN16798,
-    MODELS
+    MODELS,
 )
 import dash_mantine_components as dmc
-from components.dropdowns import Ash55_air_speed_selection,En16798_air_speed_selection
+from components.dropdowns import Ash55_air_speed_selection, En16798_air_speed_selection
 
 
 def input_environmental_personal(selected_model):
@@ -25,7 +25,7 @@ def input_environmental_personal(selected_model):
 
     elif selected_model == "PMV - EN 16798":
         model_inputs = ModelInputsPmvEN16798()
-        
+
     for var_name, values in dict(model_inputs).items():
         input_filed = dmc.NumberInput(
             label=values.name,
@@ -44,7 +44,8 @@ def input_environmental_personal(selected_model):
         inputs.append(En16798_air_speed_selection())
 
     return dmc.Paper(
-        children=[dmc.Text("Inputs", mb="xs", fw=700), dmc.Stack(inputs, gap="xs")],
+        # children=[dmc.Text("Inputs", mb="xs", fw=700), dmc.GridCol(dmc.Stack(inputs, gap="xs"),span={"base":12,"sm":7}),generate_buttons()],
+        children=[dmc.Text("Inputs", mb="xs", fw=700), dmc.GridCol(dmc.Stack(inputs, gap="xs"),span={"base":12,"sm":7})],
         shadow="md",
         p="md",
     )

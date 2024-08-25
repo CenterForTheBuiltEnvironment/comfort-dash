@@ -20,7 +20,13 @@ from dash.dependencies import Input, Output
 from components.dropdowns import dd_model
 from components.input_environmental_personal import input_environmental_personal
 from components.dropdowns import chart_selection
-from utils.my_config_file import MODELS,AdaptiveEN,AdaptiveAshrae,PmvAshraeResultCard,PmvENResultCard
+from utils.my_config_file import (
+    MODELS,
+    AdaptiveEN,
+    AdaptiveAshrae,
+    PmvAshraeResultCard,
+    PmvENResultCard,
+)
 
 install()
 # from components.dropdowns import Ash55_air_speed_selection
@@ -177,7 +183,7 @@ app.layout = dmc.MantineProvider(
     Output("input_card", "children"),
     Output("graph-container", "children"),
     Output("chart-select", "children"),
-    Output("graph-container","cols"),
+    Output("graph-container", "cols"),
     Input(dd_model["id"], "value"),
 )
 def capture_selected_model(selected_model):
@@ -189,15 +195,19 @@ def capture_selected_model(selected_model):
 
     return input_content, graph_content, chart_content, result_content
 
+
 def change_cols(selected_model):
-    if selected_model == "Adaptive - EN 16798" or selected_model == "Adaptive - ASHRAE 55":
+    if (
+        selected_model == "Adaptive - EN 16798"
+        or selected_model == "Adaptive - ASHRAE 55"
+    ):
         cols = 1
     elif selected_model == "PMV - ASHRAE 55" or selected_model == "PMV - EN 16798":
         cols = 3
     return cols
 
-def update_graph_content(selected_model):
 
+def update_graph_content(selected_model):
 
     if selected_model == "Adaptive - EN 16798":
         grid_content = [
@@ -226,6 +236,11 @@ def update_graph_content(selected_model):
             dmc.Center(dmc.Text(PmvENResultCard.set.value)),
         ]
     return grid_content
+
+# def generate_buttons(selected_model):
+    return generate_dropdown_inline()
+
+
 
 
 if __name__ == "__main__":
