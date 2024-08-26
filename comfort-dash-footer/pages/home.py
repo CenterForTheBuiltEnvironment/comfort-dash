@@ -12,6 +12,7 @@ from components.my_card import my_card
 from utils.my_config_file import (
     URLS,
     ElementsIDs,
+    ModelChartDescription,
 )
 from dash import html, dcc
 
@@ -47,8 +48,8 @@ layout = dmc.Stack(
                             html.Div(id="chart-select", children=chart_selection("")),
                             dmc.SimpleGrid(
                                 cols=3,
-                                spacing="md",
-                                verticalSpacing="md",
+                                spacing="xs",
+                                verticalSpacing="xs",
                                 id="graph-container",
                                 children=[
                                     dmc.Center(dmc.Text("PMV = 0.5")),
@@ -69,6 +70,19 @@ layout = dmc.Stack(
                             dcc.Graph(
                                 id=ElementsIDs.CHART_CONTAINER.value,
                                 figure=chart_example(),
+                            ),
+                            dmc.GridCol(
+                                children=dmc.Text(
+                                    [
+                                        html.Strong(
+                                            ModelChartDescription.note.value
+                                        ),
+                                        ModelChartDescription.psy_air_temp_des_1.value,
+                                        dmc.Space(h=20),
+                                        ModelChartDescription.psy_air_temp_des_2.value,
+                                    ],
+                                    style={"fontSize":"14px"},
+                                ),
                             ),
                         ],
                     ),

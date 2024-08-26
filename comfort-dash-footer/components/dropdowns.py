@@ -1,6 +1,6 @@
 from scipy._lib.cobyqa.models import Models
 
-from components.drop_down_inline import generate_dropdown_inline
+from components.drop_down_inline import generate_dropdown_inline, generate_dropdown_inputs_inline
 from utils.my_config_file import (
     ElementsIDs,
     MODELS,
@@ -155,11 +155,11 @@ def En16798_air_speed_selection():
     return generate_dropdown_inline(adaptive_en_air_speed, clearable=False)
 
 def En16798_relative_humidity_selection():
-    return generate_dropdown_inline(pmv_en_humidity_selection,clearable=False)
+    return generate_dropdown_inputs_inline(pmv_en_humidity_selection,clearable=False)
 
 def En16798_relative_metabolic_selection():
-    return generate_dropdown_inline(pmv_en_metabolic_selection,clearable=False)
+    return generate_dropdown_inputs_inline(pmv_en_metabolic_selection,clearable=False)
 
 def En16798_relative_clothing_selection():
-    return generate_dropdown_inline(pmv_en_clothing_selection,clearable=False)
+    return generate_dropdown_inputs_inline(pmv_en_clothing_selection,clearable=False)
 
