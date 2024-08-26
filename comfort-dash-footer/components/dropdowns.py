@@ -7,6 +7,9 @@ from utils.my_config_file import (
     CHARTS,
     AdaptiveAshraeSpeeds,
     AdaptiveENSpeeds,
+    ModelInputsSelectionHumidityPmvEN16798,
+    ModelInputsSelectionMetablicRatePmvEN16798,
+    ModelInputsSelectionClothingPmvEN16798
 )
 from utils.website_text import TextHome
 
@@ -97,6 +100,52 @@ adaptive_en_air_speed = {
     "default": AdaptiveENSpeeds.s_2.value,
 }
 
+pmv_en_humidity_selection = {
+    "id": ElementsIDs.HUMIDITY_SELECTION.value,
+    "question": "",
+    "options": [
+        ModelInputsSelectionHumidityPmvEN16798.h_1.value,
+        ModelInputsSelectionHumidityPmvEN16798.h_2.value,
+        ModelInputsSelectionHumidityPmvEN16798.h_3.value,
+        ModelInputsSelectionHumidityPmvEN16798.h_4.value,
+        ModelInputsSelectionHumidityPmvEN16798.h_5.value,
+    ],
+    "multi": False,
+    "default": ModelInputsSelectionHumidityPmvEN16798.h_1.value,
+}
+
+pmv_en_metabolic_selection = {
+    "id": ElementsIDs.METABOLIC_SELECTION.value,
+    "question": "",
+    "options": [
+        ModelInputsSelectionMetablicRatePmvEN16798.h_1.value,
+        ModelInputsSelectionMetablicRatePmvEN16798.h_2.value,
+        ModelInputsSelectionMetablicRatePmvEN16798.h_3.value,
+        ModelInputsSelectionMetablicRatePmvEN16798.h_4.value,
+        ModelInputsSelectionMetablicRatePmvEN16798.h_5.value,
+    ],
+    "multi": False,
+    "default": ModelInputsSelectionMetablicRatePmvEN16798.h_1.value,
+}
+
+pmv_en_clothing_selection = {
+    "id": ElementsIDs.CLOTHING_SELECTION.value,
+    "question": "",
+    "options": [
+        ModelInputsSelectionClothingPmvEN16798.c_1.value,
+        ModelInputsSelectionClothingPmvEN16798.c_2.value,
+        ModelInputsSelectionClothingPmvEN16798.c_3.value,
+        ModelInputsSelectionClothingPmvEN16798.c_4.value,
+        ModelInputsSelectionClothingPmvEN16798.c_5.value,
+        ModelInputsSelectionClothingPmvEN16798.c_6.value,
+        ModelInputsSelectionClothingPmvEN16798.c_7.value,
+        ModelInputsSelectionClothingPmvEN16798.c_8.value,
+        ModelInputsSelectionClothingPmvEN16798.c_9.value,
+    ],
+    "multi": False,
+    "default": ModelInputsSelectionClothingPmvEN16798.c_1.value,
+}
+
 
 def Ash55_air_speed_selection():
     return generate_dropdown_inline(adaptive_ashare_air_speed, clearable=False)
@@ -104,3 +153,13 @@ def Ash55_air_speed_selection():
 
 def En16798_air_speed_selection():
     return generate_dropdown_inline(adaptive_en_air_speed, clearable=False)
+
+def En16798_relative_humidity_selection():
+    return generate_dropdown_inline(pmv_en_humidity_selection,clearable=False)
+
+def En16798_relative_metabolic_selection():
+    return generate_dropdown_inline(pmv_en_metabolic_selection,clearable=False)
+
+def En16798_relative_clothing_selection():
+    return generate_dropdown_inline(pmv_en_clothing_selection,clearable=False)
+
