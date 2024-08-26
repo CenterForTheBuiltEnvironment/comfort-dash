@@ -9,7 +9,7 @@ def functionality_selection():
             dmc.Text(TextHome.functionality_selection.value, mr="sm"),
             dmc.SegmentedControl(
                 id="segmented",
-                value="ng",
+                value="normal",
                 data=[
                     {"value": "normal", "label": "Single"},
                     {"value": "compare", "label": "Compare"},
