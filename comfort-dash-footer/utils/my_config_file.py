@@ -273,3 +273,6 @@ class ModelInputsSelectionClothingPmvEN16798(Enum):
     c_7: str= "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
     c_8: str= "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
     c_9: str= "Typical winter indoor clothing: 1.0 clo"
+
+class ModelInputsSelectionOperativeTemperaturePmvEN16798(Enum):
+    o_1: str= "Use operative temp"
