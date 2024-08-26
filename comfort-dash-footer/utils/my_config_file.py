@@ -276,3 +276,8 @@ class ModelInputsSelectionClothingPmvEN16798(Enum):
 
 class ModelInputsSelectionOperativeTemperaturePmvEN16798(Enum):
     o_1: str= "Use operative temp"
+
+class ModelChartDescription(Enum):
+    note: str="NOTE:"
+    psy_air_temp_des_1: str="In this psychrometric chart the abscissa is the dry-bulb temperature, and the mean radiant temperature (MRT) is fixed, controlled by the inputbox. Each point on the chart has the same MRT, which defines the comfort zone boundary. In this way you can see how changes in MRT affect thermal comfort. You can also still use the operative temperature button, yet each point will have the same MRT."
+    psy_air_temp_des_2: str="The CBE comfort tools automatically calculates the relative air speed but does not calculates the dynamic insulation characteristics of clothing as specified in the ISO 7730 Section C.2., hence this value should be calculated by the user and entered as input in the CBE comfort tool."

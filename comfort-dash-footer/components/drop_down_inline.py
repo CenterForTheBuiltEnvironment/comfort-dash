@@ -44,7 +44,7 @@ def generate_dropdown_inputs_inline(questions_to_display, clearable=True):
                     multi=questions_to_display["multi"],
                     id=questions_to_display["id"],
                     optionHeight=70,
-                    style={"lineHeight": "90%",},
+                    style={"lineHeight": "90%","fontSize":"14px"},
                     clearable=clearable,
                 ),
             ),
