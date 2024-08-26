@@ -18,6 +18,9 @@ class ElementsIDs(Enum):
     MODEL_SELECTION = "id-model-selection"
     CHART_SELECTION = "id-chart-selection"
     SPEED_SELECTION = "id-speed-selection"
+    HUMIDITY_SELECTION = "id-humidity-selection"
+    METABOLIC_SELECTION = "id-metabolic-selection"
+    CLOTHING_SELECTION = "id-clothing-selection"
     CHART_CONTAINER = "chart-container"
     URL = "url"
     FOOTER = "id-footer"
@@ -245,3 +248,28 @@ class ModelInputsAdaptiveAshrae55(BaseModel):
         value=25.0,
         name="Prevailing mean outdoor temperature",
     )
+
+class ModelInputsSelectionHumidityPmvEN16798(Enum):
+    h_1: str = "Relative humidity"
+    h_2: str = "Humidity ratio"
+    h_3: str = "Dew point"
+    h_4: str = "Wet bulb" 
+    h_5: str = "Vapor pressure"
+
+class ModelInputsSelectionMetablicRatePmvEN16798(Enum):
+    h_1: str = "Sleeping: 0.7"
+    h_2: str = "Reclining"
+    h_3: str = "Seated, quite: 1.0"
+    h_4: str = "Reading, seated: 1.0"
+    h_5: str = "Writing: 1.0"
+
+class ModelInputsSelectionClothingPmvEN16798(Enum):
+    c_1: str= "Walking shorts, short-sleeve shirt: 0.36 clo"
+    c_2: str= "Typical summer indoor clothing: 0.5 clo"
+    c_3: str= "Knee-length skirt, short-sleeve shirt, sandals, underwear: 0.54 clo"
+    c_4: str= "Trousers, short-sleeve shirt, socks, shoes, underwear: 0.57 clo"
+    c_5: str= "Trousers, long-sleeve shirt: 0.61 clo"
+    c_6: str= "Knee-length skirt, long-sleeve shirt, full slip: 0.67 clo"
+    c_7: str= "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
+    c_8: str= "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
+    c_9: str= "Typical winter indoor clothing: 1.0 clo"
