@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 steps:
 # Build the container image
 - name: 'gcr.io/cloud-builders/docker'
@@ -11,18 +10,3 @@ steps:
   entrypoint: gcloud
   args: ['run', 'deploy', '$_REPO_NAME', '--image', 'gcr.io/comfort-327718/$_REPO_NAME', '--region', 'us-central1']
 images:
-=======
-steps:
-# Build the container image
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/comfort-327718/$_REPO_NAME', '.']
-# Push the container image to Container Registry
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/comfort-327718/$_REPO_NAME']
-# Deploy container image to Cloud Run
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: gcloud
-  args: ['run', 'deploy', '$_REPO_NAME', '--image', 'gcr.io/comfort-327718/$_REPO_NAME', '--region', 'us-central1']
-images:
->>>>>>> 07f3ad5a1cf463b5e0160290cc18ee3f2914b8e2
-- gcr.io/comfort-327718/$_REPO_NAME
