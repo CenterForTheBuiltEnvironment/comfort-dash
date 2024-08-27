@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [[source]]
 url = "https://pypi.org/simple"
 verify_ssl = true
@@ -23,3 +24,33 @@ black = "*"
 
 [requires]
 python_version = "3.11"
+=======
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+dash = ">=2.17.1,
+pandas = "*"
+dash-bootstrap-components = "*"
+dash-mantine-components = "*"
+dash-iconify = "*"
+numpy = "*"
+psychrolib = "*"
+pythermalcomfort = "*"
+icecream = "*"
+pydantic = ">=2.8.2
+plotly = ">=5.23.0"
+scipy = ">=1.14.0
+
+[dev-packages]
+pytest-playwright = "*"
+pytest-xdist = "*"
+bump-my-version = "*"
+black = "*"
+
+
+[requires]
+python_version = "3.11"
+>>>>>>> 07f3ad5a1cf463b5e0160290cc18ee3f2914b8e2
