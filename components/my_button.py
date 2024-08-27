@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from dash import dcc
 import dash_mantine_components as dmc
 
@@ -32,7 +31,7 @@ def my_button(
         style=style,
         href=href,
     )
-=======
+
 from dash import dcc
 import dash_mantine_components as dmc
 
@@ -66,4 +65,3 @@ def my_button(
         style=style,
         href=href,
     )
->>>>>>> 07f3ad5a1cf463b5e0160290cc18ee3f2914b8e2

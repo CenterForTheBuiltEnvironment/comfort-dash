@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from enum import Enum
 
 app_name = "CBE Thermal Comfort Tool"
@@ -49,26 +48,3 @@ class TextHome(Enum):
     functionality_selection = "Select functionality:"
     chart_selection = "Select chart:"
     speed_selection = "Speed:"
-=======
-from enum import Enum
-
-app_name = "CBE Thermal Comfort Tool"
-
-
-class TextFooter(Enum):
-    acknowledgment = "This application has been developed by the Center for the Built Environment and the University of Sydney."
-
-
-class TextNavBar(Enum):
-    home: str = "Home"
-    settings: str = "Settings"
-    about: str = "About"
-    devices: str = "Devices"
-
-
-class TextHome(Enum):
-    model_selection = "Select model:"
-    functionality_selection = "Select functionality:"
-    chart_selection = "Select chart:"
-    speed_selection = "Speed:"
->>>>>>> 07f3ad5a1cf463b5e0160290cc18ee3f2914b8e2

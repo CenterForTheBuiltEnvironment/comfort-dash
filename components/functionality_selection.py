@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import dash_mantine_components as dmc
 
 from utils.website_text import TextHome
@@ -23,7 +22,7 @@ def functionality_selection():
             dmc.Text(id="segmented-value"),
         ]
     )
-=======
+
 import dash_mantine_components as dmc
 
 from utils.website_text import TextHome
@@ -48,4 +47,3 @@ def functionality_selection():
             dmc.Text(id="segmented-value"),
         ]
     )
->>>>>>> 07f3ad5a1cf463b5e0160290cc18ee3f2914b8e2
