@@ -43,8 +43,3 @@ tzdata==2024.1; python_version >= '2'
 urllib3==2.2.2; python_version >= '3.8'
 werkzeug==3.0.3; python_version >= '3.8'
 zipp==3.20.0; python_version >= '3.8'
-
-dash~=2.17.1
-pydantic~=2.8.2
-plotly~=5.23.0
-scipy~=1.14.0
