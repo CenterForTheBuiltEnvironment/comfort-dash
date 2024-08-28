@@ -59,19 +59,18 @@ def input_environmental_personal(selected_model):
         )
         inputs.append(input_filed)
 
-    if selected_model == MODELS.Adaptive_ashrae.value:
-        inputs.append(Ash55_air_speed_selection())
-
-    if selected_model == MODELS.Adaptive_EN.value:
-        inputs.append(En16798_air_speed_selection())
-
 
 
 
     # input right
     inputs_right = []
+    inputs_left_and_right = []
 
-    
+    if selected_model == MODELS.Adaptive_ashrae.value:
+        inputs_left_and_right.append(Ash55_air_speed_selection())
+
+    if selected_model == MODELS.Adaptive_EN.value:
+        inputs_left_and_right.append(En16798_air_speed_selection())
 
     model_inputs = ModelInputsPmvAshrae55()
     if selected_model == MODELS.PMV_EN.value:
@@ -92,20 +91,18 @@ def input_environmental_personal(selected_model):
             dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
                          style={"margin-left": "25px"}))
 
-   
-
     elif selected_model == MODELS.Adaptive_ashrae.value:
         inputs_right.append(dmc.Space(h=40)),
         inputs_right.append(
             dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
                          style={"margin-left": "25px"}))
 
-
-    if selected_model == MODELS.Fans_heat.value:
+    elif selected_model == MODELS.Fans_heat.value:
         inputs_right.append(dmc.Space(h=125)),
         inputs_right.append(Fans_heat_metabolic_selection()),
         inputs_right.append(dmc.Space(h=26)),
         inputs_right.append(Fans_heat_clothing_selection()),
+    
     else: 
         inputs_right.append(dmc.Space(h=40)),
         inputs_right.append(
@@ -132,6 +129,10 @@ def input_environmental_personal(selected_model):
                     dmc.GridCol(
                         dmc.Stack(inputs_right, gap="xs"),
                         span={"base": 12, "sm": 7}
+                    ),
+                    dmc.GridCol(
+                        dmc.Stack(inputs_left_and_right, gap="xs"),
+                        span={"base": 12, "sm": 12}
                     ),
                 ],
                 gutter="md",
