@@ -40,7 +40,7 @@ class URLS(Enum):
     Tools: str = "/moreCBETools"
 
 
-class ToolUrls(Enum):
+class Tool_URLS(Enum):
     cbe_thermal_comfort_tool: str = (
         "https://cbe.berkeley.edu/research/cbe-thermal-comfort-tool/"
     )
