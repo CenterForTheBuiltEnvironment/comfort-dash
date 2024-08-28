@@ -26,6 +26,10 @@ class ElementsIDs(Enum):
     FOOTER = "id-footer"
     NAVBAR_ID_DOCUMENT = "id-nav-documentation"
     NAVBAR_ID_MORE_CBE_TOOLS = "id-nav-more-cbe-tools"
+    SPEED_Method = "id-ashrae-55-speed-method"
+    Humidity_SELECTION = "id-ashrae-55-humidity-method"
+    Metabolic_SELECTION ="id-ashrae-55- metabolic-method"
+    Clothing_SELECTION = "id-ashrae-55-clothing-method"
 
 
 class Config(Enum):
@@ -250,6 +254,23 @@ class ModelInputsAdaptiveAshrae55(BaseModel):
         value=25.0,
         name="Prevailing mean outdoor temperature",
     )
+
+class ModelInputsSelectionSpeedASHRAE55(Enum):
+    s_1: str ="No local control"
+    s_2: str ="witn local control"
+
+class ModelInputsSelectionhumidityASHRAE55(Enum):
+    s_1: str ="Relative humidity"
+    s_2: str ="Humidity ratio"
+
+class ModelInputsSelectionMetabolicASHRAE55(Enum):
+    s_1: str ="Sleeping: 0.7"
+    s_2: str ="Reclining: 0.8"
+
+class ModelInputsSelectionClothingASHRAE55(Enum):
+    s_1: str ="Walking shorts, short-sleeve shirt:0.36 clo"
+    s_2: str ="Typical summer indoor clothing:0.5 clo"
+
 
 class ModelInputsSelectionHumidityPmvEN16798(Enum):
     h_1: str = "Relative humidity"

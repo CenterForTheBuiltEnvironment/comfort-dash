@@ -7,6 +7,7 @@ from utils.my_config_file import (
     ModelInputsSelectionOperativeTemperaturePmvEN16798,
     ModelInputsFANSHEAT,
     MODELS,
+    
 )
 import dash_mantine_components as dmc
 from components.dropdowns import (
@@ -17,6 +18,11 @@ from components.dropdowns import (
     En16798_relative_clothing_selection,
     Fans_heat_metabolic_selection,
     Fans_heat_clothing_selection,
+    ModelInputsSelectionSpeedASHRAE55List_selection,
+    ModelInputsSelectionhumidityASHRAE55List_selection,
+    ModelInputsSelectionMetabolicASHRAE55List_selection,
+    ModelInputsSelectionClothingASHRAE55List_selection
+
 )
 
 
@@ -65,6 +71,8 @@ def input_environmental_personal(selected_model):
     # input right
     inputs_right = []
 
+    
+
     model_inputs = ModelInputsPmvAshrae55()
     if selected_model == MODELS.PMV_EN.value:
         inputs_right.append(dmc.Space(h=40))
@@ -84,11 +92,7 @@ def input_environmental_personal(selected_model):
             dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
                          style={"margin-left": "25px"}))
 
-    if selected_model == MODELS.PMV_ashrae.value:
-        inputs_right.append(dmc.Space(h=40)),
-        inputs_right.append(
-            dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
-                         style={"margin-left": "25px"}))
+   
 
     elif selected_model == MODELS.Adaptive_ashrae.value:
         inputs_right.append(dmc.Space(h=40)),
@@ -102,6 +106,19 @@ def input_environmental_personal(selected_model):
         inputs_right.append(Fans_heat_metabolic_selection()),
         inputs_right.append(dmc.Space(h=26)),
         inputs_right.append(Fans_heat_clothing_selection()),
+    else: 
+        inputs_right.append(dmc.Space(h=40)),
+        inputs_right.append(
+            dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
+                         style={"margin-left": "25px"}))
+        inputs_right.append(dmc.Space(h=134)),
+        inputs_right.append(ModelInputsSelectionSpeedASHRAE55List_selection())
+        inputs_right.append(dmc.Space(h=45)),
+        inputs_right.append(ModelInputsSelectionhumidityASHRAE55List_selection())
+        inputs_right.append(dmc.Space(h=26)),
+        inputs_right.append(ModelInputsSelectionMetabolicASHRAE55List_selection())
+        inputs_right.append(dmc.Space(h=27)),
+        inputs_right.append(ModelInputsSelectionClothingASHRAE55List_selection())
 
     return dmc.Paper(
         children=[
