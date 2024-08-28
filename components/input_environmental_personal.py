@@ -8,6 +8,7 @@ from utils.my_config_file import (
     ModelInputsFANSHEAT,
     ModelInputsPhs,
     MODELS,
+
 )
 import dash_mantine_components as dmc
 from components.dropdowns import (
@@ -20,6 +21,10 @@ from components.dropdowns import (
     Fans_heat_clothing_selection,
     Phs_metabolic_selection,
     Phs_clothing_selection,
+    ModelInputsSelectionSpeedASHRAE55List_selection,
+    ModelInputsSelectionhumidityASHRAE55List_selection,
+    ModelInputsSelectionMetabolicASHRAE55List_selection,
+    ModelInputsSelectionClothingASHRAE55List_selection
 )
 
 
@@ -59,17 +64,18 @@ def input_environmental_personal(selected_model):
         )
         inputs.append(input_filed)
 
-    if selected_model == MODELS.Adaptive_ashrae.value:
-        inputs.append(Ash55_air_speed_selection())
-
-    if selected_model == MODELS.Adaptive_EN.value:
-        inputs.append(En16798_air_speed_selection())
-
 
 
 
     # input right
     inputs_right = []
+    inputs_left_and_right = []
+
+    if selected_model == MODELS.Adaptive_ashrae.value:
+        inputs_left_and_right.append(Ash55_air_speed_selection())
+
+    if selected_model == MODELS.Adaptive_EN.value:
+        inputs_left_and_right.append(En16798_air_speed_selection())
 
     model_inputs = ModelInputsPmvAshrae55()
     if selected_model == MODELS.PMV_EN.value:
@@ -90,30 +96,39 @@ def input_environmental_personal(selected_model):
             dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
                          style={"margin-left": "25px"}))
 
-    if selected_model == MODELS.PMV_ashrae.value:
-        inputs_right.append(dmc.Space(h=40)),
-        inputs_right.append(
-            dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
-                         style={"margin-left": "25px"}))
-
     elif selected_model == MODELS.Adaptive_ashrae.value:
         inputs_right.append(dmc.Space(h=40)),
         inputs_right.append(
             dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
                          style={"margin-left": "25px"}))
 
-
-    if selected_model == MODELS.Fans_heat.value:
+    elif selected_model == MODELS.Fans_heat.value:
         inputs_right.append(dmc.Space(h=125)),
         inputs_right.append(Fans_heat_metabolic_selection()),
         inputs_right.append(dmc.Space(h=26)),
         inputs_right.append(Fans_heat_clothing_selection()),
 
-    if selected_model == MODELS.Phs.value:
+    elif selected_model == MODELS.Phs.value:
         inputs_right.append(dmc.Space(h=415)),
         inputs_right.append(Phs_metabolic_selection()),
         inputs_right.append(dmc.Space(h=25)),
         inputs_right.append(Phs_clothing_selection()),
+
+    else:
+        inputs_right.append(dmc.Space(h=40)),
+        inputs_right.append(
+            dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
+                         style={"margin-left": "25px"}))
+        inputs_right.append(dmc.Space(h=134)),
+        inputs_right.append(ModelInputsSelectionSpeedASHRAE55List_selection())
+        inputs_right.append(dmc.Space(h=45)),
+        inputs_right.append(ModelInputsSelectionhumidityASHRAE55List_selection())
+        inputs_right.append(dmc.Space(h=26)),
+        inputs_right.append(ModelInputsSelectionMetabolicASHRAE55List_selection())
+        inputs_right.append(dmc.Space(h=27)),
+        inputs_right.append(ModelInputsSelectionClothingASHRAE55List_selection())
+
+
 
     return dmc.Paper(
         children=[
@@ -127,6 +142,10 @@ def input_environmental_personal(selected_model):
                     dmc.GridCol(
                         dmc.Stack(inputs_right, gap="xs"),
                         span={"base": 12, "sm": 7}
+                    ),
+                    dmc.GridCol(
+                        dmc.Stack(inputs_left_and_right, gap="xs"),
+                        span={"base": 12, "sm": 12}
                     ),
                 ],
                 gutter="md",

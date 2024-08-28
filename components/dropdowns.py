@@ -13,7 +13,11 @@ from utils.my_config_file import (
     ModelInputsSelectionMetablicRateFansAndHeat,
     ModelInputsSelectionClothingFansAndHeat,
     ModelInputsSelectionMetablicRatePhs,
-    ModelInputsSelectionClothingPhs
+    ModelInputsSelectionClothingPhs,
+    ModelInputsSelectionSpeedASHRAE55,
+    ModelInputsSelectionhumidityASHRAE55,
+    ModelInputsSelectionMetabolicASHRAE55,
+    ModelInputsSelectionClothingASHRAE55,
 )
 from utils.website_text import TextHome
 
@@ -221,6 +225,51 @@ phs_clothing_selection = {
     "default": ModelInputsSelectionClothingPhs.c_1.value,
 }
 
+ModelInputsSelectionSpeedASHRAE55List ={
+    "id": ElementsIDs.SPEED_Method.value,
+    "question": "",
+    "options": [
+        ModelInputsSelectionSpeedASHRAE55.s_1.value,
+        ModelInputsSelectionSpeedASHRAE55.s_2.value,
+    ],
+    "multi": False,
+    "default": ModelInputsSelectionSpeedASHRAE55.s_1.value,
+}
+
+ModelInputsSelectionhumidityASHRAE55List ={
+    "id": ElementsIDs.Humidity_SELECTION.value,
+    "question": "",
+    "options": [
+        ModelInputsSelectionhumidityASHRAE55.s_1.value,
+        ModelInputsSelectionhumidityASHRAE55.s_2.value,
+    ],
+    "multi": False,
+    "default": ModelInputsSelectionhumidityASHRAE55.s_1.value,
+}
+
+ModelInputsSelectionMetabolicASHRAE55List ={
+    "id": ElementsIDs.Metabolic_SELECTION.value,
+    "question": "",
+    "options": [
+        ModelInputsSelectionMetabolicASHRAE55.s_1.value,
+        ModelInputsSelectionMetabolicASHRAE55.s_2.value,
+    ],
+    "multi": False,
+    "default": ModelInputsSelectionMetabolicASHRAE55.s_1.value,
+}
+
+ModelInputsSelectionClothingASHRAE55List ={
+    "id": ElementsIDs.Clothing_SELECTION.value,
+    "question": "",
+    "options": [
+        ModelInputsSelectionClothingASHRAE55.s_1.value,
+        ModelInputsSelectionClothingASHRAE55.s_2.value,
+    ],
+    "multi": False,
+    "default": ModelInputsSelectionClothingASHRAE55.s_1.value,
+}
+
+
 def Ash55_air_speed_selection():
     return generate_dropdown_inline(adaptive_ashare_air_speed, clearable=False)
 
@@ -248,3 +297,15 @@ def Phs_metabolic_selection():
 
 def Phs_clothing_selection():
     return generate_dropdown_inputs_inline(fans_and_heat_clothing_selection, clearable=False)
+
+def ModelInputsSelectionSpeedASHRAE55List_selection():
+    return generate_dropdown_inputs_inline(ModelInputsSelectionSpeedASHRAE55List, clearable=False)
+
+def ModelInputsSelectionhumidityASHRAE55List_selection():
+    return generate_dropdown_inputs_inline(ModelInputsSelectionhumidityASHRAE55List, clearable=False)
+
+def ModelInputsSelectionMetabolicASHRAE55List_selection():
+    return generate_dropdown_inputs_inline(ModelInputsSelectionMetabolicASHRAE55List, clearable=False)
+
+def ModelInputsSelectionClothingASHRAE55List_selection():
+    return generate_dropdown_inputs_inline(ModelInputsSelectionClothingASHRAE55List, clearable=False)
