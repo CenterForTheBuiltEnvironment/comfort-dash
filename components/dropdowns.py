@@ -1,4 +1,4 @@
-from scipy._lib.cobyqa.models import Models
+#from scipy._lib.cobyqa.models import Models
 
 from components.drop_down_inline import generate_dropdown_inline, generate_dropdown_inputs_inline
 from utils.my_config_file import (
