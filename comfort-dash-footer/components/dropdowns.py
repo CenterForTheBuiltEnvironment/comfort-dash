@@ -9,7 +9,9 @@ from utils.my_config_file import (
     AdaptiveENSpeeds,
     ModelInputsSelectionHumidityPmvEN16798,
     ModelInputsSelectionMetablicRatePmvEN16798,
-    ModelInputsSelectionClothingPmvEN16798
+    ModelInputsSelectionClothingPmvEN16798,
+    ModelInputsSelectionMetablicRateFansAndHeat,
+    ModelInputsSelectionClothingFansAndHeat
 )
 from utils.website_text import TextHome
 
@@ -21,6 +23,7 @@ dd_model = {
         MODELS.Adaptive_ashrae.value,
         MODELS.PMV_EN.value,
         MODELS.Adaptive_EN.value,
+        MODELS.Fans_heat.value,
     ],
     "multi": False,
     "default": MODELS.PMV_ashrae.value,
@@ -70,6 +73,9 @@ def chart_selection(selected_model):
         return
     elif selected_model == MODELS.PMV_EN.value:
         chart_inputs = pmv_en_chart
+        return
+    elif selected_model == MODELS.Fans_heat.value:
+        return
 
     return generate_dropdown_inline(chart_inputs, clearable=False)
 
@@ -146,6 +152,37 @@ pmv_en_clothing_selection = {
     "default": ModelInputsSelectionClothingPmvEN16798.c_1.value,
 }
 
+fans_and_heat_metabolic_selection = {
+    "id": ElementsIDs.METABOLIC_SELECTION.value,
+    "question": "",
+    "options": [
+        ModelInputsSelectionMetablicRateFansAndHeat.h_1.value,
+        ModelInputsSelectionMetablicRateFansAndHeat.h_2.value,
+        ModelInputsSelectionMetablicRateFansAndHeat.h_3.value,
+        ModelInputsSelectionMetablicRateFansAndHeat.h_4.value,
+        ModelInputsSelectionMetablicRateFansAndHeat.h_5.value,
+    ],
+    "multi": False,
+    "default": ModelInputsSelectionMetablicRateFansAndHeat.h_1.value,
+}
+
+fans_and_heat_clothing_selection = {
+    "id": ElementsIDs.CLOTHING_SELECTION.value,
+    "question": "",
+    "options": [
+        ModelInputsSelectionClothingFansAndHeat.c_1.value,
+        ModelInputsSelectionClothingFansAndHeat.c_2.value,
+        ModelInputsSelectionClothingFansAndHeat.c_3.value,
+        ModelInputsSelectionClothingFansAndHeat.c_4.value,
+        ModelInputsSelectionClothingFansAndHeat.c_5.value,
+        ModelInputsSelectionClothingFansAndHeat.c_6.value,
+        ModelInputsSelectionClothingFansAndHeat.c_7.value,
+        ModelInputsSelectionClothingFansAndHeat.c_8.value,
+        ModelInputsSelectionClothingFansAndHeat.c_9.value,
+    ],
+    "multi": False,
+    "default": ModelInputsSelectionClothingFansAndHeat.c_1.value,
+}
 
 def Ash55_air_speed_selection():
     return generate_dropdown_inline(adaptive_ashare_air_speed, clearable=False)
@@ -163,3 +200,8 @@ def En16798_relative_metabolic_selection():
 def En16798_relative_clothing_selection():
     return generate_dropdown_inputs_inline(pmv_en_clothing_selection,clearable=False)
 
+def Fans_heat_metabolic_selection():
+    return generate_dropdown_inputs_inline(fans_and_heat_metabolic_selection, clearable=False)
+
+def Fans_heat_clothing_selection():
+    return generate_dropdown_inputs_inline(fans_and_heat_clothing_selection, clearable=False)

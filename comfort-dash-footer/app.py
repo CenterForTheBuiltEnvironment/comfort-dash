@@ -202,7 +202,7 @@ def change_cols(selected_model):
         or selected_model == MODELS.Adaptive_ashrae.value
     ):
         cols = 1
-    elif selected_model == MODELS.PMV_ashrae.value or selected_model == MODELS.PMV_EN.value:
+    else:
         cols = 3
     return cols
 
@@ -234,6 +234,10 @@ def update_graph_content(selected_model):
             dmc.Center(dmc.Text(PmvENResultCard.pmv.value)),
             dmc.Center(dmc.Text(PmvENResultCard.ppd.value)),
             dmc.Center(dmc.Text(PmvENResultCard.set.value)),
+        ]
+
+    elif selected_model == MODELS.Fans_heat.value:
+        grid_content = [
         ]
     return grid_content
 

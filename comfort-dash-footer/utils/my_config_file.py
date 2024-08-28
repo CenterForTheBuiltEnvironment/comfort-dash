@@ -86,6 +86,7 @@ class MODELS(Enum):
     PMV_EN: str = "PMV - EN 16798"
     Adaptive_ashrae: str = "Adaptive - ASHRAE 55"
     Adaptive_EN: str = "Adaptive - EN 16798"
+    Fans_heat: str = "FANS & HEAT"
 
 
 class CHARTS(Enum):
@@ -96,6 +97,7 @@ class CHARTS(Enum):
     Air_speed: str = "Air speed vs. operative temperature"
     Thermal_heat: str = "Thermal heat losses vs. air temperature"
     Set_outputs: str = "SET outputs chart"
+    Fans_Heat_Chart: str = "Fans and Heat Chart"
 
 
 class AdaptiveEN(Enum):
@@ -274,6 +276,24 @@ class ModelInputsSelectionClothingPmvEN16798(Enum):
     c_8: str= "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
     c_9: str= "Typical winter indoor clothing: 1.0 clo"
 
+class ModelInputsSelectionMetablicRateFansAndHeat(Enum):
+    h_1: str = "Sleeping: 0.7"
+    h_2: str = "Reclining"
+    h_3: str = "Seated, quite: 1.0"
+    h_4: str = "Reading, seated: 1.0"
+    h_5: str = "Writing: 1.0"
+
+class ModelInputsSelectionClothingFansAndHeat(Enum):
+    c_1: str= "Walking shorts, short-sleeve shirt: 0.36 clo"
+    c_2: str= "Typical summer indoor clothing: 0.5 clo"
+    c_3: str= "Knee-length skirt, short-sleeve shirt, sandals, underwear: 0.54 clo"
+    c_4: str= "Trousers, short-sleeve shirt, socks, shoes, underwear: 0.57 clo"
+    c_5: str= "Trousers, long-sleeve shirt: 0.61 clo"
+    c_6: str= "Knee-length skirt, long-sleeve shirt, full slip: 0.67 clo"
+    c_7: str= "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
+    c_8: str= "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
+    c_9: str= "Typical winter indoor clothing: 1.0 clo"
+
 class ModelInputsSelectionOperativeTemperaturePmvEN16798(Enum):
     o_1: str= "Use operative temp"
 
@@ -281,3 +301,14 @@ class ModelChartDescription(Enum):
     note: str="NOTE:"
     psy_air_temp_des_1: str="In this psychrometric chart the abscissa is the dry-bulb temperature, and the mean radiant temperature (MRT) is fixed, controlled by the inputbox. Each point on the chart has the same MRT, which defines the comfort zone boundary. In this way you can see how changes in MRT affect thermal comfort. You can also still use the operative temperature button, yet each point will have the same MRT."
     psy_air_temp_des_2: str="The CBE comfort tools automatically calculates the relative air speed but does not calculates the dynamic insulation characteristics of clothing as specified in the ISO 7730 Section C.2., hence this value should be calculated by the user and entered as input in the CBE comfort tool."
+
+class ModelInputsFANSHEAT(BaseModel):
+    AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
+        unit="m/s", min=0.0, max=1.0, step=0.1, value=0.1, name="Air Speed"
+    )
+    MET: ModelInputsInfo = ModelInputsInfo(
+        unit="met", min=0.7, max=2.0, step=0.1, value=1.2, name="Metabolic Rate"
+    )
+    CLOTHING: ModelInputsInfo = ModelInputsInfo(
+        unit="clo", min=0.5, max=2.0, step=0.1, value=0.5, name="Clothing"
+    )
