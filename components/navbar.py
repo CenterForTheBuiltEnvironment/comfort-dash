@@ -37,11 +37,16 @@ def my_navbar():
                                             dbc.Col(
                                                 html.Img(
                                                     src="/assets/media/CBE-logo-2018.png",
-                                                    height="100px",
-                                                    width="auto",
+                                                    height="80px",
+                                                    width="80px",
                                                     alt="logo website navbar",
+                                                    style={
+                                                        "border": "2px solid black",
+                                                        "padding": "5px",
+                                                        "border-radius": "20px"
+                                                    },
                                                 ),
-                                                width="auto",
+                                                width="20px",
                                             ),
                                         ],
                                         align="center",
@@ -53,6 +58,7 @@ def my_navbar():
                             ],
                             span="auto",  # Logo takes up 2 spans
                             className="d-flex justify-content-start",  # Align the logo to the left
+                            style={"margin-left": "20px"}
                         ),
 
                         # Center H1 Column
