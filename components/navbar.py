@@ -3,23 +3,23 @@ import dash_mantine_components as dmc
 from dash import Input, Output, State, html, ctx
 from dash import callback
 
-from utils.my_config_file import URLS, ElementsIDs, Dimensions, Tool_URLS
+from utils.my_config_file import URLS, ElementsIDs, Dimensions, ToolUrls
 from utils.website_text import TextNavBar, app_name
 
 
 tool_items = [
-    {"name": TextNavBar.tool1.value, "href": Tool_URLS.cbe_thermal_comfort_tool.value},
-    {"name": TextNavBar.tool2.value, "href": Tool_URLS.clima_tool.value},
-    {"name": TextNavBar.tool3.value, "href": Tool_URLS.advance_ceiling_fan_design_tool.value},
-    {"name": TextNavBar.tool4.value, "href": Tool_URLS.guidebook_on_fans_for_cooling_people_tool.value},
-    {"name": TextNavBar.tool5.value, "href": Tool_URLS.occupant_survey_and_building_benchmarking_tool.value},
-    {"name": TextNavBar.tool6.value, "href": Tool_URLS.cbe_rad_tool_early_design_tool_for_high_thermal_mass_radiant_syste_tool.value},
-    {"name": TextNavBar.tool7.value, "href": Tool_URLS.setpoint_energy_savings_calculator_tool.value},
-    {"name": TextNavBar.tool8.value, "href": Tool_URLS.cbe_3d_mean_radiant_temperature_tool.value},
-    {"name": TextNavBar.tool9.value, "href": Tool_URLS.underfloor_air_distribution_ufad_cooling_load_design_tool.value},
-    {"name": TextNavBar.tool10.value, "href": Tool_URLS.global_comfort_data_visualization_tool.value},
-    {"name": TextNavBar.tool11.value, "href": Tool_URLS.python_package_for_thermal_comfort_tool.value},
-    {"name": TextNavBar.tool12.value, "href": Tool_URLS.energy_performance_modeling_underfloor_air_distribution_systems_tool.value},
+    {"name": TextNavBar.tool1.value, "href": ToolUrls.cbe_thermal_comfort_tool.value},
+    {"name": TextNavBar.tool2.value, "href": ToolUrls.clima_tool.value},
+    {"name": TextNavBar.tool3.value, "href": ToolUrls.advance_ceiling_fan_design_tool.value},
+    {"name": TextNavBar.tool4.value, "href": ToolUrls.guidebook_on_fans_for_cooling_people_tool.value},
+    {"name": TextNavBar.tool5.value, "href": ToolUrls.occupant_survey_and_building_benchmarking_tool.value},
+    {"name": TextNavBar.tool6.value, "href": ToolUrls.cbe_rad_tool_early_design_tool_for_high_thermal_mass_radiant_syste_tool.value},
+    {"name": TextNavBar.tool7.value, "href": ToolUrls.setpoint_energy_savings_calculator_tool.value},
+    {"name": TextNavBar.tool8.value, "href": ToolUrls.cbe_3d_mean_radiant_temperature_tool.value},
+    {"name": TextNavBar.tool9.value, "href": ToolUrls.underfloor_air_distribution_ufad_cooling_load_design_tool.value},
+    {"name": TextNavBar.tool10.value, "href": ToolUrls.global_comfort_data_visualization_tool.value},
+    {"name": TextNavBar.tool11.value, "href": ToolUrls.python_package_for_thermal_comfort_tool.value},
+    {"name": TextNavBar.tool12.value, "href": ToolUrls.energy_performance_modeling_underfloor_air_distribution_systems_tool.value},
 ]
 
 def my_navbar():
