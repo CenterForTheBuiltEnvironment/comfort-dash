@@ -79,29 +79,29 @@ def input_environmental_personal(selected_model):
         inputs_right.append(En16798_relative_clothing_selection())
 
     elif selected_model == MODELS.Adaptive_EN.value:
-        inputs_right.append(dmc.Space(h=40))
+        inputs_right.append(dmc.Space(h=40)),
         inputs_right.append(
             dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
                          style={"margin-left": "25px"}))
 
     if selected_model == MODELS.PMV_ashrae.value:
-        inputs_right.append(dmc.Space(h=40))
+        inputs_right.append(dmc.Space(h=40)),
         inputs_right.append(
             dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
                          style={"margin-left": "25px"}))
 
     elif selected_model == MODELS.Adaptive_ashrae.value:
-        inputs_right.append(dmc.Space(h=40))
+        inputs_right.append(dmc.Space(h=40)),
         inputs_right.append(
             dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
                          style={"margin-left": "25px"}))
 
 
     if selected_model == MODELS.Fans_heat.value:
-        #inputs_right.append(dmc.Space(h=40)),
-        inputs_right.append(dmc.Space(h=300))
-        inputs.append(Fans_heat_metabolic_selection()),
-        inputs.append(Fans_heat_clothing_selection())
+        inputs_right.append(dmc.Space(h=125)),
+        inputs_right.append(Fans_heat_metabolic_selection()),
+        inputs_right.append(dmc.Space(h=26)),
+        inputs_right.append(Fans_heat_clothing_selection()),
 
     return dmc.Paper(
         children=[

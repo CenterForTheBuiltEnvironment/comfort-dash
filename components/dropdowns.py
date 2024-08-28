@@ -201,7 +201,7 @@ def En16798_relative_clothing_selection():
     return generate_dropdown_inputs_inline(pmv_en_clothing_selection,clearable=False)
 
 def Fans_heat_metabolic_selection():
-    return generate_dropdown_inline(fans_and_heat_metabolic_selection, clearable=False)
+    return generate_dropdown_inputs_inline(fans_and_heat_metabolic_selection, clearable=False)
 
 def Fans_heat_clothing_selection():
-    return generate_dropdown_inline(fans_and_heat_clothing_selection, clearable=False)
+    return generate_dropdown_inputs_inline(fans_and_heat_clothing_selection, clearable=False)
