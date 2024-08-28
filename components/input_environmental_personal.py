@@ -6,6 +6,7 @@ from utils.my_config_file import (
     ModelInputsPmvEN16798,
     ModelInputsSelectionOperativeTemperaturePmvEN16798,
     ModelInputsFANSHEAT,
+    ModelInputsPhs,
     MODELS,
 )
 import dash_mantine_components as dmc
@@ -17,6 +18,8 @@ from components.dropdowns import (
     En16798_relative_clothing_selection,
     Fans_heat_metabolic_selection,
     Fans_heat_clothing_selection,
+    Phs_metabolic_selection,
+    Phs_clothing_selection,
 )
 
 
@@ -38,6 +41,9 @@ def input_environmental_personal(selected_model):
 
     elif selected_model == MODELS.Fans_heat.value:
         model_inputs = ModelInputsFANSHEAT()
+
+    elif selected_model == MODELS.Phs.value:
+        model_inputs = ModelInputsPhs()
 
     else:
         model_inputs = ModelInputsPmvAshrae55()
@@ -102,6 +108,12 @@ def input_environmental_personal(selected_model):
         inputs_right.append(Fans_heat_metabolic_selection()),
         inputs_right.append(dmc.Space(h=26)),
         inputs_right.append(Fans_heat_clothing_selection()),
+
+    if selected_model == MODELS.Phs.value:
+        inputs_right.append(dmc.Space(h=415)),
+        inputs_right.append(Phs_metabolic_selection()),
+        inputs_right.append(dmc.Space(h=25)),
+        inputs_right.append(Phs_clothing_selection()),
 
     return dmc.Paper(
         children=[

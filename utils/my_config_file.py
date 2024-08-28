@@ -87,6 +87,7 @@ class MODELS(Enum):
     Adaptive_ashrae: str = "Adaptive - ASHRAE 55"
     Adaptive_EN: str = "Adaptive - EN 16798"
     Fans_heat: str = "FANS & HEAT"
+    Phs: str = "PHS"
 
 
 class CHARTS(Enum):
@@ -98,6 +99,7 @@ class CHARTS(Enum):
     Thermal_heat: str = "Thermal heat losses vs. air temperature"
     Set_outputs: str = "SET outputs chart"
     Fans_Heat_Chart: str = "Fans and Heat Chart"
+    Phs_Chart: str = "PHS Chart"
 
 
 class AdaptiveEN(Enum):
@@ -135,6 +137,11 @@ class PmvENResultCard(Enum):
     ppd: str = "PPD = 6 %"
     set: str = "SET = |"
 
+class PhsResultCard(Enum):
+    line1: str = "Maximum allowable exposure time within which the physiological strain is acceptable (no physical damage is to be expected) calculated as a function of:"
+    line2: str = "max rectal temperature = 53 min"
+    line3: str = "water loss of 5% of the body mass for 95% of the population = 256 min"
+    line4: str = "water loss of 7.5% of the body mass for an average person = 380 min"
 
 class ModelInputsInfo(BaseModel):
     name: str
@@ -294,6 +301,24 @@ class ModelInputsSelectionClothingFansAndHeat(Enum):
     c_8: str= "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
     c_9: str= "Typical winter indoor clothing: 1.0 clo"
 
+class ModelInputsSelectionMetablicRatePhs(Enum):
+    h_1: str = "Sleeping: 0.7"
+    h_2: str = "Reclining"
+    h_3: str = "Seated, quite: 1.0"
+    h_4: str = "Reading, seated: 1.0"
+    h_5: str = "Writing: 1.0"
+
+class ModelInputsSelectionClothingPhs(Enum):
+    c_1: str= "Walking shorts, short-sleeve shirt: 0.36 clo"
+    c_2: str= "Typical summer indoor clothing: 0.5 clo"
+    c_3: str= "Knee-length skirt, short-sleeve shirt, sandals, underwear: 0.54 clo"
+    c_4: str= "Trousers, short-sleeve shirt, socks, shoes, underwear: 0.57 clo"
+    c_5: str= "Trousers, long-sleeve shirt: 0.61 clo"
+    c_6: str= "Knee-length skirt, long-sleeve shirt, full slip: 0.67 clo"
+    c_7: str= "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
+    c_8: str= "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
+    c_9: str= "Typical winter indoor clothing: 1.0 clo"
+
 class ModelInputsSelectionOperativeTemperaturePmvEN16798(Enum):
     o_1: str= "Use operative temp"
 
@@ -305,6 +330,31 @@ class ModelChartDescription(Enum):
 class ModelInputsFANSHEAT(BaseModel):
     AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
         unit="m/s", min=0.0, max=1.0, step=0.1, value=0.1, name="Air Speed"
+    )
+    MET: ModelInputsInfo = ModelInputsInfo(
+        unit="met", min=0.7, max=2.0, step=0.1, value=1.2, name="Metabolic Rate"
+    )
+    CLOTHING: ModelInputsInfo = ModelInputsInfo(
+        unit="clo", min=0.5, max=2.0, step=0.1, value=0.5, name="Clothing"
+    )
+
+class ModelInputsPhs(BaseModel):
+    AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
+        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Air Temperature"
+    )
+    MRT: ModelInputsInfo = ModelInputsInfo(
+        unit="°C",
+        min=10.0,
+        max=40.0,
+        step=0.1,
+        value=25.0,
+        name="Mean Radiant Temperature",
+    )
+    AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
+        unit="m/s", min=0.0, max=1.0, step=0.1, value=0.1, name="Air Speed"
+    )
+    RH: ModelInputsInfo = ModelInputsInfo(
+        unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"
     )
     MET: ModelInputsInfo = ModelInputsInfo(
         unit="met", min=0.7, max=2.0, step=0.1, value=1.2, name="Metabolic Rate"

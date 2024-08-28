@@ -11,7 +11,9 @@ from utils.my_config_file import (
     ModelInputsSelectionMetablicRatePmvEN16798,
     ModelInputsSelectionClothingPmvEN16798,
     ModelInputsSelectionMetablicRateFansAndHeat,
-    ModelInputsSelectionClothingFansAndHeat
+    ModelInputsSelectionClothingFansAndHeat,
+    ModelInputsSelectionMetablicRatePhs,
+    ModelInputsSelectionClothingPhs
 )
 from utils.website_text import TextHome
 
@@ -24,6 +26,7 @@ dd_model = {
         MODELS.PMV_EN.value,
         MODELS.Adaptive_EN.value,
         MODELS.Fans_heat.value,
+        MODELS.Phs.value,
     ],
     "multi": False,
     "default": MODELS.PMV_ashrae.value,
@@ -75,6 +78,8 @@ def chart_selection(selected_model):
         chart_inputs = pmv_en_chart
         return
     elif selected_model == MODELS.Fans_heat.value:
+        return
+    elif selected_model == MODELS.Phs.value:
         return
 
     return generate_dropdown_inline(chart_inputs, clearable=False)
@@ -184,6 +189,38 @@ fans_and_heat_clothing_selection = {
     "default": ModelInputsSelectionClothingFansAndHeat.c_1.value,
 }
 
+phs_metabolic_selection = {
+    "id": ElementsIDs.METABOLIC_SELECTION.value,
+    "question": "",
+    "options": [
+        ModelInputsSelectionMetablicRatePhs.h_1.value,
+        ModelInputsSelectionMetablicRatePhs.h_2.value,
+        ModelInputsSelectionMetablicRatePhs.h_3.value,
+        ModelInputsSelectionMetablicRatePhs.h_4.value,
+        ModelInputsSelectionMetablicRatePhs.h_5.value,
+    ],
+    "multi": False,
+    "default": ModelInputsSelectionMetablicRatePhs.h_1.value,
+}
+
+phs_clothing_selection = {
+    "id": ElementsIDs.CLOTHING_SELECTION.value,
+    "question": "",
+    "options": [
+        ModelInputsSelectionClothingPhs.c_1.value,
+        ModelInputsSelectionClothingPhs.c_2.value,
+        ModelInputsSelectionClothingPhs.c_3.value,
+        ModelInputsSelectionClothingPhs.c_4.value,
+        ModelInputsSelectionClothingPhs.c_5.value,
+        ModelInputsSelectionClothingPhs.c_6.value,
+        ModelInputsSelectionClothingPhs.c_7.value,
+        ModelInputsSelectionClothingPhs.c_8.value,
+        ModelInputsSelectionClothingPhs.c_9.value,
+    ],
+    "multi": False,
+    "default": ModelInputsSelectionClothingPhs.c_1.value,
+}
+
 def Ash55_air_speed_selection():
     return generate_dropdown_inline(adaptive_ashare_air_speed, clearable=False)
 
@@ -204,4 +241,10 @@ def Fans_heat_metabolic_selection():
     return generate_dropdown_inputs_inline(fans_and_heat_metabolic_selection, clearable=False)
 
 def Fans_heat_clothing_selection():
+    return generate_dropdown_inputs_inline(fans_and_heat_clothing_selection, clearable=False)
+
+def Phs_metabolic_selection():
+    return generate_dropdown_inputs_inline(fans_and_heat_metabolic_selection, clearable=False)
+
+def Phs_clothing_selection():
     return generate_dropdown_inputs_inline(fans_and_heat_clothing_selection, clearable=False)

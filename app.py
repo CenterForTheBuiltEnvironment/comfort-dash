@@ -26,6 +26,7 @@ from utils.my_config_file import (
     AdaptiveAshrae,
     PmvAshraeResultCard,
     PmvENResultCard,
+    PhsResultCard,
 )
 
 install()
@@ -200,6 +201,7 @@ def change_cols(selected_model):
     if (
         selected_model == MODELS.Adaptive_EN.value
         or selected_model == MODELS.Adaptive_ashrae.value
+        or selected_model == MODELS.Phs.value
     ):
         cols = 1
     else:
@@ -239,6 +241,15 @@ def update_graph_content(selected_model):
     elif selected_model == MODELS.Fans_heat.value:
         grid_content = [
         ]
+
+    elif selected_model == MODELS.Phs.value:
+        grid_content = [
+            dmc.Center(dmc.Text(PhsResultCard.line1.value)),
+            dmc.Center(dmc.Text(PhsResultCard.line2.value)),
+            dmc.Center(dmc.Text(PhsResultCard.line3.value)),
+            dmc.Center(dmc.Text(PhsResultCard.line4.value)),
+        ]
+
     return grid_content
 
 # def generate_buttons(selected_model):
