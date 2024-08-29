@@ -237,7 +237,3 @@ Project Link: [CenterForTheBuiltEnvironment/comfort-dash](https://github.com/Cen
 [product-screenshot]: images/screenshot.png
 [Python.org]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
 [Python-url]: https://www.python.org/
-
-
-
-
