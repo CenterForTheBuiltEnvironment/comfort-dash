@@ -1,7 +1,7 @@
 from urllib.parse import urlparse, parse_qs, urlencode
 import json
 
-from dash import dash
+from dash import dcc, html, Input, Output, State, ALL, MATCH, ctx, dash
 from dash.dependencies import Input, Output, State, ALL
 
 
@@ -91,7 +91,6 @@ class UrlState:
             ],
         )
         def update_url(*args):
-            ctx = app.callback_context
             if not ctx.triggered:
                 return dash.no_update
 
