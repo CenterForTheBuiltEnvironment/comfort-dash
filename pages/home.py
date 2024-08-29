@@ -66,6 +66,7 @@ layout = dmc.Stack(
                                         dmc.Text("Result 5"),
                                     ),
                                 ],
+                                style={"fontSize": "14px"},
                             ),
                             dcc.Graph(
                                 id=ElementsIDs.CHART_CONTAINER.value,

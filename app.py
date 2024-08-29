@@ -243,7 +243,7 @@ def update_graph_content(selected_model):
 
     elif selected_model == MODELS.Phs.value:
         grid_content = [
-            dmc.Center(dmc.Text(PhsResultCard.line1.value)),
+            dmc.Center(html.Strong(PhsResultCard.line1.value)),
             dmc.Center(dmc.Text(PhsResultCard.line2.value)),
             dmc.Center(dmc.Text(PhsResultCard.line3.value)),
             dmc.Center(dmc.Text(PhsResultCard.line4.value)),
