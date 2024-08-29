@@ -179,8 +179,8 @@ app.layout = dmc.MantineProvider(
 #     )
 
 @app.callback(
-    Output('input_card','children'),
-    Output('graph-container','children'),
+    Output("input_card", "children"),
+    Output("graph-container", "children"),
     Output("chart-select", "children"),
     Output("graph-container", "cols"),
     Input(dd_model['id'],'value')
@@ -244,7 +244,7 @@ def update_graph_content(selected_model):
 if __name__ == "__main__":
     app.run_server(
         debug=Config.DEBUG.value,
-        host="0.0.0.0",
+        host="127.0.0.1",
         port=os.environ.get("PORT_APP", 9090),
         processes=1,
         threaded=True,

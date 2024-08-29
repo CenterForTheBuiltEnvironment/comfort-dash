@@ -88,7 +88,7 @@ class Stores(Enum):
 class MODELS(Enum):
     PMV_ashrae: str = "PMV - ASHRAE 55"
     PMV_EN: str = "PMV - EN 16798"
-    Adaptive_ashare: str = "Adaptive - ASHRAE 55"
+    Adaptive_ashrae: str = "Adaptive - ASHRAE 55"
     Adaptive_EN: str = "Adaptive - EN 16798"
     Fans_heat: str = "FANS & HEAT"
     Phs: str = "PHS"
@@ -164,7 +164,7 @@ class AdaptiveENSpeeds(Enum):
     s_4: str = "1.2 m/s (236fpm)"
 
 
-class SPEEDS(Enum):
+class AdaptiveAshraeSpeeds(Enum):
     s_1: str = "0.3 m/s (59fpm)"
     s_2: str = "0.6 m/s (118fpm)"
     S_3: str = "0.9 m/s (177fpm)"
