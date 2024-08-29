@@ -1,5 +1,6 @@
 import dash_mantine_components as dmc
 
+
 def my_card(children, span: int | dict = 6, title: str = None, id=None):
     content = []
     if title:
