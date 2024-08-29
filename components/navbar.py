@@ -36,13 +36,13 @@ def my_navbar():
                                         [
                                             dbc.Col(
                                                 html.Img(
-                                                    src="/assets/media/CBE-logo-2018.png",
-                                                    height="80px",
-                                                    width="80px",
-                                                    alt="logo website navbar",
+                                                    # src="/assets/media/CBE-logo-2018.png",
+                                                    height="100",
+                                                    width="100",
+                                                    # alt="logo website navbar",
                                                     style={
-                                                        "border": "2px solid black",
-                                                        "padding": "5px",
+                                                        "border": "3px solid black",
+                                                        # "padding": "5px",
                                                         "border-radius": "20px",
                                                     },
                                                 ),
@@ -72,7 +72,8 @@ def my_navbar():
                                         "margin": "0",
                                         "width": "100%",
                                         "fontWeight": "bold",
-                                        "paddingBottom": "1px",
+                                        "fontSize": "70px",  # Increased font size
+                                        "paddingTop": "40px",  # Increased padding
                                     },
                                 )
                             ],
@@ -104,7 +105,12 @@ def my_navbar():
                                                 dbc.NavLink(
                                                     TextNavBar.about.value,
                                                     href=URLS.ABOUT.value,
-                                                    style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
+                                                    style={"padding": "0 10px",
+                                                           "margin": "0",
+                                                           "color": "#0078c2",
+                                                           "paddingTop": "40px",
+                                                           "fontSize": "20px",
+                                                           },
                                                     id=ElementsIDs.NAVBAR_ID_ABOUT.value,
                                                 )
                                             ),
@@ -113,7 +119,12 @@ def my_navbar():
                                                 dbc.NavLink(
                                                     TextNavBar.documentation.value,
                                                     href="https://github.com/CenterForTheBuiltEnvironment/comfort-dash",
-                                                    style={"padding": "0 10px", "margin": "0", "color": "#0078c2"},
+                                                    style={"padding": "0 10px",
+                                                           "margin": "0",
+                                                           "color": "#0078c2",
+                                                           "paddingTop": "40px",
+                                                           "fontSize": "20px",
+                                                           },
                                                     id=ElementsIDs.NAVBAR_ID_DOCUMENT.value,
 
                                                 ),
@@ -127,12 +138,14 @@ def my_navbar():
                                                 label=TextNavBar.tools.value,
                                                 align_end=True,
                                                 toggle_style={
-                                                    "background": "white",
+                                                    "background": "#fafafa",
                                                     "color": "#0078c2",
                                                     "borderWidth": "0px",
                                                     "marginTop": "-5px",
                                                     "borderStyle": "none",
+                                                    "fontSize": "20px",
                                                 },
+                                                style={"paddingTop": "40px"},
                                                 id=ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value,
                                             )
 
@@ -156,8 +169,9 @@ def my_navbar():
                 style={"flex": 1},
                 className="d-flex justify-content-between align-items-center w-100",  # Flexbox layout for full width
             ),
-            color="white",
+            color="#fafafa",
             dark=True,
+            style={ "border": "1px solid #e3e3e3",},
         ),
         id=ElementsIDs.NAVBAR.value,
     )

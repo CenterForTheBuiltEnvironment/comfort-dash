@@ -1,6 +1,6 @@
 from enum import Enum
 
-app_name = "CBE Thermal Comfort Tool"
+app_name = "CBE Tool Title"
 
 
 class TextFooter(Enum):
