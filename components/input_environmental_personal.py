@@ -5,7 +5,7 @@ from utils.my_config_file import (
     ModelInputsAdaptiveEN16798,
     ModelInputsPmvEN16798,
     ModelInputsSelectionOperativeTemperaturePmvEN16798,
-    ModelInputsFANSHEAT,
+    ModelInputsFansHeat,
     ModelInputsPhs,
     MODELS,
 )
@@ -44,7 +44,7 @@ def input_environmental_personal(selected_model):
         model_inputs = ModelInputsPmvEN16798()
 
     elif selected_model == MODELS.Fans_heat.value:
-        model_inputs = ModelInputsFANSHEAT()
+        model_inputs = ModelInputsFansHeat()
 
     elif selected_model == MODELS.Phs.value:
         model_inputs = ModelInputsPhs()
@@ -63,7 +63,7 @@ def input_environmental_personal(selected_model):
         )
         inputs.append(input_filed)
 
-    #Speed selection
+    # Speed selection
     inputs_left_and_right = []
     if selected_model == MODELS.Adaptive_ashrae.value:
         inputs_left_and_right.append(Ash55_air_speed_selection())
@@ -71,7 +71,7 @@ def input_environmental_personal(selected_model):
     if selected_model == MODELS.Adaptive_EN.value:
         inputs_left_and_right.append(En16798_air_speed_selection())
 
-    #Inputs right selection
+    # Inputs right selection
     inputs_right = []
 
     if selected_model == MODELS.PMV_EN.value:
@@ -132,9 +132,9 @@ def input_environmental_personal(selected_model):
                 style={"margin-left": "25px"},
             )
         )
-        inputs_right.append(dmc.Space(h=134)),
+        inputs_right.append(dmc.Space(h=44)),
         inputs_right.append(ashrae_speed_selection())
-        inputs_right.append(dmc.Space(h=45)),
+        inputs_right.append(dmc.Space(h=26)),
         inputs_right.append(ashrae_humidity_selection())
         inputs_right.append(dmc.Space(h=26)),
         inputs_right.append(ashrae_metabolic_selection())

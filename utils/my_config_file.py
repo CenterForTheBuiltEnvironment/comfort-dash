@@ -181,38 +181,31 @@ class AdaptiveENSpeeds(Enum):
 
 class ModelInputsPmvAshrae55(BaseModel):
     TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Air Temperature"
+        unit="°C", min=0.0, max=50.0, step=0.5, value=25.0, name="Air Temperature"
+    )
+    AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
+        unit="m/s", min=0.0, max=4.0, step=0.1, value=0.1, name="Air Speed"
     )
     RH: ModelInputsInfo = ModelInputsInfo(
         unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"
     )
-    AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
-        unit="m/s", min=0.0, max=1.0, step=0.1, value=0.1, name="Air Speed"
-    )
-    MRT: ModelInputsInfo = ModelInputsInfo(
-        unit="°C",
-        min=10.0,
-        max=40.0,
-        step=0.1,
-        value=25.0,
-        name="Mean Radiant Temperature",
-    )
     MET: ModelInputsInfo = ModelInputsInfo(
-        unit="met", min=0.7, max=2.0, step=0.1, value=1.2, name="Metabolic Rate"
+        unit="met", min=0.7, max=4.0, step=0.1, value=1.0, name="Metabolic Rate"
     )
     CLOTHING: ModelInputsInfo = ModelInputsInfo(
-        unit="clo", min=0.5, max=2.0, step=0.1, value=0.5, name="Clothing"
+        unit="clo", min=0.0, max=4.0, step=0.1, value=0.61, name="Clothing Level"
     )
+
 
 class ModelInputsAdaptiveAshrae55(BaseModel):
     AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Air Temperature"
+        unit="°C", min=0.0, max=50.0, step=0.5, value=25.0, name="Air Temperature"
     )
     MRT: ModelInputsInfo = ModelInputsInfo(
         unit="°C",
         min=10.0,
-        max=40.0,
-        step=0.1,
+        max=35.0,
+        step=0.5,
         value=25.0,
         name="Prevailing mean outdoor temperature",
     )
@@ -220,29 +213,29 @@ class ModelInputsAdaptiveAshrae55(BaseModel):
 
 class ModelInputsPmvEN16798(BaseModel):
     AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Air Temperature"
+        unit="°C", min=0.0, max=50.0, step=0.5, value=25.0, name="Air Temperature"
     )
     MRT: ModelInputsInfo = ModelInputsInfo(
         unit="°C",
-        min=10.0,
-        max=40.0,
-        step=0.1,
+        min=0.0,
+        max=50.0,
+        step=0.5,
         value=25.0,
         name="Mean Radiant Temperature",
     )
     AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
-        unit="m/s", min=0.0, max=1.0, step=0.1, value=0.1, name="Air Speed"
+        unit="m/s", min=0.0, max=4.0, step=0.1, value=0.1, name="Air Speed"
     )
     RH: ModelInputsInfo = ModelInputsInfo(
         unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"
     )
     MET: ModelInputsInfo = ModelInputsInfo(
-        unit="met", min=0.7, max=2.0, step=0.1, value=1, name="Metabolic Rate"
+        unit="met", min=0.7, max=4.0, step=0.1, value=1, name="Metabolic Rate"
     )
     DYNAMIC_CLOTHING: ModelInputsInfo = ModelInputsInfo(
         unit="clo",
-        min=0.5,
-        max=2.0,
+        min=0.0,
+        max=4.0,
         step=0.1,
         value=0.61,
         name="Dynamic Clothing insulation",
@@ -251,23 +244,61 @@ class ModelInputsPmvEN16798(BaseModel):
 
 class ModelInputsAdaptiveEN16798(BaseModel):
     AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Air Temperature"
+        unit="°C", min=0.0, max=50.0, step=0.5, value=25.0, name="Air Temperature"
     )
     MRT: ModelInputsInfo = ModelInputsInfo(
         unit="°C",
-        min=10.0,
-        max=40.0,
-        step=0.1,
+        min=0.0,
+        max=50.0,
+        step=0.5,
         value=25.0,
         name="Mean Radiant Temperature",
     )
     RUNNING_MEAN_OUTDOOR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
         unit="°C",
         min=10.0,
-        max=40.0,
+        max=35.0,
         step=0.1,
         value=25.0,
         name="Running Mean Outdoor Temperature",
+    )
+
+
+class ModelInputsFansHeat(BaseModel):
+    AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
+        unit="m/s", min=0.0, max=4.5, step=0.1, value=0.8, name="Air Speed"
+    )
+    MET: ModelInputsInfo = ModelInputsInfo(
+        unit="met", min=0.7, max=1.9, step=0.1, value=1.1, name="Metabolic Rate"
+    )
+    CLOTHING: ModelInputsInfo = ModelInputsInfo(
+        unit="clo", min=0.0, max=0.6, step=0.1, value=0.5, name="Clothing Level"
+    )
+
+
+class ModelInputsPhs(BaseModel):
+    AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
+        unit="°C", min=15.0, max=50.0, step=0.5, value=25.0, name="Air Temperature"
+    )
+    MRT: ModelInputsInfo = ModelInputsInfo(
+        unit="°C",
+        min=15.0,
+        max=50.0,
+        step=0.5,
+        value=25.0,
+        name="Mean Radiant Temperature",
+    )
+    AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
+        unit="m/s", min=0.0, max=3.0, step=0.1, value=0.1, name="Air Speed"
+    )
+    RH: ModelInputsInfo = ModelInputsInfo(
+        unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"
+    )
+    MET: ModelInputsInfo = ModelInputsInfo(
+        unit="met", min=1.0, max=4.3, step=0.1, value=1.2, name="Metabolic Rate"
+    )
+    CLOTHING: ModelInputsInfo = ModelInputsInfo(
+        unit="clo", min=0.1, max=1.0, step=0.1, value=0.5, name="Clothing Level"
     )
 
 
@@ -313,7 +344,6 @@ class ModelInputsSelectionMetabolicASHRAE55(Enum):
     h_26: str = "Tennis: 3.8"
     h_27: str = "Heavy machine work: 4.0"
     h_28: str = "Handling 100lb (45 kg) bags: 4.0"
-
 
 
 class ModelInputsSelectionClothingASHRAE55(Enum):
@@ -367,7 +397,6 @@ class ModelInputsSelectionMetablicRatePmvEN16798(Enum):
     h_28: str = "Handling 100lb (45 kg) bags: 4.0"
 
 
-
 class ModelInputsSelectionClothingPmvEN16798(Enum):
     c_1: str = "Walking shorts, short-sleeve shirt: 0.36 clo"
     c_2: str = "Typical summer indoor clothing: 0.5 clo"
@@ -409,7 +438,6 @@ class ModelInputsSelectionMetablicRateFansAndHeat(Enum):
     h_26: str = "Tennis: 3.8"
     h_27: str = "Heavy machine work: 4.0"
     h_28: str = "Handling 100lb (45 kg) bags: 4.0"
-
 
 
 class ModelInputsSelectionClothingFansAndHeat(Enum):
@@ -455,7 +483,6 @@ class ModelInputsSelectionMetablicRatePhs(Enum):
     h_28: str = "Handling 100lb (45 kg) bags: 4.0"
 
 
-
 class ModelInputsSelectionClothingPhs(Enum):
     c_1: str = "Walking shorts, short-sleeve shirt: 0.36 clo"
     c_2: str = "Typical summer indoor clothing: 0.5 clo"
@@ -479,42 +506,4 @@ class ModelChartDescription(Enum):
     )
     psy_air_temp_des_2: str = (
         "The CBE comfort tools automatically calculates the relative air speed but does not calculates the dynamic insulation characteristics of clothing as specified in the ISO 7730 Section C.2., hence this value should be calculated by the user and entered as input in the CBE comfort tool."
-    )
-
-
-class ModelInputsFANSHEAT(BaseModel):
-    AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
-        unit="m/s", min=0.0, max=1.0, step=0.1, value=0.1, name="Air Speed"
-    )
-    MET: ModelInputsInfo = ModelInputsInfo(
-        unit="met", min=0.7, max=2.0, step=0.1, value=1.2, name="Metabolic Rate"
-    )
-    CLOTHING: ModelInputsInfo = ModelInputsInfo(
-        unit="clo", min=0.5, max=2.0, step=0.1, value=0.5, name="Clothing"
-    )
-
-
-class ModelInputsPhs(BaseModel):
-    AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Air Temperature"
-    )
-    MRT: ModelInputsInfo = ModelInputsInfo(
-        unit="°C",
-        min=10.0,
-        max=40.0,
-        step=0.1,
-        value=25.0,
-        name="Mean Radiant Temperature",
-    )
-    AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
-        unit="m/s", min=0.0, max=1.0, step=0.1, value=0.1, name="Air Speed"
-    )
-    RH: ModelInputsInfo = ModelInputsInfo(
-        unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"
-    )
-    MET: ModelInputsInfo = ModelInputsInfo(
-        unit="met", min=0.7, max=2.0, step=0.1, value=1.2, name="Metabolic Rate"
-    )
-    CLOTHING: ModelInputsInfo = ModelInputsInfo(
-        unit="clo", min=0.5, max=2.0, step=0.1, value=0.5, name="Clothing"
     )
