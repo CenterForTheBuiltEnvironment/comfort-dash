@@ -13,7 +13,6 @@ from utils.my_config_file import (
     Stores,
     ElementsIDs,
     Dimensions,
-    ModelInputs3
 )
 from utils.website_text import app_name
 
@@ -21,6 +20,14 @@ from dash.dependencies import Input, Output
 from components.dropdowns import dd_model
 from components.drop_down_inline import generate_dropdown_inline
 from components.input_environmental_personal import input_environmental_personal
+from components.dropdowns import chart_selection
+from utils.my_config_file import (
+    MODELS,
+    AdaptiveEN,
+    AdaptiveAshrae,
+    PmvAshraeResultCard,
+    PmvENResultCard,
+)
 install()
 # from components.dropdowns import Ash55_air_speed_selection
 ic.configureOutput(includeContext=True)
@@ -174,37 +181,60 @@ app.layout = dmc.MantineProvider(
 @app.callback(
     Output('input_card','children'),
     Output('graph-container','children'),
+    Output("chart-select", "children"),
+    Output("graph-container", "cols"),
     Input(dd_model['id'],'value')
-
+    
 )
 
 def capture_selected_model(selected_model):
     print(selected_model)
     input_content = input_environmental_personal(selected_model)
     graph_content = update_graph_content(selected_model)
+    chart_content = chart_selection(selected_model)
+    result_content = change_cols(selected_model)
 
-    return input_content,graph_content
+    return input_content,graph_content, chart_content, result_content
+
+def change_cols(selected_model):
+    if (
+        selected_model == MODELS.Adaptive_EN.value
+        or selected_model == MODELS.Adaptive_ashrae.value
+    ):
+        cols = 1
+    else:
+        cols = 3
+    return cols
 
 def update_graph_content(selected_model):
-    if selected_model == 'EN - 16798':
+    if selected_model == MODELS.Adaptive_EN.value:
         grid_content = [
-            dmc.Center(dmc.Text("PMV = -0.16")),
-            dmc.Center(dmc.Text("PPD = 0.06")),
-            dmc.Center(dmc.Text("Category = |")),
+            dmc.Center(dmc.Text(AdaptiveEN.class_III.value)),
+            dmc.Center(dmc.Text(AdaptiveEN.class_II.value)),
+            dmc.Center(dmc.Text(AdaptiveEN.class_I.value)),
+            dmc.Center(dmc.Text(AdaptiveEN.adaptive_chart.value)),
         ]
-    elif selected_model == 'PMV - ASHRAE 55':
+    elif selected_model == MODELS.Adaptive_ashrae.value:
         grid_content = [
-            dmc.Center(dmc.Text("PMV = 0.6")),
-            dmc.Center(dmc.Text("PPD = 3")),
-            dmc.Center(dmc.Text("SET = 29.9")),
-            dmc.Center(dmc.Text("Result 6")),
-            dmc.Center(dmc.Text("Result 7")),
+            dmc.Center(dmc.Text(AdaptiveAshrae.acceptability_limits_80.value)),
+            dmc.Center(dmc.Text(AdaptiveAshrae.acceptability_limits_90.value)),
+            dmc.Center(dmc.Text(AdaptiveAshrae.adaptive_chart.value)),
         ]
-    elif selected_model == 'Adaptive - ASHRAE 55':
+    elif selected_model == MODELS.PMV_ashrae.value:
         grid_content = [
-            dmc.Center(dmc.Text("PMV = 0.6")),
-            dmc.Center(dmc.Text("PPD = 3")),
-            dmc.Center(dmc.Text("SET = 29.9")),
+            dmc.Center(dmc.Text(PmvAshraeResultCard.pmv.value)),
+            dmc.Center(dmc.Text(PmvAshraeResultCard.ppd.value)),
+            dmc.Center(dmc.Text(PmvAshraeResultCard.sensation.value)),
+            dmc.Center(dmc.Text(PmvAshraeResultCard.set.value)),
+        ]
+    elif selected_model == MODELS.PMV_EN.value:
+        grid_content = [
+            dmc.Center(dmc.Text(PmvENResultCard.pmv.value)),
+            dmc.Center(dmc.Text(PmvENResultCard.ppd.value)),
+            dmc.Center(dmc.Text(PmvENResultCard.set.value)),
+        ]
+    elif selected_model == MODELS.Fans_heat.value:
+        grid_content = [
         ]
     else:
         # unknown model selection
