@@ -248,6 +248,8 @@ def update_graph_content(selected_model):
             dmc.Center(dmc.Text(PhsResultCard.line3.value)),
             dmc.Center(dmc.Text(PhsResultCard.line4.value)),
         ]
+    else:
+        grid_content = []
 
     return grid_content
 

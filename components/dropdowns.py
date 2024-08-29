@@ -49,14 +49,14 @@ ashare_chart = {
     "question": TextHome.chart_selection.value,
     "options": [
         CHARTS.psychrometric.value,
-        CHARTS.Psychrometric_operative.value,
-        CHARTS.Relative_humidity.value,
-        CHARTS.Air_speed.value,
-        CHARTS.Thermal_heat.value,
-        CHARTS.Set_outputs.value,
+        CHARTS.psychrometric_operative.value,
+        CHARTS.relative_humidity.value,
+        CHARTS.air_speed.value,
+        CHARTS.thermal_heat.value,
+        CHARTS.set_outputs.value,
     ],
     "multi": False,
-    "default": CHARTS.Psychrometric_operative.value,
+    "default": CHARTS.psychrometric_operative.value,
 }
 
 pmv_en_chart = {
@@ -64,8 +64,8 @@ pmv_en_chart = {
     "question": TextHome.chart_selection.value,
     "options": [
         CHARTS.psychrometric.value,
-        CHARTS.Psychrometric_operative.value,
-        CHARTS.Relative_humidity.value,
+        CHARTS.psychrometric_operative.value,
+        CHARTS.relative_humidity.value,
     ],
     "multi": False,
     "default": CHARTS.psychrometric.value,
@@ -83,7 +83,6 @@ def chart_selection(selected_model):
         return
     elif selected_model == MODELS.PMV_EN.value:
         chart_inputs = pmv_en_chart
-        return
     elif selected_model == MODELS.Fans_heat.value:
         return
     elif selected_model == MODELS.Phs.value:
@@ -93,7 +92,7 @@ def chart_selection(selected_model):
 
 
 adaptive_ashare_air_speed = {
-    "id": ElementsIDs.SPEED_SELECTION.value,
+    "id": ElementsIDs.ADAPTIVE_ASHARE_SPEED_SELECTION.value,
     "question": TextHome.speed_selection.value,
     "options": [
         AdaptiveAshraeSpeeds.s_1.value,
@@ -106,7 +105,7 @@ adaptive_ashare_air_speed = {
 }
 
 adaptive_en_air_speed = {
-    "id": ElementsIDs.SPEED_SELECTION.value,
+    "id": ElementsIDs.ADAPTIVE_EN_SPEED_SELECTION.value,
     "question": TextHome.speed_selection.value,
     "options": [
         AdaptiveENSpeeds.s_1.value,
@@ -119,7 +118,7 @@ adaptive_en_air_speed = {
 }
 
 pmv_en_humidity_selection = {
-    "id": ElementsIDs.HUMIDITY_SELECTION.value,
+    "id": ElementsIDs.PMV_EN_HUMIDITY_SELECTION.value,
     "question": "",
     "options": [
         ModelInputsSelectionHumidityPmvEN16798.h_1.value,
@@ -133,7 +132,7 @@ pmv_en_humidity_selection = {
 }
 
 pmv_en_metabolic_selection = {
-    "id": ElementsIDs.METABOLIC_SELECTION.value,
+    "id": ElementsIDs.PMV_ENMETABOLIC_SELECTION.value,
     "question": "",
     "options": [
         ModelInputsSelectionMetablicRatePmvEN16798.h_1.value,
@@ -147,7 +146,7 @@ pmv_en_metabolic_selection = {
 }
 
 pmv_en_clothing_selection = {
-    "id": ElementsIDs.CLOTHING_SELECTION.value,
+    "id": ElementsIDs.PMV_EN_CLOTHING_SELECTION.value,
     "question": "",
     "options": [
         ModelInputsSelectionClothingPmvEN16798.c_1.value,
@@ -165,7 +164,7 @@ pmv_en_clothing_selection = {
 }
 
 fans_and_heat_metabolic_selection = {
-    "id": ElementsIDs.METABOLIC_SELECTION.value,
+    "id": ElementsIDs.FANS_AND_HEAT_METABOLIC_SELECTION.value,
     "question": "",
     "options": [
         ModelInputsSelectionMetablicRateFansAndHeat.h_1.value,
@@ -179,7 +178,7 @@ fans_and_heat_metabolic_selection = {
 }
 
 fans_and_heat_clothing_selection = {
-    "id": ElementsIDs.CLOTHING_SELECTION.value,
+    "id": ElementsIDs.FANS_AND_HEAT_CLOTHING_SELECTION.value,
     "question": "",
     "options": [
         ModelInputsSelectionClothingFansAndHeat.c_1.value,
@@ -197,7 +196,7 @@ fans_and_heat_clothing_selection = {
 }
 
 phs_metabolic_selection = {
-    "id": ElementsIDs.METABOLIC_SELECTION.value,
+    "id": ElementsIDs.PHS_METABOLIC_SELECTION.value,
     "question": "",
     "options": [
         ModelInputsSelectionMetablicRatePhs.h_1.value,
@@ -211,7 +210,7 @@ phs_metabolic_selection = {
 }
 
 phs_clothing_selection = {
-    "id": ElementsIDs.CLOTHING_SELECTION.value,
+    "id": ElementsIDs.PHS_CLOTHING_SELECTION.value,
     "question": "",
     "options": [
         ModelInputsSelectionClothingPhs.c_1.value,
@@ -229,7 +228,7 @@ phs_clothing_selection = {
 }
 
 ModelInputsSelectionSpeedASHRAE55List = {
-    "id": ElementsIDs.SPEED_Method.value,
+    "id": ElementsIDs.PMV_ASHARE_SPEED_SELECTION.value,
     "question": "",
     "options": [
         ModelInputsSelectionSpeedASHRAE55.s_1.value,
@@ -240,7 +239,7 @@ ModelInputsSelectionSpeedASHRAE55List = {
 }
 
 ModelInputsSelectionhumidityASHRAE55List = {
-    "id": ElementsIDs.Humidity_SELECTION.value,
+    "id": ElementsIDs.PMV_ASHARE_Humidity_SELECTION.value,
     "question": "",
     "options": [
         ModelInputsSelectionhumidityASHRAE55.s_1.value,
@@ -251,7 +250,7 @@ ModelInputsSelectionhumidityASHRAE55List = {
 }
 
 ModelInputsSelectionMetabolicASHRAE55List = {
-    "id": ElementsIDs.Metabolic_SELECTION.value,
+    "id": ElementsIDs.PMV_ASHARE_Metabolic_SELECTION.value,
     "question": "",
     "options": [
         ModelInputsSelectionMetabolicASHRAE55.s_1.value,
@@ -262,7 +261,7 @@ ModelInputsSelectionMetabolicASHRAE55List = {
 }
 
 ModelInputsSelectionClothingASHRAE55List = {
-    "id": ElementsIDs.Clothing_SELECTION.value,
+    "id": ElementsIDs.PMV_ASHARE_Clothing_SELECTION.value,
     "question": "",
     "options": [
         ModelInputsSelectionClothingASHRAE55.s_1.value,

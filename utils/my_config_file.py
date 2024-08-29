@@ -17,19 +17,24 @@ class ElementsIDs(Enum):
     NAVBAR_ID_ABOUT = "id-nav-about"
     MODEL_SELECTION = "id-model-selection"
     CHART_SELECTION = "id-chart-selection"
-    SPEED_SELECTION = "id-speed-selection"
-    HUMIDITY_SELECTION = "id-humidity-selection"
-    METABOLIC_SELECTION = "id-metabolic-selection"
-    CLOTHING_SELECTION = "id-clothing-selection"
     CHART_CONTAINER = "chart-container"
     URL = "url"
     FOOTER = "id-footer"
     NAVBAR_ID_DOCUMENT = "id-nav-documentation"
     NAVBAR_ID_MORE_CBE_TOOLS = "id-nav-more-cbe-tools"
-    SPEED_Method = "id-ashrae-55-speed-method"
-    Humidity_SELECTION = "id-ashrae-55-humidity-method"
-    Metabolic_SELECTION = "id-ashrae-55- metabolic-method"
-    Clothing_SELECTION = "id-ashrae-55-clothing-method"
+    ADAPTIVE_ASHARE_SPEED_SELECTION = "id-adaptive-ashare-speed-selection"
+    ADAPTIVE_EN_SPEED_SELECTION = "id-adaptive-en-speed-selection"
+    PMV_EN_HUMIDITY_SELECTION = "id-humidity-selection"
+    PMV_ENMETABOLIC_SELECTION = "id-metabolic-selection"
+    PMV_EN_CLOTHING_SELECTION = "id-clothing-selection"
+    FANS_AND_HEAT_METABOLIC_SELECTION = "id-fans-and-heat-metabolic-selection"
+    FANS_AND_HEAT_CLOTHING_SELECTION = "id-fans-and-heat-clothing-selection"
+    PHS_METABOLIC_SELECTION = "id-phs-metabolic-selection"
+    PHS_CLOTHING_SELECTION = "id-phs-clothing-selection"
+    PMV_ASHARE_SPEED_SELECTION = "id-pmv-ashrae-speed-method"
+    PMV_ASHARE_Humidity_SELECTION = "id-pmv-ashrae-humidity-method"
+    PMV_ASHARE_Metabolic_SELECTION = "id-pmv-ashrae-metabolic-method"
+    PMV_ASHARE_Clothing_SELECTION = "id-pmv-ashrae-clothing-method"
 
 
 class Config(Enum):
@@ -40,8 +45,8 @@ class Config(Enum):
 class URLS(Enum):
     HOME: str = "/"
     ABOUT: str = "/about"
-    Documentation: str = "/documentation"
-    Tools: str = "/moreCBETools"
+    DOCUMENTAION: str = "/documentation"
+    TOOLS: str = "/moreCBETools"
 
 
 class ToolUrls(Enum):
@@ -97,13 +102,13 @@ class MODELS(Enum):
 class CHARTS(Enum):
     t_rh: str = "Temperature and Relative Humidity"
     psychrometric: str = "Psychrometric(air temperature)"
-    Psychrometric_operative: str = "Psychrometric(opeative tempeature)"
-    Relative_humidity: str = "Relative humidity vs. air temperature"
-    Air_speed: str = "Air speed vs. operative temperature"
-    Thermal_heat: str = "Thermal heat losses vs. air temperature"
-    Set_outputs: str = "SET outputs chart"
-    Fans_Heat_Chart: str = "Fans and Heat Chart"
-    Phs_Chart: str = "PHS Chart"
+    psychrometric_operative: str = "Psychrometric(opeative tempeature)"
+    relative_humidity: str = "Relative humidity vs. air temperature"
+    air_speed: str = "Air speed vs. operative temperature"
+    thermal_heat: str = "Thermal heat losses vs. air temperature"
+    set_outputs: str = "SET outputs chart"
+    fans_Heat_Chart: str = "Fans and Heat Chart"
+    phs_Chart: str = "PHS Chart"
 
 
 class AdaptiveEN(Enum):
@@ -176,7 +181,7 @@ class AdaptiveENSpeeds(Enum):
 
 class ModelInputsPmvAshrae55(BaseModel):
     TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Temperature"
+        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Air Temperature"
     )
     RH: ModelInputsInfo = ModelInputsInfo(
         unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"
@@ -197,6 +202,19 @@ class ModelInputsPmvAshrae55(BaseModel):
     )
     CLOTHING: ModelInputsInfo = ModelInputsInfo(
         unit="clo", min=0.5, max=2.0, step=0.1, value=0.5, name="Clothing"
+    )
+
+class ModelInputsAdaptiveAshrae55(BaseModel):
+    AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
+        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Air Temperature"
+    )
+    MRT: ModelInputsInfo = ModelInputsInfo(
+        unit="°C",
+        min=10.0,
+        max=40.0,
+        step=0.1,
+        value=25.0,
+        name="Prevailing mean outdoor temperature",
     )
 
 
@@ -250,20 +268,6 @@ class ModelInputsAdaptiveEN16798(BaseModel):
         step=0.1,
         value=25.0,
         name="Running Mean Outdoor Temperature",
-    )
-
-
-class ModelInputsAdaptiveAshrae55(BaseModel):
-    AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Temperature"
-    )
-    MRT: ModelInputsInfo = ModelInputsInfo(
-        unit="°C",
-        min=10.0,
-        max=40.0,
-        step=0.1,
-        value=25.0,
-        name="Prevailing mean outdoor temperature",
     )
 
 

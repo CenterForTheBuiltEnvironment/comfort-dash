@@ -63,17 +63,17 @@ def input_environmental_personal(selected_model):
         )
         inputs.append(input_filed)
 
-    # input right
-    inputs_right = []
+    #Speed selection
     inputs_left_and_right = []
-
     if selected_model == MODELS.Adaptive_ashrae.value:
         inputs_left_and_right.append(Ash55_air_speed_selection())
 
     if selected_model == MODELS.Adaptive_EN.value:
         inputs_left_and_right.append(En16798_air_speed_selection())
 
-    model_inputs = ModelInputsPmvAshrae55()
+    #Inputs right selection
+    inputs_right = []
+
     if selected_model == MODELS.PMV_EN.value:
         inputs_right.append(dmc.Space(h=40))
         inputs_right.append(
@@ -105,7 +105,7 @@ def input_environmental_personal(selected_model):
         inputs_right.append(
             dmc.Checkbox(
                 label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value,
-                checked=False,
+                checked=True,
                 style={"margin-left": "25px"},
             )
         )
@@ -122,12 +122,13 @@ def input_environmental_personal(selected_model):
         inputs_right.append(dmc.Space(h=25)),
         inputs_right.append(Phs_clothing_selection()),
 
+    # PMV - ASHARE right button
     else:
         inputs_right.append(dmc.Space(h=40)),
         inputs_right.append(
             dmc.Checkbox(
                 label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value,
-                checked=False,
+                checked=True,
                 style={"margin-left": "25px"},
             )
         )
