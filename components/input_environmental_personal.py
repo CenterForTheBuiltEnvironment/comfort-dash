@@ -20,10 +20,10 @@ from components.dropdowns import (
     Fans_heat_clothing_selection,
     Phs_metabolic_selection,
     Phs_clothing_selection,
-    ModelInputsSelectionSpeedASHRAE55List_selection,
-    ModelInputsSelectionhumidityASHRAE55List_selection,
-    ModelInputsSelectionMetabolicASHRAE55List_selection,
-    ModelInputsSelectionClothingASHRAE55List_selection,
+    ashrae_speed_selection,
+    ashrae_humidity_selection,
+    ashrae_metabolic_selection,
+    ashare_clothing_selection,
 )
 
 
@@ -133,13 +133,13 @@ def input_environmental_personal(selected_model):
             )
         )
         inputs_right.append(dmc.Space(h=134)),
-        inputs_right.append(ModelInputsSelectionSpeedASHRAE55List_selection())
+        inputs_right.append(ashrae_speed_selection())
         inputs_right.append(dmc.Space(h=45)),
-        inputs_right.append(ModelInputsSelectionhumidityASHRAE55List_selection())
+        inputs_right.append(ashrae_humidity_selection())
         inputs_right.append(dmc.Space(h=26)),
-        inputs_right.append(ModelInputsSelectionMetabolicASHRAE55List_selection())
+        inputs_right.append(ashrae_metabolic_selection())
         inputs_right.append(dmc.Space(h=27)),
-        inputs_right.append(ModelInputsSelectionClothingASHRAE55List_selection())
+        inputs_right.append(ashare_clothing_selection())
 
     return dmc.Paper(
         children=[

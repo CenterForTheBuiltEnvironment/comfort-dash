@@ -227,7 +227,7 @@ phs_clothing_selection = {
     "default": ModelInputsSelectionClothingPhs.c_1.value,
 }
 
-ModelInputsSelectionSpeedASHRAE55List = {
+pmv_ashrae_speed_selection= {
     "id": ElementsIDs.PMV_ASHARE_SPEED_SELECTION.value,
     "question": "",
     "options": [
@@ -238,7 +238,7 @@ ModelInputsSelectionSpeedASHRAE55List = {
     "default": ModelInputsSelectionSpeedASHRAE55.s_1.value,
 }
 
-ModelInputsSelectionhumidityASHRAE55List = {
+pmv_ashrae_humidity_selection = {
     "id": ElementsIDs.PMV_ASHARE_Humidity_SELECTION.value,
     "question": "",
     "options": [
@@ -249,7 +249,7 @@ ModelInputsSelectionhumidityASHRAE55List = {
     "default": ModelInputsSelectionhumidityASHRAE55.s_1.value,
 }
 
-ModelInputsSelectionMetabolicASHRAE55List = {
+pmv_ashrae_metabolic_selection = {
     "id": ElementsIDs.PMV_ASHARE_Metabolic_SELECTION.value,
     "question": "",
     "options": [
@@ -260,7 +260,7 @@ ModelInputsSelectionMetabolicASHRAE55List = {
     "default": ModelInputsSelectionMetabolicASHRAE55.s_1.value,
 }
 
-ModelInputsSelectionClothingASHRAE55List = {
+pmv_ashare_clothing_selection = {
     "id": ElementsIDs.PMV_ASHARE_Clothing_SELECTION.value,
     "question": "",
     "options": [
@@ -273,23 +273,33 @@ ModelInputsSelectionClothingASHRAE55List = {
 
 
 def Ash55_air_speed_selection():
-    return generate_dropdown_inline(adaptive_ashare_air_speed, clearable=False)
+    return generate_dropdown_inputs_inline(
+        adaptive_ashare_air_speed, clearable=False
+    )
 
 
 def En16798_air_speed_selection():
-    return generate_dropdown_inline(adaptive_en_air_speed, clearable=False)
+    return generate_dropdown_inputs_inline(
+        adaptive_en_air_speed, clearable=False
+    )
 
 
 def En16798_relative_humidity_selection():
-    return generate_dropdown_inputs_inline(pmv_en_humidity_selection, clearable=False)
+    return generate_dropdown_inputs_inline(
+        pmv_en_humidity_selection, clearable=False
+    )
 
 
 def En16798_relative_metabolic_selection():
-    return generate_dropdown_inputs_inline(pmv_en_metabolic_selection, clearable=False)
+    return generate_dropdown_inputs_inline(
+        pmv_en_metabolic_selection, clearable=False
+    )
 
 
 def En16798_relative_clothing_selection():
-    return generate_dropdown_inputs_inline(pmv_en_clothing_selection, clearable=False)
+    return generate_dropdown_inputs_inline(
+        pmv_en_clothing_selection, clearable=False
+    )
 
 
 def Fans_heat_metabolic_selection():
@@ -316,25 +326,25 @@ def Phs_clothing_selection():
     )
 
 
-def ModelInputsSelectionSpeedASHRAE55List_selection():
+def ashrae_speed_selection():
     return generate_dropdown_inputs_inline(
-        ModelInputsSelectionSpeedASHRAE55List, clearable=False
+        pmv_ashrae_speed_selection, clearable=False
     )
 
 
-def ModelInputsSelectionhumidityASHRAE55List_selection():
+def ashrae_humidity_selection():
     return generate_dropdown_inputs_inline(
-        ModelInputsSelectionhumidityASHRAE55List, clearable=False
+        pmv_ashrae_humidity_selection, clearable=False
     )
 
 
-def ModelInputsSelectionMetabolicASHRAE55List_selection():
+def ashrae_metabolic_selection():
     return generate_dropdown_inputs_inline(
-        ModelInputsSelectionMetabolicASHRAE55List, clearable=False
+        pmv_ashrae_metabolic_selection, clearable=False
     )
 
 
-def ModelInputsSelectionClothingASHRAE55List_selection():
+def ashare_clothing_selection():
     return generate_dropdown_inputs_inline(
-        ModelInputsSelectionClothingASHRAE55List, clearable=False
+        pmv_ashare_clothing_selection, clearable=False
     )
