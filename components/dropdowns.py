@@ -68,6 +68,7 @@ pmv_en_chart = {
     "default": CHARTS.psychrometric.value,
 }
 
+
 def chart_selection(selected_model):
     chart_inputs = ashare_chart
 
@@ -84,7 +85,7 @@ def chart_selection(selected_model):
         return
     elif selected_model == MODELS.Phs.value:
         return
-    
+
     return generate_dropdown_inline(chart_inputs, clearable=False)
 
 
@@ -270,10 +271,11 @@ ModelInputsSelectionClothingASHRAE55List ={
 
 
 def Ash55_air_speed_selection():
-    return generate_dropdown_inputs_inline(adaptive_ashare_air_speed, clearable=False)
+    return generate_dropdown_inline(adaptive_ashare_air_speed, clearable=False)
+
 
 def En16798_air_speed_selection():
-    return generate_dropdown_inputs_inline(adaptive_en_air_speed, clearable=False)
+    return generate_dropdown_inline(adaptive_en_air_speed, clearable=False)
 
 def En16798_relative_humidity_selection():
     return generate_dropdown_inputs_inline(pmv_en_humidity_selection,clearable=False)

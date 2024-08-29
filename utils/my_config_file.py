@@ -1,6 +1,5 @@
 import platform
 from enum import Enum
-from dataclasses import dataclass
 from pydantic import BaseModel
 
 
@@ -43,6 +42,7 @@ class URLS(Enum):
     ABOUT: str = "/about"
     Documentation: str = "/documentation"
     Tools: str = "/moreCBETools"
+
 
 class ToolUrls(Enum):
     cbe_thermal_comfort_tool: str = (
@@ -96,7 +96,7 @@ class MODELS(Enum):
 
 class CHARTS(Enum):
     t_rh: str = "Temperature and Relative Humidity"
-    psychrometric: str = "Psychrometric"
+    psychrometric: str = "Psychrometric(air temperature)"
     Psychrometric_operative: str = "Psychrometric(opeative tempeature)"
     Relative_humidity: str = "Relative humidity vs. air temperature"
     Air_speed: str = "Air speed vs. operative temperature"
@@ -141,13 +141,11 @@ class PmvENResultCard(Enum):
     ppd: str = "PPD = 6 %"
     set: str = "SET = |"
 
-
 class PhsResultCard(Enum):
     line1: str = "Maximum allowable exposure time within which the physiological strain is acceptable (no physical damage is to be expected) calculated as a function of:"
     line2: str = "max rectal temperature = 53 min"
     line3: str = "water loss of 5% of the body mass for 95% of the population = 256 min"
     line4: str = "water loss of 7.5% of the body mass for an average person = 380 min"
-
 
 class ModelInputsInfo(BaseModel):
     name: str
@@ -157,18 +155,20 @@ class ModelInputsInfo(BaseModel):
     step: float
     value: float
 
-class AdaptiveENSpeeds(Enum):
-    s_1: str = "lower than 0.6 m/s (118fpm)"
-    s_2: str = "0.6 m/s (118fpm)"
-    S_3: str = "0.9 m/s (177fpm)"
-    s_4: str = "1.2 m/s (236fpm)"
-
 
 class AdaptiveAshraeSpeeds(Enum):
     s_1: str = "0.3 m/s (59fpm)"
     s_2: str = "0.6 m/s (118fpm)"
     S_3: str = "0.9 m/s (177fpm)"
     s_4: str = "1.2 m/s (236fpm)"
+
+
+class AdaptiveENSpeeds(Enum):
+    s_1: str = "lower than 0.6 m/s (118fpm)"
+    s_2: str = "0.6 m/s (118fpm)"
+    S_3: str = "0.9 m/s (177fpm)"
+    s_4: str = "1.2 m/s (236fpm)"
+
 
 class ModelInputsPmvAshrae55(BaseModel):
     TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
@@ -218,12 +218,18 @@ class ModelInputsPmvEN16798(BaseModel):
         unit="met", min=0.7, max=2.0, step=0.1, value=1, name="Metabolic Rate"
     )
     DYNAMIC_CLOTHING: ModelInputsInfo = ModelInputsInfo(
-        unit="clo", min=0.5, max=2.0, step=0.1, value=0.61, name="Dynamic Clothing insulation"
+        unit="clo",
+        min=0.5,
+        max=2.0,
+        step=0.1,
+        value=0.61,
+        name="Dynamic Clothing insulation",
     )
+
 
 class ModelInputsAdaptiveEN16798(BaseModel):
     AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Temperature"
+        unit="°C", min=10.0, max=40.0, step=0.1, value=25.0, name="Air Temperature"
     )
     MRT: ModelInputsInfo = ModelInputsInfo(
         unit="°C",
@@ -241,6 +247,7 @@ class ModelInputsAdaptiveEN16798(BaseModel):
         value=25.0,
         name="Running Mean Outdoor Temperature",
     )
+
 
 class ModelInputsAdaptiveAshrae55(BaseModel):
     AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
@@ -376,3 +383,4 @@ class ModelInputsPhs(BaseModel):
     CLOTHING: ModelInputsInfo = ModelInputsInfo(
         unit="clo", min=0.5, max=2.0, step=0.1, value=0.5, name="Clothing"
     )
+

@@ -18,7 +18,6 @@ from utils.website_text import app_name
 
 from dash.dependencies import Input, Output
 from components.dropdowns import dd_model
-from components.drop_down_inline import generate_dropdown_inline
 from components.input_environmental_personal import input_environmental_personal
 from components.dropdowns import chart_selection
 from utils.my_config_file import (
@@ -29,6 +28,7 @@ from utils.my_config_file import (
     PmvENResultCard,
     PhsResultCard,
 )
+
 install()
 # from components.dropdowns import Ash55_air_speed_selection
 ic.configureOutput(includeContext=True)
@@ -179,15 +179,14 @@ app.layout = dmc.MantineProvider(
 #         mimetype="text/xml",
 #     )
 
+
 @app.callback(
     Output("input_card", "children"),
     Output("graph-container", "children"),
     Output("chart-select", "children"),
     Output("graph-container", "cols"),
-    Input(dd_model['id'],'value')
-    
+    Input(dd_model["id"], "value"),
 )
-
 def capture_selected_model(selected_model):
     print(selected_model)
     input_content = input_environmental_personal(selected_model)
@@ -195,7 +194,8 @@ def capture_selected_model(selected_model):
     chart_content = chart_selection(selected_model)
     result_content = change_cols(selected_model)
 
-    return input_content,graph_content, chart_content, result_content
+    return input_content, graph_content, chart_content, result_content
+
 
 def change_cols(selected_model):
     if (
@@ -208,7 +208,9 @@ def change_cols(selected_model):
         cols = 3
     return cols
 
+
 def update_graph_content(selected_model):
+
     if selected_model == MODELS.Adaptive_EN.value:
         grid_content = [
             dmc.Center(dmc.Text(AdaptiveEN.class_III.value)),
@@ -235,10 +237,11 @@ def update_graph_content(selected_model):
             dmc.Center(dmc.Text(PmvENResultCard.ppd.value)),
             dmc.Center(dmc.Text(PmvENResultCard.set.value)),
         ]
+
     elif selected_model == MODELS.Fans_heat.value:
         grid_content = [
         ]
-        
+
     elif selected_model == MODELS.Phs.value:
         grid_content = [
             dmc.Center(dmc.Text(PhsResultCard.line1.value)),
@@ -247,11 +250,14 @@ def update_graph_content(selected_model):
             dmc.Center(dmc.Text(PhsResultCard.line4.value)),
         ]
 
-    else:
-        # unknown model selection
-        grid_content = [dmc.Center(dmc.Text("Unknown model selection"))]
-
     return grid_content
+
+# def generate_buttons(selected_model):
+    return generate_dropdown_inline()
+
+
+
+
 if __name__ == "__main__":
     app.run_server(
         debug=Config.DEBUG.value,

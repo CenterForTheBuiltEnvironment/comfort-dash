@@ -21,6 +21,7 @@ class TextFooter(Enum):
     see_changelog = "See Changelog"
     version = "Version.X.Y.Z"
 
+
 class TextNavBar(Enum):
     home: str = "Home"
     settings: str = "Settings"

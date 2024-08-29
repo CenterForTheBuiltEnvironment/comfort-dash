@@ -4,7 +4,10 @@ import dash_mantine_components as dmc
 from components.charts import chart_example
 from components.functionality_selection import functionality_selection
 from components.input_environmental_personal import input_environmental_personal
-from components.dropdowns import model_selection, chart_selection
+from components.dropdowns import (
+    model_selection,
+    chart_selection,
+)
 from components.my_card import my_card
 from utils.my_config_file import (
     URLS,
@@ -34,8 +37,8 @@ layout = dmc.Stack(
             children=[
                 my_card(
                     title="",
-                    children=input_environmental_personal(''),
-                    id = 'input_card',
+                    children=input_environmental_personal(""),
+                    id="input_card",
                     span={"base": 12, "sm": 5},
                 ),
                 my_card(
@@ -45,9 +48,9 @@ layout = dmc.Stack(
                             html.Div(id="chart-select", children=chart_selection("")),
                             dmc.SimpleGrid(
                                 cols=3,
-                                spacing="md",
+                                spacing="xs",
                                 verticalSpacing="xs",
-                                id = 'graph-container',
+                                id="graph-container",
                                 children=[
                                     dmc.Center(dmc.Text("PMV = 0.5")),
                                     dmc.Center(
@@ -83,7 +86,6 @@ layout = dmc.Stack(
                             ),
                         ],
                     ),
-                    
                     span={"base": 12, "sm": 7},
                 ),
             ],

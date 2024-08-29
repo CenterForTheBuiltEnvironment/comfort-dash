@@ -8,3 +8,4 @@ def chart_example():
 
     fig = px.area(df, x="year", y="pop", color="continent", line_group="country")
     return fig
+
