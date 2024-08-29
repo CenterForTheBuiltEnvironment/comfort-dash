@@ -23,6 +23,7 @@ def functionality_selection():
         ]
     )
 
+
 import dash_mantine_components as dmc
 
 from utils.website_text import TextHome

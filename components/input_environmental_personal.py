@@ -8,7 +8,6 @@ from utils.my_config_file import (
     ModelInputsFANSHEAT,
     ModelInputsPhs,
     MODELS,
-
 )
 import dash_mantine_components as dmc
 from components.dropdowns import (
@@ -24,7 +23,7 @@ from components.dropdowns import (
     ModelInputsSelectionSpeedASHRAE55List_selection,
     ModelInputsSelectionhumidityASHRAE55List_selection,
     ModelInputsSelectionMetabolicASHRAE55List_selection,
-    ModelInputsSelectionClothingASHRAE55List_selection
+    ModelInputsSelectionClothingASHRAE55List_selection,
 )
 
 
@@ -64,9 +63,6 @@ def input_environmental_personal(selected_model):
         )
         inputs.append(input_filed)
 
-
-
-
     # input right
     inputs_right = []
     inputs_left_and_right = []
@@ -81,8 +77,12 @@ def input_environmental_personal(selected_model):
     if selected_model == MODELS.PMV_EN.value:
         inputs_right.append(dmc.Space(h=40))
         inputs_right.append(
-            dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
-                         style={"margin-left": "25px"}))
+            dmc.Checkbox(
+                label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value,
+                checked=False,
+                style={"margin-left": "25px"},
+            )
+        )
         inputs_right.append(dmc.Space(h=243))
         inputs_right.append(En16798_relative_humidity_selection())
         inputs_right.append(dmc.Space(h=26))
@@ -93,14 +93,22 @@ def input_environmental_personal(selected_model):
     elif selected_model == MODELS.Adaptive_EN.value:
         inputs_right.append(dmc.Space(h=40)),
         inputs_right.append(
-            dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
-                         style={"margin-left": "25px"}))
+            dmc.Checkbox(
+                label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value,
+                checked=False,
+                style={"margin-left": "25px"},
+            )
+        )
 
     elif selected_model == MODELS.Adaptive_ashrae.value:
         inputs_right.append(dmc.Space(h=40)),
         inputs_right.append(
-            dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
-                         style={"margin-left": "25px"}))
+            dmc.Checkbox(
+                label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value,
+                checked=False,
+                style={"margin-left": "25px"},
+            )
+        )
 
     elif selected_model == MODELS.Fans_heat.value:
         inputs_right.append(dmc.Space(h=125)),
@@ -117,8 +125,12 @@ def input_environmental_personal(selected_model):
     else:
         inputs_right.append(dmc.Space(h=40)),
         inputs_right.append(
-            dmc.Checkbox(label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value, checked=False,
-                         style={"margin-left": "25px"}))
+            dmc.Checkbox(
+                label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value,
+                checked=False,
+                style={"margin-left": "25px"},
+            )
+        )
         inputs_right.append(dmc.Space(h=134)),
         inputs_right.append(ModelInputsSelectionSpeedASHRAE55List_selection())
         inputs_right.append(dmc.Space(h=45)),
@@ -128,24 +140,20 @@ def input_environmental_personal(selected_model):
         inputs_right.append(dmc.Space(h=27)),
         inputs_right.append(ModelInputsSelectionClothingASHRAE55List_selection())
 
-
-
     return dmc.Paper(
         children=[
             dmc.Text("Inputs", mb="xs", fw=700),
             dmc.Grid(
                 children=[
                     dmc.GridCol(
-                        dmc.Stack(inputs, gap="xs"),
-                        span={"base": 12, "sm": 5}
+                        dmc.Stack(inputs, gap="xs"), span={"base": 12, "sm": 5}
                     ),
                     dmc.GridCol(
-                        dmc.Stack(inputs_right, gap="xs"),
-                        span={"base": 12, "sm": 7}
+                        dmc.Stack(inputs_right, gap="xs"), span={"base": 12, "sm": 7}
                     ),
                     dmc.GridCol(
                         dmc.Stack(inputs_left_and_right, gap="xs"),
-                        span={"base": 12, "sm": 12}
+                        span={"base": 12, "sm": 12},
                     ),
                 ],
                 gutter="md",

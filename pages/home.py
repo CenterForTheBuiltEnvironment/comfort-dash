@@ -74,14 +74,12 @@ layout = dmc.Stack(
                             dmc.GridCol(
                                 children=dmc.Text(
                                     [
-                                        html.Strong(
-                                            ModelChartDescription.note.value
-                                        ),
+                                        html.Strong(ModelChartDescription.note.value),
                                         ModelChartDescription.psy_air_temp_des_1.value,
                                         dmc.Space(h=20),
                                         ModelChartDescription.psy_air_temp_des_2.value,
                                     ],
-                                    style={"fontSize":"14px"},
+                                    style={"fontSize": "14px"},
                                 ),
                             ),
                         ],

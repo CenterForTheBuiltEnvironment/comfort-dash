@@ -28,7 +28,7 @@ class ElementsIDs(Enum):
     NAVBAR_ID_MORE_CBE_TOOLS = "id-nav-more-cbe-tools"
     SPEED_Method = "id-ashrae-55-speed-method"
     Humidity_SELECTION = "id-ashrae-55-humidity-method"
-    Metabolic_SELECTION ="id-ashrae-55- metabolic-method"
+    Metabolic_SELECTION = "id-ashrae-55- metabolic-method"
     Clothing_SELECTION = "id-ashrae-55-clothing-method"
 
 
@@ -141,11 +141,15 @@ class PmvENResultCard(Enum):
     ppd: str = "PPD = 6 %"
     set: str = "SET = |"
 
+
 class PhsResultCard(Enum):
-    line1: str = "Maximum allowable exposure time within which the physiological strain is acceptable (no physical damage is to be expected) calculated as a function of:"
+    line1: str = (
+        "Maximum allowable exposure time within which the physiological strain is acceptable (no physical damage is to be expected) calculated as a function of:"
+    )
     line2: str = "max rectal temperature = 53 min"
     line3: str = "water loss of 5% of the body mass for 95% of the population = 256 min"
     line4: str = "water loss of 7.5% of the body mass for an average person = 380 min"
+
 
 class ModelInputsInfo(BaseModel):
     name: str
@@ -262,29 +266,34 @@ class ModelInputsAdaptiveAshrae55(BaseModel):
         name="Prevailing mean outdoor temperature",
     )
 
+
 class ModelInputsSelectionSpeedASHRAE55(Enum):
-    s_1: str ="No local control"
-    s_2: str ="witn local control"
+    s_1: str = "No local control"
+    s_2: str = "witn local control"
+
 
 class ModelInputsSelectionhumidityASHRAE55(Enum):
-    s_1: str ="Relative humidity"
-    s_2: str ="Humidity ratio"
+    s_1: str = "Relative humidity"
+    s_2: str = "Humidity ratio"
+
 
 class ModelInputsSelectionMetabolicASHRAE55(Enum):
-    s_1: str ="Sleeping: 0.7"
-    s_2: str ="Reclining: 0.8"
+    s_1: str = "Sleeping: 0.7"
+    s_2: str = "Reclining: 0.8"
+
 
 class ModelInputsSelectionClothingASHRAE55(Enum):
-    s_1: str ="Walking shorts, short-sleeve shirt:0.36 clo"
-    s_2: str ="Typical summer indoor clothing:0.5 clo"
+    s_1: str = "Walking shorts, short-sleeve shirt:0.36 clo"
+    s_2: str = "Typical summer indoor clothing:0.5 clo"
 
 
 class ModelInputsSelectionHumidityPmvEN16798(Enum):
     h_1: str = "Relative humidity"
     h_2: str = "Humidity ratio"
     h_3: str = "Dew point"
-    h_4: str = "Wet bulb" 
+    h_4: str = "Wet bulb"
     h_5: str = "Vapor pressure"
+
 
 class ModelInputsSelectionMetablicRatePmvEN16798(Enum):
     h_1: str = "Sleeping: 0.7"
@@ -293,16 +302,18 @@ class ModelInputsSelectionMetablicRatePmvEN16798(Enum):
     h_4: str = "Reading, seated: 1.0"
     h_5: str = "Writing: 1.0"
 
+
 class ModelInputsSelectionClothingPmvEN16798(Enum):
-    c_1: str= "Walking shorts, short-sleeve shirt: 0.36 clo"
-    c_2: str= "Typical summer indoor clothing: 0.5 clo"
-    c_3: str= "Knee-length skirt, short-sleeve shirt, sandals, underwear: 0.54 clo"
-    c_4: str= "Trousers, short-sleeve shirt, socks, shoes, underwear: 0.57 clo"
-    c_5: str= "Trousers, long-sleeve shirt: 0.61 clo"
-    c_6: str= "Knee-length skirt, long-sleeve shirt, full slip: 0.67 clo"
-    c_7: str= "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
-    c_8: str= "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
-    c_9: str= "Typical winter indoor clothing: 1.0 clo"
+    c_1: str = "Walking shorts, short-sleeve shirt: 0.36 clo"
+    c_2: str = "Typical summer indoor clothing: 0.5 clo"
+    c_3: str = "Knee-length skirt, short-sleeve shirt, sandals, underwear: 0.54 clo"
+    c_4: str = "Trousers, short-sleeve shirt, socks, shoes, underwear: 0.57 clo"
+    c_5: str = "Trousers, long-sleeve shirt: 0.61 clo"
+    c_6: str = "Knee-length skirt, long-sleeve shirt, full slip: 0.67 clo"
+    c_7: str = "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
+    c_8: str = "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
+    c_9: str = "Typical winter indoor clothing: 1.0 clo"
+
 
 class ModelInputsSelectionMetablicRateFansAndHeat(Enum):
     h_1: str = "Sleeping: 0.7"
@@ -311,16 +322,18 @@ class ModelInputsSelectionMetablicRateFansAndHeat(Enum):
     h_4: str = "Reading, seated: 1.0"
     h_5: str = "Writing: 1.0"
 
+
 class ModelInputsSelectionClothingFansAndHeat(Enum):
-    c_1: str= "Walking shorts, short-sleeve shirt: 0.36 clo"
-    c_2: str= "Typical summer indoor clothing: 0.5 clo"
-    c_3: str= "Knee-length skirt, short-sleeve shirt, sandals, underwear: 0.54 clo"
-    c_4: str= "Trousers, short-sleeve shirt, socks, shoes, underwear: 0.57 clo"
-    c_5: str= "Trousers, long-sleeve shirt: 0.61 clo"
-    c_6: str= "Knee-length skirt, long-sleeve shirt, full slip: 0.67 clo"
-    c_7: str= "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
-    c_8: str= "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
-    c_9: str= "Typical winter indoor clothing: 1.0 clo"
+    c_1: str = "Walking shorts, short-sleeve shirt: 0.36 clo"
+    c_2: str = "Typical summer indoor clothing: 0.5 clo"
+    c_3: str = "Knee-length skirt, short-sleeve shirt, sandals, underwear: 0.54 clo"
+    c_4: str = "Trousers, short-sleeve shirt, socks, shoes, underwear: 0.57 clo"
+    c_5: str = "Trousers, long-sleeve shirt: 0.61 clo"
+    c_6: str = "Knee-length skirt, long-sleeve shirt, full slip: 0.67 clo"
+    c_7: str = "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
+    c_8: str = "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
+    c_9: str = "Typical winter indoor clothing: 1.0 clo"
+
 
 class ModelInputsSelectionMetablicRatePhs(Enum):
     h_1: str = "Sleeping: 0.7"
@@ -329,24 +342,32 @@ class ModelInputsSelectionMetablicRatePhs(Enum):
     h_4: str = "Reading, seated: 1.0"
     h_5: str = "Writing: 1.0"
 
+
 class ModelInputsSelectionClothingPhs(Enum):
-    c_1: str= "Walking shorts, short-sleeve shirt: 0.36 clo"
-    c_2: str= "Typical summer indoor clothing: 0.5 clo"
-    c_3: str= "Knee-length skirt, short-sleeve shirt, sandals, underwear: 0.54 clo"
-    c_4: str= "Trousers, short-sleeve shirt, socks, shoes, underwear: 0.57 clo"
-    c_5: str= "Trousers, long-sleeve shirt: 0.61 clo"
-    c_6: str= "Knee-length skirt, long-sleeve shirt, full slip: 0.67 clo"
-    c_7: str= "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
-    c_8: str= "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
-    c_9: str= "Typical winter indoor clothing: 1.0 clo"
+    c_1: str = "Walking shorts, short-sleeve shirt: 0.36 clo"
+    c_2: str = "Typical summer indoor clothing: 0.5 clo"
+    c_3: str = "Knee-length skirt, short-sleeve shirt, sandals, underwear: 0.54 clo"
+    c_4: str = "Trousers, short-sleeve shirt, socks, shoes, underwear: 0.57 clo"
+    c_5: str = "Trousers, long-sleeve shirt: 0.61 clo"
+    c_6: str = "Knee-length skirt, long-sleeve shirt, full slip: 0.67 clo"
+    c_7: str = "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
+    c_8: str = "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
+    c_9: str = "Typical winter indoor clothing: 1.0 clo"
+
 
 class ModelInputsSelectionOperativeTemperaturePmvEN16798(Enum):
-    o_1: str= "Use operative temp"
+    o_1: str = "Use operative temp"
+
 
 class ModelChartDescription(Enum):
-    note: str="NOTE:"
-    psy_air_temp_des_1: str="In this psychrometric chart the abscissa is the dry-bulb temperature, and the mean radiant temperature (MRT) is fixed, controlled by the inputbox. Each point on the chart has the same MRT, which defines the comfort zone boundary. In this way you can see how changes in MRT affect thermal comfort. You can also still use the operative temperature button, yet each point will have the same MRT."
-    psy_air_temp_des_2: str="The CBE comfort tools automatically calculates the relative air speed but does not calculates the dynamic insulation characteristics of clothing as specified in the ISO 7730 Section C.2., hence this value should be calculated by the user and entered as input in the CBE comfort tool."
+    note: str = "NOTE:"
+    psy_air_temp_des_1: str = (
+        "In this psychrometric chart the abscissa is the dry-bulb temperature, and the mean radiant temperature (MRT) is fixed, controlled by the inputbox. Each point on the chart has the same MRT, which defines the comfort zone boundary. In this way you can see how changes in MRT affect thermal comfort. You can also still use the operative temperature button, yet each point will have the same MRT."
+    )
+    psy_air_temp_des_2: str = (
+        "The CBE comfort tools automatically calculates the relative air speed but does not calculates the dynamic insulation characteristics of clothing as specified in the ISO 7730 Section C.2., hence this value should be calculated by the user and entered as input in the CBE comfort tool."
+    )
+
 
 class ModelInputsFANSHEAT(BaseModel):
     AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
@@ -358,6 +379,7 @@ class ModelInputsFANSHEAT(BaseModel):
     CLOTHING: ModelInputsInfo = ModelInputsInfo(
         unit="clo", min=0.5, max=2.0, step=0.1, value=0.5, name="Clothing"
     )
+
 
 class ModelInputsPhs(BaseModel):
     AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
@@ -383,4 +405,3 @@ class ModelInputsPhs(BaseModel):
     CLOTHING: ModelInputsInfo = ModelInputsInfo(
         unit="clo", min=0.5, max=2.0, step=0.1, value=0.5, name="Clothing"
     )
-

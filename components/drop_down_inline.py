@@ -27,6 +27,7 @@ def generate_dropdown_inline(questions_to_display, clearable=True):
         className="pb-2",
     )
 
+
 def generate_dropdown_inputs_inline(questions_to_display, clearable=True):
     return dbc.Row(
         [
@@ -44,7 +45,7 @@ def generate_dropdown_inputs_inline(questions_to_display, clearable=True):
                     multi=questions_to_display["multi"],
                     id=questions_to_display["id"],
                     optionHeight=70,
-                    style={"lineHeight": "90%","fontSize":"14px"},
+                    style={"lineHeight": "90%", "fontSize": "14px"},
                     clearable=clearable,
                 ),
             ),

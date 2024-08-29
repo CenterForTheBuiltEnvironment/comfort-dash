@@ -239,8 +239,7 @@ def update_graph_content(selected_model):
         ]
 
     elif selected_model == MODELS.Fans_heat.value:
-        grid_content = [
-        ]
+        grid_content = []
 
     elif selected_model == MODELS.Phs.value:
         grid_content = [
@@ -251,6 +250,7 @@ def update_graph_content(selected_model):
         ]
 
     return grid_content
+
 
 if __name__ == "__main__":
     app.run_server(
