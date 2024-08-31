@@ -1,5 +1,5 @@
 from scipy._lib.cobyqa.models import Models
-
+from dash import no_update
 from components.drop_down_inline import (
     generate_dropdown_inline,
     generate_dropdown_inputs_inline,
@@ -56,7 +56,7 @@ ashare_chart = {
         CHARTS.set_outputs.value,
     ],
     "multi": False,
-    "default": CHARTS.psychrometric_operative.value,
+    "default": CHARTS.psychrometric.value,
 }
 
 pmv_en_chart = {
@@ -72,23 +72,26 @@ pmv_en_chart = {
 }
 
 
-def chart_selection(selected_model):
+def chart_selection(selected_model, chart_content):
     chart_inputs = ashare_chart
-
+    current_value = None
     if selected_model == MODELS.PMV_ashrae.value:
         chart_inputs = ashare_chart
+        current_value = chart_content if chart_content is not None else CHARTS.psychrometric.value
     elif selected_model == MODELS.Adaptive_ashrae.value:
         return
     elif selected_model == MODELS.Adaptive_EN.value:
         return
     elif selected_model == MODELS.PMV_EN.value:
         chart_inputs = pmv_en_chart
+        current_value = chart_content if chart_content is not None else CHARTS.psychrometric.value
     elif selected_model == MODELS.Fans_heat.value:
         return
     elif selected_model == MODELS.Phs.value:
         return
 
-    return generate_dropdown_inline(chart_inputs, clearable=False)
+    return generate_dropdown_inline(chart_inputs, value=current_value, clearable=False)
+
 
 
 adaptive_ashare_air_speed = {

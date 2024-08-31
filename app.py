@@ -3,7 +3,7 @@ import os
 import dash
 import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
-from dash import Dash, dcc, html
+from dash import Dash, dcc, html, no_update
 from icecream import install, ic
 
 from components.footer import my_footer
@@ -16,10 +16,15 @@ from utils.my_config_file import (
 )
 from utils.website_text import app_name
 
-from dash.dependencies import Input, Output
-from components.dropdowns import dd_model
+from dash.dependencies import Input, Output, State
+from components.dropdowns import (
+    dd_model,
+    ashare_chart,
+    pmv_en_chart,
+)
 from components.input_environmental_personal import input_environmental_personal
 from components.dropdowns import chart_selection
+from components.charts import chart_example
 from utils.my_config_file import (
     MODELS,
     AdaptiveEN,
@@ -180,21 +185,46 @@ app.layout = dmc.MantineProvider(
 #     )
 
 
+# @app.callback(
+#     Output(ElementsIDs.CHART_CONTAINER.value,"figure"),
+#     Input(ashare_chart["id"],"value"),
+#     State(dd_model["id"], "value"),
+# )
+# def update_chart_content(select_chart,selected_model):
+#     print("callbacks (select chart): ", selected_model, select_chart)
+#     figure_content = chart_example(selected_model,select_chart)
+
+#     return figure_content
+
+
 @app.callback(
     Output("input_card", "children"),
     Output("graph-container", "children"),
     Output("chart-select", "children"),
     Output("graph-container", "cols"),
+    Output(ElementsIDs.CHART_CONTAINER.value,"figure"),
     Input(dd_model["id"], "value"),
+    Input(ashare_chart["id"],"value"),
 )
-def capture_selected_model(selected_model):
-    print(selected_model)
+def capture_selected_model(selected_model,selected_chart):
+    # print("callbacks (select model) enable")
+
+    if not selected_model:
+        no_update,no_update,no_update,no_update,no_update
+
     input_content = input_environmental_personal(selected_model)
     graph_content = update_graph_content(selected_model)
-    chart_content = chart_selection(selected_model)
+    chart_content = chart_selection(selected_model, selected_chart)
     result_content = change_cols(selected_model)
 
-    return input_content, graph_content, chart_content, result_content
+    if selected_model == MODELS.Phs.value or selected_model == MODELS.Adaptive_ashrae.value or selected_model == MODELS.Adaptive_EN.value or selected_model == MODELS.Fans_heat.value:
+        # print(selected_model, select_chart)
+        figure_content = chart_example(selected_model,None)
+    else:
+        # print(selected_model, select_chart)
+        figure_content = chart_example(selected_model, selected_chart)
+
+    return input_content, graph_content, chart_content,result_content, figure_content
 
 
 def change_cols(selected_model):

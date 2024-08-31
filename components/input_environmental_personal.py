@@ -105,7 +105,7 @@ def input_environmental_personal(selected_model):
         inputs_right.append(
             dmc.Checkbox(
                 label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value,
-                checked=True,
+                checked=False,
                 style={"margin-left": "25px"},
             )
         )
@@ -128,7 +128,7 @@ def input_environmental_personal(selected_model):
         inputs_right.append(
             dmc.Checkbox(
                 label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value,
-                checked=True,
+                checked=False,
                 style={"margin-left": "25px"},
             )
         )

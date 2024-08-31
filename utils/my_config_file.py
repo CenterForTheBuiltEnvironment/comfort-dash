@@ -17,7 +17,7 @@ class ElementsIDs(Enum):
     NAVBAR_ID_ABOUT = "id-nav-about"
     MODEL_SELECTION = "id-model-selection"
     CHART_SELECTION = "id-chart-selection"
-    CHART_CONTAINER = "chart-container"
+    CHART_CONTAINER = "id-chart-container"
     URL = "url"
     FOOTER = "id-footer"
     NAVBAR_ID_DOCUMENT = "id-nav-documentation"
