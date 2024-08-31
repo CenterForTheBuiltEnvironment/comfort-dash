@@ -1,6 +1,5 @@
 from utils.my_config_file import (
     ModelInputsAdaptiveAshrae55,
-    ModelInputsInfo,
     ModelInputsPmvAshrae55,
     ModelInputsAdaptiveEN16798,
     ModelInputsPmvEN16798,
@@ -25,15 +24,20 @@ from components.dropdowns import (
     ashrae_metabolic_selection,
     ashare_clothing_selection,
 )
-
+from components.buttons import (pmv_ashrae_bottom_buttons,
+    adaptive_ashrae_bottom_button,
+    pmv_en_bottom_button,
+    adaptive_en_bottom_button,
+    fans_heat_phs_bottom_button,
+)
 
 def input_environmental_personal(selected_model):
     inputs = []
 
     model_inputs = ModelInputsPmvAshrae55()
     if selected_model == MODELS.Adaptive_EN.value:
-
         model_inputs = ModelInputsAdaptiveEN16798()
+
     elif selected_model == MODELS.PMV_ashrae.value:
         model_inputs = ModelInputsPmvAshrae55()
 
@@ -68,6 +72,7 @@ def input_environmental_personal(selected_model):
     if selected_model == MODELS.Adaptive_ashrae.value:
         inputs_left_and_right.append(Ash55_air_speed_selection())
 
+
     if selected_model == MODELS.Adaptive_EN.value:
         inputs_left_and_right.append(En16798_air_speed_selection())
 
@@ -83,12 +88,14 @@ def input_environmental_personal(selected_model):
                 style={"margin-left": "25px"},
             )
         )
+        inputs_left_and_right.append(pmv_en_bottom_button())
         inputs_right.append(dmc.Space(h=243))
         inputs_right.append(En16798_relative_humidity_selection())
         inputs_right.append(dmc.Space(h=26))
         inputs_right.append(En16798_relative_metabolic_selection())
         inputs_right.append(dmc.Space(h=45))
         inputs_right.append(En16798_relative_clothing_selection())
+
 
     elif selected_model == MODELS.Adaptive_EN.value:
         inputs_right.append(dmc.Space(h=40)),
@@ -99,6 +106,7 @@ def input_environmental_personal(selected_model):
                 style={"margin-left": "25px"},
             )
         )
+        inputs_left_and_right.append(adaptive_en_bottom_button())
 
     elif selected_model == MODELS.Adaptive_ashrae.value:
         inputs_right.append(dmc.Space(h=40)),
@@ -109,18 +117,22 @@ def input_environmental_personal(selected_model):
                 style={"margin-left": "25px"},
             )
         )
+        inputs_left_and_right.append(adaptive_ashrae_bottom_button()),
+
 
     elif selected_model == MODELS.Fans_heat.value:
         inputs_right.append(dmc.Space(h=125)),
         inputs_right.append(Fans_heat_metabolic_selection()),
         inputs_right.append(dmc.Space(h=26)),
         inputs_right.append(Fans_heat_clothing_selection()),
+        inputs_left_and_right.append(fans_heat_phs_bottom_button()),
 
     elif selected_model == MODELS.Phs.value:
         inputs_right.append(dmc.Space(h=415)),
         inputs_right.append(Phs_metabolic_selection()),
         inputs_right.append(dmc.Space(h=25)),
         inputs_right.append(Phs_clothing_selection()),
+        inputs_left_and_right.append(fans_heat_phs_bottom_button()),
 
     # PMV - ASHARE right button
     else:
@@ -132,6 +144,7 @@ def input_environmental_personal(selected_model):
                 style={"margin-left": "25px"},
             )
         )
+        inputs_left_and_right.append(pmv_ashrae_bottom_buttons())
         inputs_right.append(dmc.Space(h=44)),
         inputs_right.append(ashrae_speed_selection())
         inputs_right.append(dmc.Space(h=26)),
