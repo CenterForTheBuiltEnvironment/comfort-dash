@@ -202,29 +202,34 @@ app.layout = dmc.MantineProvider(
     Output("graph-container", "children"),
     Output("chart-select", "children"),
     Output("graph-container", "cols"),
-    Output(ElementsIDs.CHART_CONTAINER.value,"figure"),
+    Output(ElementsIDs.CHART_CONTAINER.value, "figure"),
     Input(dd_model["id"], "value"),
-    Input(ashare_chart["id"],"value"),
+    Input(ashare_chart["id"], "value"),
 )
-def capture_selected_model(selected_model,selected_chart):
+def capture_selected_model(selected_model, selected_chart):
     # print("callbacks (select model) enable")
 
     if not selected_model:
-        no_update,no_update,no_update,no_update,no_update
+        no_update, no_update, no_update, no_update, no_update
 
     input_content = input_environmental_personal(selected_model)
     graph_content = update_graph_content(selected_model)
     chart_content = chart_selection(selected_model, selected_chart)
     result_content = change_cols(selected_model)
 
-    if selected_model == MODELS.Phs.value or selected_model == MODELS.Adaptive_ashrae.value or selected_model == MODELS.Adaptive_EN.value or selected_model == MODELS.Fans_heat.value:
+    if (
+        selected_model == MODELS.Phs.value
+        or selected_model == MODELS.Adaptive_ashrae.value
+        or selected_model == MODELS.Adaptive_EN.value
+        or selected_model == MODELS.Fans_heat.value
+    ):
         # print(selected_model, select_chart)
-        figure_content = chart_example(selected_model,None)
+        figure_content = chart_example(selected_model, None)
     else:
         # print(selected_model, select_chart)
         figure_content = chart_example(selected_model, selected_chart)
 
-    return input_content, graph_content, chart_content,result_content, figure_content
+    return input_content, graph_content, chart_content, result_content, figure_content
 
 
 def change_cols(selected_model):

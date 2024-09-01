@@ -77,21 +77,24 @@ def chart_selection(selected_model, chart_content):
     current_value = None
     if selected_model == MODELS.PMV_ashrae.value:
         chart_inputs = ashare_chart
-        current_value = chart_content if chart_content is not None else CHARTS.psychrometric.value
+        current_value = (
+            chart_content if chart_content is not None else CHARTS.psychrometric.value
+        )
     elif selected_model == MODELS.Adaptive_ashrae.value:
         return
     elif selected_model == MODELS.Adaptive_EN.value:
         return
     elif selected_model == MODELS.PMV_EN.value:
         chart_inputs = pmv_en_chart
-        current_value = chart_content if chart_content is not None else CHARTS.psychrometric.value
+        current_value = (
+            chart_content if chart_content is not None else CHARTS.psychrometric.value
+        )
     elif selected_model == MODELS.Fans_heat.value:
         return
     elif selected_model == MODELS.Phs.value:
         return
 
     return generate_dropdown_inline(chart_inputs, value=current_value, clearable=False)
-
 
 
 adaptive_ashare_air_speed = {
@@ -166,7 +169,6 @@ pmv_en_metabolic_selection = {
         ModelInputsSelectionMetablicRatePmvEN16798.h_26.value,
         ModelInputsSelectionMetablicRatePmvEN16798.h_27.value,
         ModelInputsSelectionMetablicRatePmvEN16798.h_28.value,
-
     ],
     "multi": False,
     "default": ModelInputsSelectionMetablicRatePmvEN16798.h_1.value,
@@ -277,7 +279,6 @@ phs_metabolic_selection = {
         ModelInputsSelectionMetablicRatePhs.h_26.value,
         ModelInputsSelectionMetablicRatePhs.h_27.value,
         ModelInputsSelectionMetablicRatePhs.h_28.value,
-
     ],
     "multi": False,
     "default": ModelInputsSelectionMetablicRatePhs.h_1.value,
@@ -301,7 +302,7 @@ phs_clothing_selection = {
     "default": ModelInputsSelectionClothingPhs.c_1.value,
 }
 
-pmv_ashrae_speed_selection= {
+pmv_ashrae_speed_selection = {
     "id": ElementsIDs.PMV_ASHARE_SPEED_SELECTION.value,
     "question": "",
     "options": [
@@ -358,7 +359,6 @@ pmv_ashrae_metabolic_selection = {
         ModelInputsSelectionMetabolicASHRAE55.h_26.value,
         ModelInputsSelectionMetabolicASHRAE55.h_27.value,
         ModelInputsSelectionMetabolicASHRAE55.h_28.value,
-
     ],
     "multi": False,
     "default": ModelInputsSelectionMetabolicASHRAE55.h_1.value,
@@ -384,33 +384,23 @@ pmv_ashare_clothing_selection = {
 
 
 def Ash55_air_speed_selection():
-    return generate_dropdown_inputs_inline(
-        adaptive_ashare_air_speed, clearable=False
-    )
+    return generate_dropdown_inputs_inline(adaptive_ashare_air_speed, clearable=False)
 
 
 def En16798_air_speed_selection():
-    return generate_dropdown_inputs_inline(
-        adaptive_en_air_speed, clearable=False
-    )
+    return generate_dropdown_inputs_inline(adaptive_en_air_speed, clearable=False)
 
 
 def En16798_relative_humidity_selection():
-    return generate_dropdown_inputs_inline(
-        pmv_en_humidity_selection, clearable=False
-    )
+    return generate_dropdown_inputs_inline(pmv_en_humidity_selection, clearable=False)
 
 
 def En16798_relative_metabolic_selection():
-    return generate_dropdown_inputs_inline(
-        pmv_en_metabolic_selection, clearable=False
-    )
+    return generate_dropdown_inputs_inline(pmv_en_metabolic_selection, clearable=False)
 
 
 def En16798_relative_clothing_selection():
-    return generate_dropdown_inputs_inline(
-        pmv_en_clothing_selection, clearable=False
-    )
+    return generate_dropdown_inputs_inline(pmv_en_clothing_selection, clearable=False)
 
 
 def Fans_heat_metabolic_selection():
@@ -438,9 +428,7 @@ def Phs_clothing_selection():
 
 
 def ashrae_speed_selection():
-    return generate_dropdown_inputs_inline(
-        pmv_ashrae_speed_selection, clearable=False
-    )
+    return generate_dropdown_inputs_inline(pmv_ashrae_speed_selection, clearable=False)
 
 
 def ashrae_humidity_selection():

@@ -83,9 +83,9 @@ def my_footer():
             html.Div(
                 className="cbe-footnotes",
                 style={
-                    "background-color": "#1B3A76", 
+                    "background-color": "#1B3A76",
                     "min-height": "2.5rem",
-                    "padding": "10px"  
+                    "padding": "10px",
                 },
                 children=[
                     html.Div(
