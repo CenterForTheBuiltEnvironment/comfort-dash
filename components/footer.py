@@ -9,221 +9,103 @@ def my_footer():
     return html.Div(
         children=[
             html.Footer(
-                dmc.Container(
-                    dmc.Grid(
-                        [
-                            dmc.GridCol(
-                                dmc.Image(
-                                    src="/assets/media/CBE-logo-2019-artwork-blue-background.png",
-                                    maw=130,
-                                    mt="none",
-                                    mb="none",
-                                    ml="20px",
-                                    alt="logo",
-                                ),
-                                span={"base": 12, "md": 2},
-                                style={
-                                    "display": "flex",
-                                    "align-items": "center",
-                                    "justify-content": "center",
-                                },
+                className="cbe-footer-content",
+                children=[
+                    html.Div(
+                        className="cbe-footer-logo",
+                        children=[
+                            html.Img(
+                                src="assets/media/CBE-logo-2019-white.png",
+                                alt="CBE Logo",
                             ),
-                            dmc.GridCol(
-                                dmc.Image(
-                                    src="/assets/media/berkeley.png",
-                                    maw=130,
-                                    mt="5px",
-                                    mb="none",
-                                    ml="none",
-                                    alt="berkeley_logo",
-                                ),
-                                span={"base": 12, "md": 2.5},
-                                style={
-                                    "display": "flex",
-                                    "align-items": "center",
-                                    "justify-content": "center",
-                                },
+                            html.Img(
+                                src="assets/media/ucb-logo-2024-white.png",
+                                alt="UC Berkeley Logo",
                             ),
-                            dmc.GridCol(
-                                html.Div(
-                                    [
-                                        html.A(
-                                            dmc.Text(
-                                                TextFooter.contact_us.value,
-                                                style={
-                                                    "color": "white",
-                                                    "fontSize": "9px",
-                                                },
-                                            ),
-                                            href=TextFooter.contact_us_link.value,
-                                            style={"textDecoration": "none"},
-                                        ),
-                                        html.A(
-                                            dmc.Text(
-                                                TextFooter.report_issues.value,
-                                                style={
-                                                    "color": "white",
-                                                    "fontSize": "9px",
-                                                },
-                                            ),
-                                            href=TextFooter.report_issues_link.value,
-                                            style={"textDecoration": "none"},
-                                        ),
-                                        dmc.Text(
-                                            TextFooter.see_changelog.value,
-                                            style={"color": "white", "fontSize": "9px"},
-                                        ),
-                                    ],
-                                ),
-                                mt="3px",
-                                span={"base": 12, "xs": 6, "md": 1},
-                                ml="5px",
-                                style={
-                                    "display": "flex",
-                                    "align-items": "center",
-                                    "justify-content": "center",
-                                },
+                        ],
+                    ),
+                    html.Nav(
+                        className="cbe-footer-links",
+                        children=[
+                            html.A(
+                                "Contact Us",
+                                href=TextFooter.contact_us_link.value,
+                                target="_blank",
                             ),
-                            dmc.GridCol(
-                                html.A(
-                                    dmc.Image(
-                                        src="/assets/media/github-white-transparent.png",
-                                        maw=40,
-                                        mt="7px",
-                                        mb="none",
-                                        alt="logo",
+                            html.A(
+                                "Report Issues",
+                                href=TextFooter.report_issues_link.value,
+                                target="_blank",
+                            ),
+                        ],
+                        style={"position": "relative", "left": "-9px"},
+                    ),
+                    html.Nav(
+                        className="cbe-social-links",
+                        children=[
+                            html.A(
+                                html.Img(
+                                    src="assets/media/github-white-transparent.png",
+                                    alt="GitHub",
+                                ),
+                                href="#",
+                            ),
+                            html.A(
+                                html.Img(
+                                    src="assets/media/linkedin-white.png",
+                                    alt="LinkedIn",
+                                ),
+                                href="#",
+                            ),
+                        ],
+                        style={"position": "relative", "left": "-9px"},
+                    ),
+                    html.Div(
+                        className="cbe-citation-info",
+                        children=[
+                            html.Strong(TextFooter.cite_strong.value),
+                            html.Div(
+                                [
+                                    TextFooter.cite.value,
+                                    html.A(
+                                        TextFooter.cite_link.value,
+                                        href=TextFooter.cite_link.value,
+                                        className="cbe-doi-link",
+                                        target="_blank",
                                     ),
-                                    href=TextFooter.github_link.value,
-                                ),
-                                span={"base": 12, "xs": 6, "md": 1},
-                                style={
-                                    "display": "flex",
-                                    "align-items": "center",
-                                    "justify-content": "center",
-                                },
-                            ),
-                            dmc.GridCol(
-                                dmc.Image(
-                                    src="/assets/media/linkedin-white.png",
-                                    maw=40,
-                                    mt="7px",
-                                    mb="none",
-                                    alt="logo",
-                                ),
-                                span={"base": 12, "xs": 6, "md": 1},
-                                style={
-                                    "display": "flex",
-                                    "align-items": "center",
-                                    "justify-content": "center",
-                                },
-                            ),
-                            dmc.GridCol(
-                                html.Div(
-                                    [
-                                        html.A(
-                                            dmc.Text(
-                                                [
-                                                    html.Strong(
-                                                        TextFooter.cite_strong.value
-                                                    ),
-                                                    TextFooter.cite.value,
-                                                    html.Span(
-                                                        TextFooter.cite_link.value,
-                                                        style={
-                                                            "textDecoration": "underline"
-                                                        },
-                                                    ),
-                                                ],
-                                                style={
-                                                    "color": "white",
-                                                    "fontSize": "9px",
-                                                },
-                                            ),
-                                            href=TextFooter.cite_link.value,
-                                            style={"textDecoration": "none"},
-                                        )
-                                    ],
-                                ),
-                                span={"base": 12, "xs": 12, "md": 4},
-                                style={
-                                    "display": "flex",
-                                    "align-items": "center",
-                                    "justify-content": "center",
-                                },
+                                ]
                             ),
                         ],
-                        justify="start",
-                        align="start",
-                        gutter="md",
+                        style={"position": "relative", "left": "-9px"},
                     ),
-                    p="0",
-                    size=Dimensions.default_container_width.value,
-                ),
-                style={
-                    "background": "#3375BC",
-                    "position": "relatived",
-                    "bottom": 0,
-                    "width": "100%",
-                    "min-height": "5rem",
-                },
-                id=ElementsIDs.FOOTER.value,
+                ],
             ),
-            html.Footer(
-                dmc.Container(
-                    dmc.Grid(
-                        [
-                            dmc.GridCol(
-                                dmc.Text(
-                                    TextFooter.copy_right.value,
-                                    style={"color": "white", "fontSize": "9px"},
+            html.Div(
+                className="cbe-footnotes",
+                style={
+                    "background-color": "#1B3A76", 
+                    "min-height": "2.5rem",
+                    "padding": "10px"  
+                },
+                children=[
+                    html.Div(
+                        TextFooter.copy_right.value,
+                    ),
+                    html.Div(
+                        className="cbe-version-license",
+                        children=[
+                            html.Div(TextFooter.version.value),
+                            html.A(
+                                html.Img(
+                                    src="https://img.shields.io/badge/License-MIT-yellow.svg",
+                                    alt="License: MIT",
+                                    style={"width": "70px", "height": "17px"},
                                 ),
-                                ml="none",
-                                span={"base": 12, "md": 10, "xs": 10},
-                            ),
-                            dmc.GridCol(
-                                dmc.Text(
-                                    TextFooter.version.value,
-                                    style={"color": "white", "fontSize": "9px"},
-                                ),
-                                ml="none",
-                                span={"base": 12, "md": 1, "xs": 1},
-                                style={
-                                    "display": "flex",
-                                    "align-items": "center",
-                                    "justify-content": "center",
-                                },
-                            ),
-                            dmc.GridCol(
-                                dmc.Image(
-                                    src="/assets/media/share.png",
-                                    maw=50,
-                                    mt="none",
-                                    mb="none",
-                                    ml="none",
-                                    alt="logo",
-                                ),
-                                span={"base": 12, "md": 1, "xs": 1},
-                                style={
-                                    "display": "flex",
-                                    "align-items": "center",
-                                    "justify-content": "center",
-                                },
+                                href=TextFooter.open_source_link.value,
                             ),
                         ],
-                        justify="space-between",
-                        align="center",
-                        gutter="md",
                     ),
-                    p="0",
-                    size=Dimensions.default_container_width.value,
-                ),
-                style={
-                    "background": "#1B3A76",
-                    "width": "100%",
-                    "min-height": "1rem",
-                    "position": "relatived",
-                    "bottom": 0,
-                },
+                ],
             ),
         ]
     )

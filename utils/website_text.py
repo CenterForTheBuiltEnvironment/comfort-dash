@@ -7,20 +7,20 @@ class TextFooter(Enum):
     acknowledgment = "This application has been developed by the Center for the Built Environment and the University of Sydney."
     copy_right = "Copyright © 2024 The Center for the Built Environment and UC Regents. All right reserved. "
     cite_strong = "Please cite us if you use this software: "
-    cite = "Tartarini, F., Schiavon, S., Cheung, T., Hoyt, T., 2020. CBE Thermal Comfort Tool : online tool for thermal comfort calculations and visualizations. SoftwareX 12, 100563. "
-    cite_link = "https://www.softxjournal.com/article/S2352-7110(20)30245-4/fulltext"
+    cite = "Tartarini, F., Schiavon, S., Cheung, T., Hoyt, T., 2020. CBE Thermal Comfort Tool: online tool for thermal comfort calculations and visualizations. SoftwareX 12, 100563."
+    cite_link = "https://doi.org/10.1016/j.softx.2020.100563"
     contact_us = "Contact us"
     contact_us_link = (
-        "https://github.com/CenterForTheBuiltEnvironment/comfort-dash/discussions"
+        "https://cbe.berkeley.edu/about-us/contact/"
     )
     report_issues = "Report issues"
     report_issues_link = (
-        "https://github.com/CenterForTheBuiltEnvironment/comfort-dash/issues"
+        "https://github.com/CenterForTheBuiltEnvironment/cbe-tool-template/issues/new?labels=bug&template=issue--bug-report.md"
     )
     github_link = "https://github.com/CenterForTheBuiltEnvironment/comfort-dash"
     see_changelog = "See Changelog"
     version = "Version.X.Y.Z"
-
+    open_source_link: str = "https://opensource.org/licenses/MIT"
 
 class TextNavBar(Enum):
     home: str = "Home"
