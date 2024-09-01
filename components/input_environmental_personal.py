@@ -75,89 +75,78 @@ def input_environmental_personal(selected_model):
     inputs_right = []
 
     if selected_model == MODELS.PMV_EN.value:
-        inputs_right.append(dmc.Space(h=40))
-        inputs_right.append(
+        inputs_right = [
             dmc.Checkbox(
                 label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value,
                 checked=False,
-                style={"margin-left": "25px"},
-            )
-        )
-        inputs_right.append(dmc.Space(h=243))
-        inputs_right.append(En16798_relative_humidity_selection())
-        inputs_right.append(dmc.Space(h=26))
-        inputs_right.append(En16798_relative_metabolic_selection())
-        inputs_right.append(dmc.Space(h=45))
-        inputs_right.append(En16798_relative_clothing_selection())
-
+            ),
+            En16798_relative_humidity_selection(),
+            En16798_relative_metabolic_selection(),
+            En16798_relative_clothing_selection(),
+        ]
     elif selected_model == MODELS.Adaptive_EN.value:
-        inputs_right.append(dmc.Space(h=40)),
-        inputs_right.append(
+        inputs_right = [
             dmc.Checkbox(
                 label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value,
                 checked=False,
-                style={"margin-left": "25px"},
-            )
-        )
-
+            ),
+        ]
     elif selected_model == MODELS.Adaptive_ashrae.value:
-        inputs_right.append(dmc.Space(h=40)),
-        inputs_right.append(
+        inputs_right = [
             dmc.Checkbox(
                 label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value,
-                checked=False,
-                style={"margin-left": "25px"},
-            )
-        )
-
+                checked=True,
+            ),
+        ]
     elif selected_model == MODELS.Fans_heat.value:
-        inputs_right.append(dmc.Space(h=125)),
-        inputs_right.append(Fans_heat_metabolic_selection()),
-        inputs_right.append(dmc.Space(h=26)),
-        inputs_right.append(Fans_heat_clothing_selection()),
-
+        inputs_right = [
+            Fans_heat_metabolic_selection(),
+            Fans_heat_clothing_selection(),
+        ]
     elif selected_model == MODELS.Phs.value:
-        inputs_right.append(dmc.Space(h=415)),
-        inputs_right.append(Phs_metabolic_selection()),
-        inputs_right.append(dmc.Space(h=25)),
-        inputs_right.append(Phs_clothing_selection()),
-
-    # PMV - ASHARE right button
-    else:
-        inputs_right.append(dmc.Space(h=40)),
-        inputs_right.append(
+        inputs_right = [
+            Phs_metabolic_selection(),
+            Phs_clothing_selection(),
+        ]
+    else:  # PMV - ASHRAE
+        inputs_right = [
             dmc.Checkbox(
                 label=ModelInputsSelectionOperativeTemperaturePmvEN16798.o_1.value,
-                checked=False,
-                style={"margin-left": "25px"},
-            )
-        )
-        inputs_right.append(dmc.Space(h=44)),
-        inputs_right.append(ashrae_speed_selection())
-        inputs_right.append(dmc.Space(h=26)),
-        inputs_right.append(ashrae_humidity_selection())
-        inputs_right.append(dmc.Space(h=26)),
-        inputs_right.append(ashrae_metabolic_selection())
-        inputs_right.append(dmc.Space(h=27)),
-        inputs_right.append(ashare_clothing_selection())
+                checked=True,
+            ),
+            ashrae_speed_selection(),
+            ashrae_humidity_selection(),
+            ashrae_metabolic_selection(),
+            ashare_clothing_selection(),
+        ]
+
+    # Pair right with left
+    paired_inputs = []
+    for i in range(max(len(inputs), len(inputs_right))):
+        input_item = inputs[i] if i < len(inputs) else None
+        selection_item = inputs_right[i] if i < len(inputs_right) else None
+        paired_inputs.append((input_item, selection_item))
 
     return dmc.Paper(
         children=[
             dmc.Text("Inputs", mb="xs", fw=700),
-            dmc.Grid(
+            dmc.Stack(
                 children=[
-                    dmc.GridCol(
-                        dmc.Stack(inputs, gap="xs"), span={"base": 12, "sm": 5}
-                    ),
-                    dmc.GridCol(
-                        dmc.Stack(inputs_right, gap="xs"), span={"base": 12, "sm": 7}
-                    ),
-                    dmc.GridCol(
-                        dmc.Stack(inputs_left_and_right, gap="xs"),
-                        span={"base": 12, "sm": 12},
-                    ),
+                    dmc.Grid(
+                        children=[
+                            dmc.GridCol(input_item, span={"base": 12, "sm": 6}, className="input-field"),
+                            dmc.GridCol(
+                                dmc.Box(selection_item, className="selection-wrapper") if selection_item else None,
+                                span={"base": 12, "sm": 6},
+                                className="selection-field"
+                            ),
+                        ],
+                        gutter="xs",
+                        align="flex-end",
+                        className="input-selection-pair",
+                    ) for input_item, selection_item in paired_inputs
                 ],
-                gutter="md",
+                gap="md",
             ),
         ],
         shadow="md",
