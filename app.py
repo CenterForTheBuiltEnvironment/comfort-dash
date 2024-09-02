@@ -4,9 +4,17 @@ import dash
 import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 from dash import Dash, dcc, html, no_update
+from dash.dependencies import Input, Output
 from icecream import install, ic
 
+from components.charts import chart_example
+from components.dropdowns import chart_selection
+from components.dropdowns import (
+    dd_model,
+    ashare_chart,
+)
 from components.footer import my_footer
+from components.input_environmental_personal import input_environmental_personal
 from components.navbar import my_navbar
 from utils.my_config_file import (
     Config,
@@ -14,17 +22,6 @@ from utils.my_config_file import (
     ElementsIDs,
     Dimensions,
 )
-from utils.website_text import app_name
-
-from dash.dependencies import Input, Output, State
-from components.dropdowns import (
-    dd_model,
-    ashare_chart,
-    pmv_en_chart,
-)
-from components.input_environmental_personal import input_environmental_personal
-from components.dropdowns import chart_selection
-from components.charts import chart_example
 from utils.my_config_file import (
     MODELS,
     AdaptiveEN,
@@ -33,20 +30,11 @@ from utils.my_config_file import (
     PmvENResultCard,
     PhsResultCard,
 )
+from utils.website_text import app_name
 
 install()
 # from components.dropdowns import Ash55_air_speed_selection
 ic.configureOutput(includeContext=True)
-
-# try:
-#     cred = credentials.Certificate("secret.json")
-# except FileNotFoundError:
-#     cred = credentials.Certificate(json.loads(os.environ.get("firebase_secret")))
-#
-# firebase_admin.initialize_app(
-#     cred,
-#     {"databaseURL": FirebaseFields.database_url},
-# )
 
 # This is required by dash mantine components to work with react 18
 dash._dash_renderer._set_react_version("18.2.0")
@@ -76,58 +64,6 @@ app = Dash(
     serve_locally=False,
 )
 app.config.suppress_callback_exceptions = True
-
-# app.index_string = """<!DOCTYPE html>
-# <html lang="en-AU">
-# <head>
-#     <!-- Google tag (gtag.js) -->
-#     <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZFW54YKZ5"></script>
-#     <script>
-#       window.dataLayer = window.dataLayer || [];
-#       function gtag(){dataLayer.push(arguments);}
-#       gtag('js', new Date());
-#
-#       gtag('config', 'G-MZFW54YKZ5');
-#     </script>
-#     <meta charset="utf-8">
-#     <link rel="apple-touch-icon" href="/assets/media/CBE-logo-2018.png"/>
-#     <link rel="apple-touch-icon" sizes="180x180" href="/assets/media/CBE-logo-2018.png">
-#     <link rel="icon" type="image/png" sizes="32x32" href="/assets/media/CBE-logo-2018.png">
-#     <link rel="icon" type="image/png" sizes="16x16" href="/assets/media/CBE-logo-2018.png">
-#     <link rel="manifest" href="./assets/manifest.json">
-#     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-#     <meta name="author" content="Federico Tartarini">
-#     <meta name="keywords" content="">
-#     <meta name="description" content="">
-#     <meta name="theme-color" content="#E64626" />
-#     <title>HeatWatch</title>
-#     <meta property="og:image" content="./assets/media/CBE-logo-2018.png">
-#     <meta property="og:description" content="">
-#     <meta property="og:title" content="">
-#     {%favicon%}
-#     {%css%}
-# </head>
-# <body>
-# <script>
-#   if ('serviceWorker' in navigator) {
-#     window.addEventListener('load', ()=> {
-#       navigator
-#       .serviceWorker
-#       .register("./assets/sw01.js")
-#       .then(()=>console.log("Ready."))
-#       .catch((e)=>console.log("Err...", e));
-#     });
-#   }
-# </script>
-# {%app_entry%}
-# <footer>
-# {%config%}
-# {%scripts%}
-# {%renderer%}
-# </footer>
-# </body>
-# </html>
-# """
 
 app.layout = dmc.MantineProvider(
     defaultColorScheme="light",
@@ -166,38 +102,8 @@ app.layout = dmc.MantineProvider(
 )
 
 
-# @app.server.route("/sitemap/")
-# def sitemap():
-#     return Response(
-#         """<?xml version="1.0" encoding="UTF-8"?>
-#         <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-#           <url>
-#             <loc>https://heatwatch.sydney.sydney.edu.au</loc>
-#             <lastmod>2023-10-05T04:22:26+00:00</lastmod>
-#           </url>
-#           <url>
-#             <loc>https://heatwatch.sydney.edu.au/settings</loc>
-#             <lastmod>2023-10-05T04:22:26+00:00</lastmod>
-#           </url>
-#         </urlset>
-#         """,
-#         mimetype="text/xml",
-#     )
-
-
-# @app.callback(
-#     Output(ElementsIDs.CHART_CONTAINER.value,"figure"),
-#     Input(ashare_chart["id"],"value"),
-#     State(dd_model["id"], "value"),
-# )
-# def update_chart_content(select_chart,selected_model):
-#     print("callbacks (select chart): ", selected_model, select_chart)
-#     figure_content = chart_example(selected_model,select_chart)
-
-#     return figure_content
-
-
 @app.callback(
+    # todo the first argument of inputs and outputs should always be taken from a global class (ElementsIDs) so we can keep track of them
     Output("input_card", "children"),
     Output("graph-container", "children"),
     Output("chart-select", "children"),
@@ -207,9 +113,11 @@ app.layout = dmc.MantineProvider(
     Input(ashare_chart["id"], "value"),
 )
 def capture_selected_model(selected_model, selected_chart):
-    # print("callbacks (select model) enable")
+    # todo under each function please provide a short description of what the function does
 
     if not selected_model:
+        # todo this should return PreventUpdate
+        # todo do we need to check for this? Is there a case in which the selected_model is None?
         no_update, no_update, no_update, no_update, no_update
 
     input_content = input_environmental_personal(selected_model)
@@ -223,16 +131,15 @@ def capture_selected_model(selected_model, selected_chart):
         or selected_model == MODELS.Adaptive_EN.value
         or selected_model == MODELS.Fans_heat.value
     ):
-        # print(selected_model, select_chart)
         figure_content = chart_example(selected_model, None)
     else:
-        # print(selected_model, select_chart)
         figure_content = chart_example(selected_model, selected_chart)
 
     return input_content, graph_content, chart_content, result_content, figure_content
 
 
 def change_cols(selected_model):
+    # todo the information about the number of columns should be taken from a the class
     if (
         selected_model == MODELS.Adaptive_EN.value
         or selected_model == MODELS.Adaptive_ashrae.value

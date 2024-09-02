@@ -1,7 +1,5 @@
-import dash_mantine_components as dmc
 from dash import html
 
-from utils.my_config_file import Dimensions, ElementsIDs
 from utils.website_text import TextFooter
 
 

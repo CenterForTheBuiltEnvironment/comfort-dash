@@ -19,7 +19,6 @@ def my_button(
         style = {"text-decoration": "none"}
     return dcc.Link(
         dmc.Button(
-            # todo move this text to website text
             text,
             variant=variant,
             color=color,

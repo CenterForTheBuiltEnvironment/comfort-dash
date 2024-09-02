@@ -1,5 +1,6 @@
 import dash_mantine_components as dmc
 
+from utils.my_config_file import Functionalities
 from utils.website_text import TextHome
 
 
@@ -8,17 +9,24 @@ def functionality_selection():
         [
             dmc.Text(TextHome.functionality_selection.value, mr="sm"),
             dmc.SegmentedControl(
-                id="segmented",
-                value="normal",
+                value=Functionalities.Default.value,
                 data=[
-                    {"value": "normal", "label": "Single"},
-                    {"value": "compare", "label": "Compare"},
-                    {"value": "range", "label": "Range"},
+                    {
+                        "value": Functionalities.Default.value,
+                        "label": Functionalities.Default.value,
+                    },
+                    {
+                        "value": Functionalities.Compare.value,
+                        "label": Functionalities.Compare.value,
+                    },
+                    {
+                        "value": Functionalities.Ranges.value,
+                        "label": Functionalities.Ranges.value,
+                    },
                 ],
                 mb=10,
                 radius="lg",
                 transitionDuration=500,
             ),
-            dmc.Text(id="segmented-value"),
         ]
     )

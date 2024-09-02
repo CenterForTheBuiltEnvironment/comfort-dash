@@ -9,19 +9,6 @@ import pandas as pd
 # fig example
 def chart_example(selected_model, chart_content):
 
-    print(
-        f"Generating chart for model: {selected_model}, chart content: {chart_content}"
-    )
-    # default figure display
-    # if selected_model=="":
-    #     df = px.data.gapminder()
-    #     countries = df.country.drop_duplicates().sample(n=10, random_state=42)
-    #     df = df[df.country.isin(countries)]
-    #     fig = px.line(df, x="year", y="gdpPercap", color="continent", line_group="country",
-    #     title="PMV_ashrae psychrometric operativefigure",
-    #     labels={"gdpPercap": "GDP per Capita", "year": "Year", "continent": "Continent"})
-    #     return fig
-
     # PMV - EN 16798 figure
     if selected_model == MODELS.PMV_EN.value:
         if chart_content == CHARTS.psychrometric.value:

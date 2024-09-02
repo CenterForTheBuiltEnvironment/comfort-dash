@@ -1,7 +1,7 @@
-from urllib.parse import urlparse, parse_qs, urlencode
 import json
+from urllib.parse import urlparse, parse_qs, urlencode
 
-from dash import dcc, html, Input, Output, State, ALL, MATCH, ctx, dash
+from dash import ctx, dash
 from dash.dependencies import Input, Output, State, ALL
 
 
@@ -69,6 +69,7 @@ class UrlState:
 
     @staticmethod
     def setup_dash_callbacks(app):
+        # todo why the callback is defined inside the function?
         """Set up Dash callbacks for URL state management."""
 
         @app.callback(
@@ -94,9 +95,11 @@ class UrlState:
             if not ctx.triggered:
                 return dash.no_update
 
+            # todo trigger_id is initialised but not used
             triggered_id = ctx.triggered[0]["prop_id"]
             pathname = args[-1]
 
+            # todo path should be taken from a global class
             if pathname == "/single":
                 model = args[0][0]
                 inputs = args[1]
@@ -162,6 +165,7 @@ class UrlState:
     @staticmethod
     def generate_url(page, **kwargs):
         """Generate a URL for a specific page with given parameters."""
+        # todo page should be taken from a global class
         if page == "single":
             return f"/single{UrlState.add_single_page_state(kwargs['model'], kwargs['params'])}"
         elif page == "compare_inputs":

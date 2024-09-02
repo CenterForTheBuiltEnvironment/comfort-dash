@@ -21,6 +21,7 @@ def generate_dropdown_inline(questions_to_display, value=None, clearable=True):
                     multi=questions_to_display["multi"],
                     id=questions_to_display["id"],
                     optionHeight=30,
+                    # todo when possible, avoid using inline styles. Define a global style for the dropdowns
                     style={"lineHeight": "90%"},
                     clearable=clearable,
                 ),

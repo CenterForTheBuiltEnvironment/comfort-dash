@@ -1,9 +1,9 @@
 from dash import no_update, ctx, dcc
 from dash.dependencies import Input, Output, State, ALL
-import json
+
 
 class StoreState:
-    def __init__(self, store_type='session'):
+    def __init__(self, store_type="session"):
         """Initialize StoreState class and set the storage type for dcc.Store."""
         self.store_type = store_type  # Set storage type
 
@@ -30,26 +30,28 @@ class StoreState:
         """Set up Dash callbacks to manage dcc.Store data, supporting multiple dynamic input components."""
 
         @app.callback(
-            Output(store_id, 'data'),
-            Input({'type': 'dynamic-input', 'index': ALL}, 'value'),
-            State(store_id, 'data'),
-            prevent_initial_call=True
+            Output(store_id, "data"),
+            Input({"type": "dynamic-input", "index": ALL}, "value"),
+            State(store_id, "data"),
+            prevent_initial_call=True,
         )
         def save_data(input_values, store_data):
             # Update storage if triggered by input component
             if ctx.triggered:
                 for i, value in enumerate(input_values):
                     if value is not None:
-                        key = f'input_{i}'
-                        store_data = StoreState.save_state_to_store(store_data, key, value)
+                        key = f"input_{i}"
+                        store_data = StoreState.save_state_to_store(
+                            store_data, key, value
+                        )
                 return store_data
             return no_update
 
         @app.callback(
-            Output({'type': 'dynamic-input', 'index': ALL}, 'value'),
-            Input(store_id, 'modified_timestamp'),
-            State(store_id, 'data'),
-            prevent_initial_call=True
+            Output({"type": "dynamic-input", "index": ALL}, "value"),
+            Input(store_id, "modified_timestamp"),
+            State(store_id, "data"),
+            prevent_initial_call=True,
         )
         def load_data(modified_timestamp, store_data):
             if modified_timestamp:
@@ -62,7 +64,7 @@ class StoreState:
                 # Update existing data
                 if store_data:
                     for i in range(num_outputs):
-                        input_values[i] = store_data.get(f'input_{i}', no_update)
+                        input_values[i] = store_data.get(f"input_{i}", no_update)
 
                 return input_values
 

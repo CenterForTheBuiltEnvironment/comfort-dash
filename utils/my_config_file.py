@@ -5,6 +5,8 @@ from pydantic import BaseModel
 
 class Dimensions(Enum):
     default_container_width = "md"
+    left_container_width = 5
+    right_container_width = 7
 
 
 class ElementsIDs(Enum):
@@ -25,13 +27,13 @@ class ElementsIDs(Enum):
     ADAPTIVE_ASHARE_SPEED_SELECTION = "id-adaptive-ashare-speed-selection"
     ADAPTIVE_EN_SPEED_SELECTION = "id-adaptive-en-speed-selection"
     PMV_EN_HUMIDITY_SELECTION = "id-humidity-selection"
-    PMV_ENMETABOLIC_SELECTION = "id-metabolic-selection"
+    PMV_EN_METABOLIC_SELECTION = "id-metabolic-selection"
     PMV_EN_CLOTHING_SELECTION = "id-clothing-selection"
     FANS_AND_HEAT_METABOLIC_SELECTION = "id-fans-and-heat-metabolic-selection"
     FANS_AND_HEAT_CLOTHING_SELECTION = "id-fans-and-heat-clothing-selection"
     PHS_METABOLIC_SELECTION = "id-phs-metabolic-selection"
     PHS_CLOTHING_SELECTION = "id-phs-clothing-selection"
-    PMV_ASHARE_SPEED_SELECTION = "id-pmv-ashrae-speed-method"
+    PMV_ASHRAE_SPEED_SELECTION = "id-pmv-ashrae-speed-method"
     PMV_ASHARE_Humidity_SELECTION = "id-pmv-ashrae-humidity-method"
     PMV_ASHARE_Metabolic_SELECTION = "id-pmv-ashrae-metabolic-method"
     PMV_ASHARE_Clothing_SELECTION = "id-pmv-ashrae-clothing-method"
@@ -40,6 +42,12 @@ class ElementsIDs(Enum):
 class Config(Enum):
     # DEBUG: bool = False
     DEBUG: bool = "macOS" in platform.platform() or "Windows" in platform.platform()
+
+
+class Functionalities(Enum):
+    Default: str = "Default"
+    Compare: str = "Compare"
+    Ranges: str = "Ranges"
 
 
 class URLS(Enum):
@@ -101,8 +109,8 @@ class MODELS(Enum):
 
 class CHARTS(Enum):
     t_rh: str = "Temperature and Relative Humidity"
-    psychrometric: str = "Psychrometric(air temperature)"
-    psychrometric_operative: str = "Psychrometric(opeative tempeature)"
+    psychrometric: str = "Psychrometric (air temperature)"
+    psychrometric_operative: str = "Psychrometric (operative temperature)"
     relative_humidity: str = "Relative humidity vs. air temperature"
     air_speed: str = "Air speed vs. operative temperature"
     thermal_heat: str = "Thermal heat losses vs. air temperature"
@@ -173,6 +181,8 @@ class AdaptiveAshraeSpeeds(Enum):
 
 
 class AdaptiveENSpeeds(Enum):
+    # todo use the right punctuation and upper case
+    # todo the keys should be informative
     s_1: str = "lower than 0.6 m/s (118fpm)"
     s_2: str = "0.6 m/s (118fpm)"
     S_3: str = "0.9 m/s (177fpm)"
@@ -277,6 +287,7 @@ class ModelInputsFansHeat(BaseModel):
 
 
 class ModelInputsPhs(BaseModel):
+    # todo the model inputs should be taken from a global class, we then should update the min and max values
     AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
         unit="°C", min=15.0, max=50.0, step=0.5, value=25.0, name="Air Temperature"
     )
@@ -305,10 +316,11 @@ class ModelInputsPhs(BaseModel):
 # PMV - Ashare right selection
 class ModelInputsSelectionSpeedASHRAE55(Enum):
     s_1: str = "No local control"
-    s_2: str = "witn local control"
+    s_2: str = "with local control"
 
 
-class ModelInputsSelectionhumidityASHRAE55(Enum):
+class ModelInputsSelectionHumidityASHRAE55(Enum):
+    # todo pycharm is telling me that this code is duplicated
     h_1: str = "Relative humidity"
     h_2: str = "Humidity ratio"
     h_3: str = "Dew point"

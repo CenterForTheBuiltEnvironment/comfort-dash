@@ -25,7 +25,8 @@ class TextNavBar(Enum):
     about: str = "About"
     devices: str = "Devices"
     documentation: str = "Documentation"
-    tools: str = "More CBE Tools"
+    # todo do not call toolsX but call them by their name, see example below
+    more_tools: str = "More CBE Tools"
     tool1: str = "CBE Thermal Comfort Tool"
     tool2: str = "CBE Clima Tool"
     tool3: str = "Advanced Ceiling Fan Design Tool"

@@ -1,5 +1,3 @@
-from scipy._lib.cobyqa.models import Models
-from dash import no_update
 from components.drop_down_inline import (
     generate_dropdown_inline,
     generate_dropdown_inputs_inline,
@@ -18,7 +16,7 @@ from utils.my_config_file import (
     ModelInputsSelectionMetablicRatePhs,
     ModelInputsSelectionClothingPhs,
     ModelInputsSelectionSpeedASHRAE55,
-    ModelInputsSelectionhumidityASHRAE55,
+    ModelInputsSelectionHumidityASHRAE55,
     ModelInputsSelectionMetabolicASHRAE55,
     ModelInputsSelectionClothingASHRAE55,
 )
@@ -72,6 +70,7 @@ pmv_en_chart = {
 }
 
 
+# todo use type hints and default values
 def chart_selection(selected_model, chart_content):
     chart_inputs = ashare_chart
     current_value = None
@@ -138,7 +137,7 @@ pmv_en_humidity_selection = {
 }
 
 pmv_en_metabolic_selection = {
-    "id": ElementsIDs.PMV_ENMETABOLIC_SELECTION.value,
+    "id": ElementsIDs.PMV_EN_METABOLIC_SELECTION.value,
     "question": "",
     "options": [
         ModelInputsSelectionMetablicRatePmvEN16798.h_1.value,
@@ -303,7 +302,7 @@ phs_clothing_selection = {
 }
 
 pmv_ashrae_speed_selection = {
-    "id": ElementsIDs.PMV_ASHARE_SPEED_SELECTION.value,
+    "id": ElementsIDs.PMV_ASHRAE_SPEED_SELECTION.value,
     "question": "",
     "options": [
         ModelInputsSelectionSpeedASHRAE55.s_1.value,
@@ -317,14 +316,14 @@ pmv_ashrae_humidity_selection = {
     "id": ElementsIDs.PMV_ASHARE_Humidity_SELECTION.value,
     "question": "",
     "options": [
-        ModelInputsSelectionhumidityASHRAE55.h_1.value,
-        ModelInputsSelectionhumidityASHRAE55.h_2.value,
-        ModelInputsSelectionhumidityASHRAE55.h_3.value,
-        ModelInputsSelectionhumidityASHRAE55.h_4.value,
-        ModelInputsSelectionhumidityASHRAE55.h_5.value,
+        ModelInputsSelectionHumidityASHRAE55.h_1.value,
+        ModelInputsSelectionHumidityASHRAE55.h_2.value,
+        ModelInputsSelectionHumidityASHRAE55.h_3.value,
+        ModelInputsSelectionHumidityASHRAE55.h_4.value,
+        ModelInputsSelectionHumidityASHRAE55.h_5.value,
     ],
     "multi": False,
-    "default": ModelInputsSelectionhumidityASHRAE55.h_1.value,
+    "default": ModelInputsSelectionHumidityASHRAE55.h_1.value,
 }
 
 pmv_ashrae_metabolic_selection = {

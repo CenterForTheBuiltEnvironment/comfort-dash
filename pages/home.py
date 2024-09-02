@@ -13,6 +13,7 @@ from utils.my_config_file import (
     URLS,
     ElementsIDs,
     ModelChartDescription,
+    Dimensions,
 )
 from dash import html, dcc
 
@@ -24,11 +25,12 @@ layout = dmc.Stack(
             children=[
                 dmc.GridCol(
                     model_selection(),
-                    span={"base": 12, "sm": 6},
+                    # todo we should define the size of the left columns and of the right columns and then create a class and import from there, we should not define them here in the text, see example below
+                    span={"base": 12, "sm": Dimensions.left_container_width.value},
                 ),
                 dmc.GridCol(
                     functionality_selection(),
-                    span={"base": 12, "sm": 6},
+                    span={"base": 12, "sm": Dimensions.right_container_width.value},
                 ),
             ],
             gutter="xl",
@@ -36,17 +38,19 @@ layout = dmc.Stack(
         dmc.Grid(
             children=[
                 my_card(
-                    title="",
-                    children=input_environmental_personal(""),
+                    title="Inputs",
+                    children=input_environmental_personal(),
                     id="input_card",
-                    span={"base": 12, "sm": 5},
+                    span={"base": 12, "sm": Dimensions.left_container_width.value},
                 ),
                 my_card(
                     title="Results and Visualization",
                     children=dmc.Stack(
                         [
                             html.Div(
-                                id="chart-select", children=chart_selection("", "")
+                                # todo never pass empty string to functions. Define the default values in the function definition
+                                id="chart-select",
+                                children=chart_selection("", ""),
                             ),
                             dmc.SimpleGrid(
                                 cols=3,
@@ -87,7 +91,7 @@ layout = dmc.Stack(
                             ),
                         ],
                     ),
-                    span={"base": 12, "sm": 7},
+                    span={"base": 12, "sm": Dimensions.right_container_width.value},
                 ),
             ],
             gutter="xl",

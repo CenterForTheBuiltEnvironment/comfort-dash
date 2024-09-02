@@ -161,7 +161,7 @@ def my_navbar():
                                                     )
                                                     for item in tool_items
                                                 ],
-                                                label=TextNavBar.tools.value,
+                                                label=TextNavBar.more_tools.value,
                                                 align_end=True,
                                                 toggle_style={
                                                     "background": "white",
