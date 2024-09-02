@@ -38,7 +38,7 @@ def my_footer():
                                 target="_blank",
                             ),
                         ],
-                        style={"position": "relative", "left": "-9px"},
+                        # style={"position": "relative", "left": "-6px"},
                     ),
                     html.Nav(
                         className="cbe-social-links",
@@ -76,17 +76,11 @@ def my_footer():
                                 ]
                             ),
                         ],
-                        style={"position": "relative", "left": "-9px"},
                     ),
                 ],
             ),
             html.Div(
                 className="cbe-footnotes",
-                style={
-                    "background-color": "#1B3A76",
-                    "min-height": "2.5rem",
-                    "padding": "10px",
-                },
                 children=[
                     html.Div(
                         TextFooter.copy_right.value,
@@ -99,7 +93,7 @@ def my_footer():
                                 html.Img(
                                     src="https://img.shields.io/badge/License-MIT-yellow.svg",
                                     alt="License: MIT",
-                                    style={"width": "70px", "height": "17px"},
+                                    style={"width": "65px", "height": "18px"},
                                 ),
                                 href=TextFooter.open_source_link.value,
                             ),
