@@ -7,13 +7,13 @@ import pandas as pd
 
 
 # fig example
-def chart_example(selected_model, chart_content):
+def chart_example(selected_model: str = None, chart_content: str = None):
 
     # PMV - EN 16798 figure
     if selected_model == MODELS.PMV_EN.value:
         if chart_content == CHARTS.psychrometric.value:
             print("PMV_EN psychrometric figure")
-            df = px.data.gapminder()  # replace with your own data source
+            df = px.data.gapminder()
             countries = df.country.drop_duplicates().sample(n=10, random_state=42)
             df = df[df.country.isin(countries)]
             fig = px.line(
@@ -28,7 +28,7 @@ def chart_example(selected_model, chart_content):
             return fig
         elif chart_content == CHARTS.psychrometric_operative.value:
             print("PMV_EN psychrometric operative figure")
-            df = px.data.gapminder()  # replace with your own data source
+            df = px.data.gapminder() 
             countries = df.country.drop_duplicates().sample(n=10, random_state=42)
             df = df[df.country.isin(countries)]
             fig = px.scatter(
@@ -73,7 +73,7 @@ def chart_example(selected_model, chart_content):
             return fig
         else:
             print("PMV_EN psychrometric figure")
-            df = px.data.gapminder()  # replace with your own data source
+            df = px.data.gapminder()
             countries = df.country.drop_duplicates().sample(n=10, random_state=42)
             df = df[df.country.isin(countries)]
             fig = px.line(

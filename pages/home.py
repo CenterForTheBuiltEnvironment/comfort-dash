@@ -38,9 +38,10 @@ layout = dmc.Stack(
         dmc.Grid(
             children=[
                 my_card(
-                    title="Inputs",
+                    # title="Inputs",
                     children=input_environmental_personal(),
-                    id="input_card",
+                    id=ElementsIDs.INPUT_CARD.value,
+                    # id="input-card",
                     span={"base": 12, "sm": Dimensions.left_container_width.value},
                 ),
                 my_card(
@@ -48,15 +49,15 @@ layout = dmc.Stack(
                     children=dmc.Stack(
                         [
                             html.Div(
-                                # todo never pass empty string to functions. Define the default values in the function definition
-                                id="chart-select",
-                                children=chart_selection("", ""),
+                                # todo never pass empty string to functions. Define the default values in the function definition: done
+                                id=ElementsIDs.RESULT_CHART_SELECTION.value,
+                                children=chart_selection(),
                             ),
                             dmc.SimpleGrid(
                                 cols=3,
                                 spacing="xs",
                                 verticalSpacing="xs",
-                                id="graph-container",
+                                id=ElementsIDs.INPUTS_CONTAINER.value,
                                 children=[
                                     dmc.Center(
                                         dmc.Text("PMV = -0.16"),
@@ -75,7 +76,7 @@ layout = dmc.Stack(
                             ),
                             dcc.Graph(
                                 id=ElementsIDs.CHART_CONTAINER.value,
-                                figure=chart_example("", ""),
+                                figure=chart_example(),
                             ),
                             dmc.GridCol(
                                 children=dmc.Text(

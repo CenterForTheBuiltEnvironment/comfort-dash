@@ -21,8 +21,8 @@ def generate_dropdown_inline(questions_to_display, value=None, clearable=True):
                     multi=questions_to_display["multi"],
                     id=questions_to_display["id"],
                     optionHeight=30,
-                    # todo when possible, avoid using inline styles. Define a global style for the dropdowns
-                    style={"lineHeight": "90%"},
+                    # todo when possible, avoid using inline styles. Define a global style for the dropdowns: done
+                    className="custom_model_chart_dropdown",
                     clearable=clearable,
                 ),
             ),
@@ -48,7 +48,7 @@ def generate_dropdown_inputs_inline(questions_to_display, clearable=True):
                     multi=questions_to_display["multi"],
                     id=questions_to_display["id"],
                     optionHeight=70,
-                    style={"lineHeight": "90%", "fontSize": "14px"},
+                    className="custom_inputs_dropdown",
                     clearable=clearable,
                 ),
             ),

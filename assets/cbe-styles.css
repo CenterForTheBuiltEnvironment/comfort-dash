@@ -26,9 +26,10 @@ footer {
     display: flex;
     align-items: start;
     background-color: #0077c2;
-    padding: 12px;
-    padding-top: 20px;
-    padding-bottom: 40px;
+    /* padding: 12px; */
+    padding-left: 12px;
+    /* padding-top: 10px; */
+    /* padding-bottom: 8px; */
 }
 
 .cbe-footer-logo {
@@ -81,9 +82,11 @@ footer {
 
 .cbe-citation-info {
     margin-left: auto;
+    padding-top: 20px;
+    /* padding-bottom: 40px; */
     padding-left: 10px;
-    padding-right: 3px;
-    font-size: 10pt;
+    padding-right: 10px;
+    font-size: 8pt;
     width: 30%;
     text-align: start;
     /* padding-right: 5pt;; */
@@ -92,6 +95,7 @@ footer {
 
 .cbe-doi-link {
     color: white;
+    font-size: "14px";
 }
 
 .cbe-footnotes {
@@ -99,11 +103,10 @@ footer {
     justify-content: space-between;
     align-items: center;
     height: 40px;
-    font-size: 8pt;
     background-color: #0c2772;
     color: white;
     padding-left: 12px;
-    padding-top: 13px;
+    padding-top: 9px;
     padding-bottom: 13px;
     gap: 5px;
     /* min-height: 2.5rem, */
@@ -121,5 +124,13 @@ footer {
 
 .mit-license-badge img {
     max-height: 12pt;
+}
+
+.custom_model_chart_dropdown{
+    line-height: 90%;
+}
+.custom_inputs_dropdown{
+    line-height: 90%;
+    font-size: 14px;
 }
 

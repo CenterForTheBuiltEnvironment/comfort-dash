@@ -138,6 +138,7 @@ def input_environmental_personal(selected_model: str = None):
 
     return dmc.Paper(
         children=[
+            dmc.Text("Inputs", mb="xs", fw=700),
             dmc.Grid(
                 children=[
                     dmc.GridCol(

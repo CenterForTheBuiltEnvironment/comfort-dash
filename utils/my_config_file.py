@@ -21,6 +21,9 @@ class ElementsIDs(Enum):
     CHART_SELECTION = "id-chart-selection"
     CHART_CONTAINER = "id-chart-container"
     URL = "url"
+    INPUT_CARD = "id-home-input-card"
+    INPUTS_CONTAINER = "id-home-inputs-container"
+    RESULT_CHART_SELECTION = "id-result-chart-selection"
     FOOTER = "id-footer"
     NAVBAR_ID_DOCUMENT = "id-nav-documentation"
     NAVBAR_ID_MORE_CBE_TOOLS = "id-nav-more-cbe-tools"
@@ -131,6 +134,9 @@ class AdaptiveEN(Enum):
     )
     adaptive_chart: str = "Adaptive chart"
 
+class NumberOfColumns(Enum):
+    one_cols: int = 1
+    three_cols: int = 3
 
 class AdaptiveAshrae(Enum):
     acceptability_limits_80: str = (

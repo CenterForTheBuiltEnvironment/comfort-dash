@@ -21,6 +21,7 @@ from utils.my_config_file import (
     Stores,
     ElementsIDs,
     Dimensions,
+    NumberOfColumns,
 )
 from utils.my_config_file import (
     MODELS,
@@ -103,26 +104,30 @@ app.layout = dmc.MantineProvider(
 
 
 @app.callback(
-    # todo the first argument of inputs and outputs should always be taken from a global class (ElementsIDs) so we can keep track of them
-    Output("input_card", "children"),
-    Output("graph-container", "children"),
-    Output("chart-select", "children"),
-    Output("graph-container", "cols"),
+    # todo the first argument of inputs and outputs should always be taken from a global class (ElementsIDs) so we can keep track of them: done
+    Output(ElementsIDs.INPUT_CARD.value, "children"),
+    Output(ElementsIDs.INPUTS_CONTAINER.value, "children"),
+    Output(ElementsIDs.RESULT_CHART_SELECTION.value, "children"),
+    Output(ElementsIDs.INPUTS_CONTAINER.value, "cols"),
     Output(ElementsIDs.CHART_CONTAINER.value, "figure"),
-    Input(dd_model["id"], "value"),
-    Input(ashare_chart["id"], "value"),
+    Input(ElementsIDs.MODEL_SELECTION.value, "value"),
+    Input(ElementsIDs.CHART_SELECTION.value, "value"),
 )
+
+# when trigger: update the select chart, select model,inputs description, graph, graph description, inputs
 def capture_selected_model(selected_model, selected_chart):
-    # todo under each function please provide a short description of what the function does
-
-    if not selected_model:
-        # todo this should return PreventUpdate
-        # todo do we need to check for this? Is there a case in which the selected_model is None?
-        no_update, no_update, no_update, no_update, no_update
-
+    # todo under each function please provide a short description of what the function does: done
+    
+    # update input card in inputs
     input_content = input_environmental_personal(selected_model)
+    
+    # update input container in result  
     graph_content = update_graph_content(selected_model)
+    
+    # update select chart drop-down in result
     chart_content = chart_selection(selected_model, selected_chart)
+
+    # update cols for input container in result
     result_content = change_cols(selected_model)
 
     if (
@@ -131,6 +136,7 @@ def capture_selected_model(selected_model, selected_chart):
         or selected_model == MODELS.Adaptive_EN.value
         or selected_model == MODELS.Fans_heat.value
     ):
+        # update chart in result
         figure_content = chart_example(selected_model, None)
     else:
         figure_content = chart_example(selected_model, selected_chart)
@@ -138,19 +144,21 @@ def capture_selected_model(selected_model, selected_chart):
     return input_content, graph_content, chart_content, result_content, figure_content
 
 
+# update the inputs columns description above the graph
 def change_cols(selected_model):
-    # todo the information about the number of columns should be taken from a the class
+    # todo the information about the number of columns should be taken from a the class: done
     if (
         selected_model == MODELS.Adaptive_EN.value
         or selected_model == MODELS.Adaptive_ashrae.value
         or selected_model == MODELS.Phs.value
     ):
-        cols = 1
+        cols = NumberOfColumns.one_cols.value
     else:
-        cols = 3
+        cols = NumberOfColumns.three_cols.value
     return cols
 
 
+# update the graph description below the graph
 def update_graph_content(selected_model):
 
     if selected_model == MODELS.Adaptive_EN.value:

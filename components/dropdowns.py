@@ -70,30 +70,34 @@ pmv_en_chart = {
 }
 
 
-# todo use type hints and default values
-def chart_selection(selected_model, chart_content):
+# todo use type hints and default values: done
+def chart_selection(selected_model: str = None, chart_content: str = None):
     chart_inputs = ashare_chart
     current_value = None
+
     if selected_model == MODELS.PMV_ashrae.value:
         chart_inputs = ashare_chart
         current_value = (
             chart_content if chart_content is not None else CHARTS.psychrometric.value
         )
+        return generate_dropdown_inline(chart_inputs, value=current_value, clearable=False)
     elif selected_model == MODELS.Adaptive_ashrae.value:
-        return
+        return None
     elif selected_model == MODELS.Adaptive_EN.value:
-        return
+        return None
     elif selected_model == MODELS.PMV_EN.value:
         chart_inputs = pmv_en_chart
         current_value = (
             chart_content if chart_content is not None else CHARTS.psychrometric.value
         )
+        return generate_dropdown_inline(chart_inputs, value=current_value, clearable=False)
     elif selected_model == MODELS.Fans_heat.value:
-        return
+        return None
     elif selected_model == MODELS.Phs.value:
-        return
+        return None
+    else:
+        return generate_dropdown_inline(chart_inputs, value=current_value, clearable=False)
 
-    return generate_dropdown_inline(chart_inputs, value=current_value, clearable=False)
 
 
 adaptive_ashare_air_speed = {
