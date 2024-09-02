@@ -54,18 +54,17 @@ layout = dmc.Stack(
                                 verticalSpacing="xs",
                                 id="graph-container",
                                 children=[
-                                    dmc.Center(dmc.Text("PMV = 0.5")),
                                     dmc.Center(
-                                        dmc.Text("PPD = 2"),
+                                        dmc.Text("PMV = -0.16"),
                                     ),
                                     dmc.Center(
-                                        dmc.Text("SET = 30.1"),
+                                        dmc.Text("PPD = 6 %"),
                                     ),
                                     dmc.Center(
-                                        dmc.Text("Result 4"),
+                                        dmc.Text("Sensation = Neutral"),
                                     ),
                                     dmc.Center(
-                                        dmc.Text("Result 5"),
+                                        dmc.Text("SET = 24.8 °C"),
                                     ),
                                 ],
                                 style={"fontSize": "14px"},
