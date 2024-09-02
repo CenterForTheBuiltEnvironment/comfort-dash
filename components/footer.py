@@ -9,6 +9,7 @@ def my_footer():
             html.Footer(
                 className="cbe-footer-content",
                 children=[
+                    # todo do not use html divs but use dash mantine components
                     html.Div(
                         className="cbe-footer-logo",
                         children=[
@@ -22,7 +23,9 @@ def my_footer():
                             ),
                         ],
                     ),
+                    # todo do not use html Nav in the footer, use dash mantine components
                     html.Nav(
+                        # todo we should not change the appearance of the logo using css, we should use dash mantine components
                         className="cbe-footer-links",
                         children=[
                             html.A(
@@ -36,7 +39,6 @@ def my_footer():
                                 target="_blank",
                             ),
                         ],
-                        # style={"position": "relative", "left": "-6px"},
                     ),
                     html.Nav(
                         className="cbe-social-links",
@@ -56,6 +58,7 @@ def my_footer():
                                 href="#",
                             ),
                         ],
+                        # todo do not use style, use dash mantine components
                         style={"position": "relative", "left": "-9px"},
                     ),
                     html.Div(

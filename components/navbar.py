@@ -56,6 +56,7 @@ tool_items = [
 def my_navbar():
     return html.Div(
         dbc.Navbar(
+            # todo do we really need all the divs, grids and cols? We should simplify the code
             html.Div(
                 dmc.Grid(
                     [
@@ -66,17 +67,18 @@ def my_navbar():
                                     dbc.Row(
                                         [
                                             dbc.Col(
+                                                # todo the navbar should be less wide on large screens
                                                 html.Img(
+                                                    # todo the logo has a strange black border, we should remove it
                                                     src="/assets/media/CBE-logo-2018.png",
                                                     height="80px",
-                                                    width="80px",
                                                     alt="logo website navbar",
                                                     style={
-                                                        "border": "2px solid black",
                                                         "padding": "5px",
                                                         "border-radius": "20px",
                                                     },
                                                 ),
+                                                # todo why all these inline styles?
                                                 width="20px",
                                             ),
                                         ],
@@ -109,6 +111,7 @@ def my_navbar():
                             span="auto",
                             className="d-flex justify-content-center align-items-center",
                         ),
+                        # todo is not rendering well on mobile
                         dmc.GridCol(
                             [
                                 dbc.NavbarToggler(
@@ -196,35 +199,6 @@ def my_navbar():
                 className="d-flex justify-content-between align-items-center w-100",  # Flexbox layout for full width
             ),
             color="white",
-            dark=True,
-        ),
-        id=ElementsIDs.NAVBAR.value,
-    )
-
-
-def my_navbar_only_logo():
-    return html.Div(
-        dbc.Navbar(
-            dmc.Container(
-                dmc.Center(
-                    html.Img(
-                        src="assets/media/CBE-logo-2019-artwork-blue-background.png",
-                        height="30px",
-                        width="auto",
-                        alt="logo website navbar",
-                    ),
-                ),
-                style={
-                    "display": "flex",
-                    "alignItems": "center",
-                    "justifyContent": "flex-start",
-                    "padding": "0",
-                    "margin": "0",
-                },
-                className="p-1",
-                size=Dimensions.default_container_width.value,
-            ),
-            color="dark",
             dark=True,
         ),
         id=ElementsIDs.NAVBAR.value,
