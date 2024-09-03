@@ -4,7 +4,7 @@ from components.drop_down_inline import (
 )
 from utils.my_config_file import (
     ElementsIDs,
-    MODELS,
+    Models,
     CHARTS,
     AdaptiveAshraeSpeeds,
     AdaptiveENSpeeds,
@@ -26,15 +26,11 @@ dd_model = {
     "id": ElementsIDs.MODEL_SELECTION.value,
     "question": TextHome.model_selection.value,
     "options": [
-        MODELS.PMV_ashrae.value,
-        MODELS.Adaptive_ashrae.value,
-        MODELS.PMV_EN.value,
-        MODELS.Adaptive_EN.value,
-        MODELS.Fans_heat.value,
-        MODELS.Phs.value,
+        # todo these values sould be generated iterating over the Models attributes
+        Models.PMV_ashrae.value.name,
     ],
     "multi": False,
-    "default": MODELS.PMV_ashrae.value,
+    "default": Models.PMV_ashrae.value.name,
 }
 
 
@@ -74,24 +70,24 @@ pmv_en_chart = {
 def chart_selection(selected_model, chart_content):
     chart_inputs = ashare_chart
     current_value = None
-    if selected_model == MODELS.PMV_ashrae.value:
+    if selected_model == Models.PMV_ashrae.value:
         chart_inputs = ashare_chart
         current_value = (
             chart_content if chart_content is not None else CHARTS.psychrometric.value
         )
-    elif selected_model == MODELS.Adaptive_ashrae.value:
-        return
-    elif selected_model == MODELS.Adaptive_EN.value:
-        return
-    elif selected_model == MODELS.PMV_EN.value:
-        chart_inputs = pmv_en_chart
-        current_value = (
-            chart_content if chart_content is not None else CHARTS.psychrometric.value
-        )
-    elif selected_model == MODELS.Fans_heat.value:
-        return
-    elif selected_model == MODELS.Phs.value:
-        return
+    # elif selected_model == Models.Adaptive_ashrae.value:
+    #     return
+    # elif selected_model == Models.Adaptive_EN.value:
+    #     return
+    # elif selected_model == Models.PMV_EN.value:
+    #     chart_inputs = pmv_en_chart
+    #     current_value = (
+    #         chart_content if chart_content is not None else CHARTS.psychrometric.value
+    #     )
+    # elif selected_model == Models.Fans_heat.value:
+    #     return
+    # elif selected_model == Models.Phs.value:
+    #     return
 
     return generate_dropdown_inline(chart_inputs, value=current_value, clearable=False)
 

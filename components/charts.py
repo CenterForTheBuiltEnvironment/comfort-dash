@@ -1,6 +1,6 @@
 import plotly.express as px
 from utils.my_config_file import (
-    MODELS,
+    Models,
     CHARTS,
 )
 import pandas as pd
@@ -10,7 +10,7 @@ import pandas as pd
 def chart_example(selected_model, chart_content):
 
     # PMV - EN 16798 figure
-    if selected_model == MODELS.PMV_EN.value:
+    if selected_model == Models.PMV_EN.value:
         if chart_content == CHARTS.psychrometric.value:
             print("PMV_EN psychrometric figure")
             df = px.data.gapminder()  # replace with your own data source
@@ -88,7 +88,7 @@ def chart_example(selected_model, chart_content):
             return fig
 
     # PMV - Ashare 55 figure
-    elif selected_model == MODELS.PMV_ashrae.value:
+    elif selected_model == Models.PMV_ashrae.value:
         if chart_content == CHARTS.psychrometric.value:
             print("PMV_ashrae psychrometric figure")
             df = px.data.gapminder()
@@ -213,7 +213,7 @@ def chart_example(selected_model, chart_content):
             return fig
 
     # Adaptive - Ashare 55 figure
-    elif selected_model == MODELS.Adaptive_ashrae.value:
+    elif selected_model == Models.Adaptive_ashrae.value:
         print("Adaptive Ashare figure")
         df = px.data.gapminder()
         countries = df["country"].drop_duplicates().sample(n=10, random_state=42)
@@ -231,7 +231,7 @@ def chart_example(selected_model, chart_content):
         return fig
 
     # Adaptive - EN 16798 figure
-    elif selected_model == MODELS.Adaptive_EN.value:
+    elif selected_model == Models.Adaptive_EN.value:
         print("Adaptive EN figure")
         df = px.data.gapminder()
         countries = df["country"].drop_duplicates().sample(n=10, random_state=42)
@@ -249,7 +249,7 @@ def chart_example(selected_model, chart_content):
         return fig
 
     # Fans & Heat figure
-    elif selected_model == MODELS.Fans_heat.value:
+    elif selected_model == Models.Fans_heat.value:
         print("Fans and Heat show figure")
         df = px.data.gapminder()
         countries = df["country"].drop_duplicates().sample(n=10, random_state=42)
@@ -274,7 +274,7 @@ def chart_example(selected_model, chart_content):
 
         return fig
     # PHS figure
-    elif selected_model == MODELS.Phs.value:
+    elif selected_model == Models.Phs.value:
         print("PHS show figure")
         df = px.data.gapminder()
         countries = df["country"].drop_duplicates().sample(n=10, random_state=42)

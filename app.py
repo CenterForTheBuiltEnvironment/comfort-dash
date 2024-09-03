@@ -23,7 +23,7 @@ from utils.my_config_file import (
     Dimensions,
 )
 from utils.my_config_file import (
-    MODELS,
+    Models,
     AdaptiveEN,
     AdaptiveAshrae,
     PmvAshraeResultCard,
@@ -126,10 +126,10 @@ def capture_selected_model(selected_model, selected_chart):
     result_content = change_cols(selected_model)
 
     if (
-        selected_model == MODELS.Phs.value
-        or selected_model == MODELS.Adaptive_ashrae.value
-        or selected_model == MODELS.Adaptive_EN.value
-        or selected_model == MODELS.Fans_heat.value
+        selected_model == Models.Phs.value
+        or selected_model == Models.Adaptive_ashrae.value
+        or selected_model == Models.Adaptive_EN.value
+        or selected_model == Models.Fans_heat.value
     ):
         figure_content = chart_example(selected_model, None)
     else:
@@ -141,9 +141,9 @@ def capture_selected_model(selected_model, selected_chart):
 def change_cols(selected_model):
     # todo the information about the number of columns should be taken from a the class
     if (
-        selected_model == MODELS.Adaptive_EN.value
-        or selected_model == MODELS.Adaptive_ashrae.value
-        or selected_model == MODELS.Phs.value
+        selected_model == Models.Adaptive_EN.value
+        or selected_model == Models.Adaptive_ashrae.value
+        or selected_model == Models.Phs.value
     ):
         cols = 1
     else:
@@ -153,37 +153,37 @@ def change_cols(selected_model):
 
 def update_graph_content(selected_model):
 
-    if selected_model == MODELS.Adaptive_EN.value:
+    if selected_model == Models.Adaptive_EN.value:
         grid_content = [
             dmc.Center(dmc.Text(AdaptiveEN.class_III.value)),
             dmc.Center(dmc.Text(AdaptiveEN.class_II.value)),
             dmc.Center(dmc.Text(AdaptiveEN.class_I.value)),
             dmc.Center(dmc.Text(AdaptiveEN.adaptive_chart.value)),
         ]
-    elif selected_model == MODELS.Adaptive_ashrae.value:
+    elif selected_model == Models.Adaptive_ashrae.value:
         grid_content = [
             dmc.Center(dmc.Text(AdaptiveAshrae.acceptability_limits_80.value)),
             dmc.Center(dmc.Text(AdaptiveAshrae.acceptability_limits_90.value)),
             dmc.Center(dmc.Text(AdaptiveAshrae.adaptive_chart.value)),
         ]
-    elif selected_model == MODELS.PMV_ashrae.value:
+    elif selected_model == Models.PMV_ashrae.value:
         grid_content = [
             dmc.Center(dmc.Text(PmvAshraeResultCard.pmv.value)),
             dmc.Center(dmc.Text(PmvAshraeResultCard.ppd.value)),
             dmc.Center(dmc.Text(PmvAshraeResultCard.sensation.value)),
             dmc.Center(dmc.Text(PmvAshraeResultCard.set.value)),
         ]
-    elif selected_model == MODELS.PMV_EN.value:
+    elif selected_model == Models.PMV_EN.value:
         grid_content = [
             dmc.Center(dmc.Text(PmvENResultCard.pmv.value)),
             dmc.Center(dmc.Text(PmvENResultCard.ppd.value)),
             dmc.Center(dmc.Text(PmvENResultCard.set.value)),
         ]
 
-    elif selected_model == MODELS.Fans_heat.value:
+    elif selected_model == Models.Fans_heat.value:
         grid_content = []
 
-    elif selected_model == MODELS.Phs.value:
+    elif selected_model == Models.Phs.value:
         grid_content = [
             dmc.Center(html.Strong(PhsResultCard.line1.value)),
             dmc.Center(dmc.Text(PhsResultCard.line2.value)),

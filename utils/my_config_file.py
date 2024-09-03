@@ -1,5 +1,7 @@
 import platform
 from enum import Enum
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -98,15 +100,6 @@ class Stores(Enum):
     INPUT_DATA = "store_input_data"
 
 
-class MODELS(Enum):
-    PMV_ashrae: str = "PMV - ASHRAE 55"
-    PMV_EN: str = "PMV - EN 16798"
-    Adaptive_ashrae: str = "Adaptive - ASHRAE 55"
-    Adaptive_EN: str = "Adaptive - EN 16798"
-    Fans_heat: str = "FANS & HEAT"
-    Phs: str = "PHS"
-
-
 class CHARTS(Enum):
     t_rh: str = "Temperature and Relative Humidity"
     psychrometric: str = "Psychrometric (air temperature)"
@@ -164,15 +157,6 @@ class PhsResultCard(Enum):
     line4: str = "water loss of 7.5% of the body mass for an average person = 380 min"
 
 
-class ModelInputsInfo(BaseModel):
-    name: str
-    unit: str
-    min: float
-    max: float
-    step: float
-    value: float
-
-
 class AdaptiveAshraeSpeeds(Enum):
     s_1: str = "0.3 m/s (59fpm)"
     s_2: str = "0.6 m/s (118fpm)"
@@ -189,127 +173,130 @@ class AdaptiveENSpeeds(Enum):
     s_4: str = "1.2 m/s (236fpm)"
 
 
-class ModelInputsPmvAshrae55(BaseModel):
-    TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=0.0, max=50.0, step=0.5, value=25.0, name="Air Temperature"
-    )
-    AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
-        unit="m/s", min=0.0, max=4.0, step=0.1, value=0.1, name="Air Speed"
-    )
-    RH: ModelInputsInfo = ModelInputsInfo(
-        unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"
-    )
-    MET: ModelInputsInfo = ModelInputsInfo(
-        unit="met", min=0.7, max=4.0, step=0.1, value=1.0, name="Metabolic Rate"
-    )
-    CLOTHING: ModelInputsInfo = ModelInputsInfo(
-        unit="clo", min=0.0, max=4.0, step=0.1, value=0.61, name="Clothing Level"
-    )
+class UnitConverter:
+    @staticmethod
+    def celsius_to_fahrenheit(celsius):
+        return round(celsius * 9 / 5 + 32)
+
+    @staticmethod
+    def fahrenheit_to_celsius(fahrenheit):
+        return round((fahrenheit - 32) * 5 / 9, 2)
+
+    @staticmethod
+    def mps_to_fps(mps):
+        return round(mps * 3.28084, 2)
+
+    @staticmethod
+    def fps_to_mps(fps):
+        return round(fps / 3.28084, 2)
+
+    @staticmethod
+    def convert_value(value, from_unit, to_unit):
+        if from_unit == "°C" and to_unit == "°F":
+            return UnitConverter.celsius_to_fahrenheit(value)
+        elif from_unit == "°F" and to_unit == "°C":
+            return UnitConverter.fahrenheit_to_celsius(value)
+        elif from_unit == "m/s" and to_unit == "ft/s":
+            return UnitConverter.mps_to_fps(value)
+        elif from_unit == "ft/s" and to_unit == "m/s":
+            return UnitConverter.fps_to_mps(value)
+        return value
 
 
-class ModelInputsAdaptiveAshrae55(BaseModel):
-    AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=0.0, max=50.0, step=0.5, value=25.0, name="Air Temperature"
-    )
-    MRT: ModelInputsInfo = ModelInputsInfo(
-        unit="°C",
-        min=10.0,
-        max=35.0,
-        step=0.5,
-        value=25.0,
-        name="Prevailing mean outdoor temperature",
-    )
+def convert_units(model_inputs, to_unit_system):
+    for input_info in model_inputs:
+        if to_unit_system == "IP":
+            if input_info.unit == "°C":
+                input_info.value = UnitConverter.convert_value(input_info.value, "°C", "°F")
+                input_info.unit = "°F"
+            elif input_info.unit == "m/s":
+                input_info.value = UnitConverter.convert_value(input_info.value, "m/s", "ft/s")
+                input_info.unit = "ft/s"
+        elif to_unit_system == "SI":
+            if input_info.unit == "°F":
+                input_info.value = UnitConverter.convert_value(input_info.value, "°F", "°C")
+                input_info.unit = "°C"
+            elif input_info.unit == "ft/s":
+                input_info.value = UnitConverter.convert_value(input_info.value, "ft/s", "m/s")
+                input_info.unit = "m/s"
 
 
-class ModelInputsPmvEN16798(BaseModel):
-    AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=0.0, max=50.0, step=0.5, value=25.0, name="Air Temperature"
-    )
-    MRT: ModelInputsInfo = ModelInputsInfo(
-        unit="°C",
-        min=0.0,
-        max=50.0,
-        step=0.5,
-        value=25.0,
-        name="Mean Radiant Temperature",
-    )
-    AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
-        unit="m/s", min=0.0, max=4.0, step=0.1, value=0.1, name="Air Speed"
-    )
-    RH: ModelInputsInfo = ModelInputsInfo(
-        unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"
-    )
-    MET: ModelInputsInfo = ModelInputsInfo(
-        unit="met", min=0.7, max=4.0, step=0.1, value=1, name="Metabolic Rate"
-    )
-    DYNAMIC_CLOTHING: ModelInputsInfo = ModelInputsInfo(
-        unit="clo",
-        min=0.0,
-        max=4.0,
-        step=0.1,
-        value=0.61,
-        name="Dynamic Clothing insulation",
-    )
+class ModelInputsInfo(BaseModel):
+    name: str
+    unit: str
+    min: float
+    max: float
+    step: float
+    value: float
 
 
-class ModelInputsAdaptiveEN16798(BaseModel):
-    AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=0.0, max=50.0, step=0.5, value=25.0, name="Air Temperature"
-    )
-    MRT: ModelInputsInfo = ModelInputsInfo(
-        unit="°C",
-        min=0.0,
-        max=50.0,
-        step=0.5,
-        value=25.0,
-        name="Mean Radiant Temperature",
-    )
-    RUNNING_MEAN_OUTDOOR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C",
-        min=10.0,
-        max=35.0,
-        step=0.1,
-        value=25.0,
-        name="Running Mean Outdoor Temperature",
-    )
+class ModelsInfo(BaseModel):
+    name: str
+    description: str
+    inputs: List[ModelInputsInfo]
+    # outputs: List[ModelInputsInfo]
 
 
-class ModelInputsFansHeat(BaseModel):
-    AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
-        unit="m/s", min=0.0, max=4.5, step=0.1, value=0.8, name="Air Speed"
+class Models(Enum):
+    PMV_ashrae: ModelsInfo = ModelsInfo(
+        name="PMV - ASHRAE 55",
+        description="PMV - ASHRAE 55",
+        inputs=[
+            ModelInputsInfo(unit="°C", min=0.0, max=50.0, step=0.5, value=25.0,
+                            name="Air Temperature"),
+            ModelInputsInfo(unit="°C", min=0.0, max=50.0, step=0.5, value=25.0,
+                            name="Mean Radiant Temperature"),
+            ModelInputsInfo(unit="m/s", min=0.0, max=4.0, step=0.1, value=0.1, name="Air Speed"),
+            ModelInputsInfo(unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"),
+            ModelInputsInfo(unit="met", min=0.7, max=4.0, step=0.1, value=1.0, name="Metabolic Rate"),
+            ModelInputsInfo(unit="clo", min=0.0, max=4.0, step=0.1, value=0.61, name="Clothing Level"),
+        ]
     )
-    MET: ModelInputsInfo = ModelInputsInfo(
-        unit="met", min=0.7, max=1.9, step=0.1, value=1.1, name="Metabolic Rate"
+    PMV_EN: ModelsInfo = ModelsInfo(
+        name="PMV - EN",
+        description="PMV - EN",
+        inputs=[
+            ModelInputsInfo(unit="°C", min=0.0, max=50.0, step=0.5, value=25.0,
+                            name="Air Temperature"),
+            ModelInputsInfo(unit="°C", min=0.0, max=50.0, step=0.5, value=25.0,
+                            name="Mean Radiant Temperature"),
+            ModelInputsInfo(unit="m/s", min=0.0, max=4.0, step=0.1, value=0.1, name="Air Speed"),
+            ModelInputsInfo(unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"),
+            ModelInputsInfo(unit="met", min=0.7, max=4.0, step=0.1, value=1.0, name="Metabolic Rate"),
+            ModelInputsInfo(unit="clo", min=0.0, max=4.0, step=0.1, value=0.61, name="Clothing Level"),
+        ]
     )
-    CLOTHING: ModelInputsInfo = ModelInputsInfo(
-        unit="clo", min=0.0, max=0.6, step=0.1, value=0.5, name="Clothing Level"
+    Adaptive_ASHRAE: ModelsInfo = ModelsInfo(
+        name="Adaptive - ASHRAE 55",
+        description="Adaptive - ASHRAE 55",
+        inputs=[
+            ModelInputsInfo(unit="°C", min=0.0, max=50.0, step=0.5, value=25.0,
+                            name="Air Temperature"),
+            ModelInputsInfo(
+                unit="°C",
+                min=10.0,
+                max=35.0,
+                step=0.5,
+                value=25.0,
+                name="Prevailing mean outdoor temperature",
+            )
+        ]
     )
-
-
-class ModelInputsPhs(BaseModel):
-    # todo the model inputs should be taken from a global class, we then should update the min and max values
-    AIR_TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=15.0, max=50.0, step=0.5, value=25.0, name="Air Temperature"
-    )
-    MRT: ModelInputsInfo = ModelInputsInfo(
-        unit="°C",
-        min=15.0,
-        max=50.0,
-        step=0.5,
-        value=25.0,
-        name="Mean Radiant Temperature",
-    )
-    AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
-        unit="m/s", min=0.0, max=3.0, step=0.1, value=0.1, name="Air Speed"
-    )
-    RH: ModelInputsInfo = ModelInputsInfo(
-        unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"
-    )
-    MET: ModelInputsInfo = ModelInputsInfo(
-        unit="met", min=1.0, max=4.3, step=0.1, value=1.2, name="Metabolic Rate"
-    )
-    CLOTHING: ModelInputsInfo = ModelInputsInfo(
-        unit="clo", min=0.1, max=1.0, step=0.1, value=0.5, name="Clothing Level"
+    Adaptive_EN: ModelsInfo = ModelsInfo(
+        name="Adaptive - EN 16798",
+        description = "Adaptive - EN 16798",
+        inputs=[
+            ModelInputsInfo(unit="°C", min=0.0, max=50.0, step=0.5, value=25.0,
+                            name="Air Temperature"),
+            ModelInputsInfo(
+                unit="°C",
+                min=10.0,
+                max=35.0,
+                step=0.5,
+                value=25.0,
+                name="Prevailing mean outdoor temperature",
+            ),
+        ]
     )
 
 
