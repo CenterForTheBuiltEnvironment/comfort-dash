@@ -1,3 +1,5 @@
+import re
+
 from dash import no_update, ctx, dcc
 from dash.dependencies import Input, Output, State, ALL
 
@@ -38,12 +40,17 @@ class StoreState:
         def save_data(input_values, store_data):
             # Update storage if triggered by input component
             if ctx.triggered:
-                for i, value in enumerate(input_values):
-                    if value is not None:
-                        key = f"input_{i}"
-                        store_data = StoreState.save_state_to_store(
-                            store_data, key, value
-                        )
+                # Only get the first triggered item since ctx.triggered is usually a list of one
+                prop_id = ctx.triggered[0]['prop_id']
+                value = ctx.triggered[0]['value']
+
+                # Use regex to find the index after "index":
+                match = re.search(r'"index":"?([^"]+)"?', prop_id)
+
+                if match:
+                    index = match.group(1)
+                    store_data = StoreState.save_state_to_store(store_data, index, value)
+
                 return store_data
             return no_update
 
@@ -58,15 +65,21 @@ class StoreState:
                 # Get the current number of dynamic input components
                 num_outputs = len(ctx.outputs_list)
 
-                # Initialize output list, default to using no_update
+                # Initialize the output list, defaulting to no_update
                 input_values = [no_update] * num_outputs
 
-                # Update existing data
+                # If stored data exists, update the corresponding component values based on the indices
                 if store_data:
-                    for i in range(num_outputs):
-                        input_values[i] = store_data.get(f"input_{i}", no_update)
+                    # Iterate through the key-value pairs in the stored data
+                    for key, value in store_data.items():
+                        # Iterate through all the output components, matching the stored data indices
+                        for i, output in enumerate(ctx.outputs_list):
+                            # If the component's id matches the key in the stored data, update the component's value
+                            if output['id']['index'] == key:
+                                input_values[i] = value
 
                 return input_values
 
-            # If modified_timestamp is empty or invalid, return a list of no_update
+            # If modified_timestamp is empty or invalid, return a list with no_update
             return [no_update] * len(ctx.outputs_list)
+
