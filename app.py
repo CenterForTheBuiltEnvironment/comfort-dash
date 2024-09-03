@@ -3,32 +3,16 @@ import os
 import dash
 import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
-from dash import Dash, dcc, html, no_update
-from dash.dependencies import Input, Output
+from dash import Dash, dcc, html
 from icecream import install, ic
 
-from components.charts import chart_example
-from components.dropdowns import chart_selection
-from components.dropdowns import (
-    dd_model,
-    ashare_chart,
-)
 from components.footer import my_footer
-from components.input_environmental_personal import input_environmental_personal
 from components.navbar import my_navbar
 from utils.my_config_file import (
     Config,
     Stores,
     ElementsIDs,
     Dimensions,
-)
-from utils.my_config_file import (
-    Models,
-    AdaptiveEN,
-    AdaptiveAshrae,
-    PmvAshraeResultCard,
-    PmvENResultCard,
-    PhsResultCard,
 )
 from utils.website_text import app_name
 
@@ -38,7 +22,6 @@ ic.configureOutput(includeContext=True)
 
 # This is required by dash mantine components to work with react 18
 dash._dash_renderer._set_react_version("18.2.0")
-
 
 # Exposing the Flask Server to enable configuring it for logging in
 app = Dash(
@@ -100,100 +83,6 @@ app.layout = dmc.MantineProvider(
         },
     ),
 )
-
-
-@app.callback(
-    # todo the first argument of inputs and outputs should always be taken from a global class (ElementsIDs) so we can keep track of them
-    Output("input_card", "children"),
-    Output("graph-container", "children"),
-    Output("chart-select", "children"),
-    Output("graph-container", "cols"),
-    Output(ElementsIDs.CHART_CONTAINER.value, "figure"),
-    Input(dd_model["id"], "value"),
-    Input(ashare_chart["id"], "value"),
-)
-def capture_selected_model(selected_model, selected_chart):
-    # todo under each function please provide a short description of what the function does
-
-    if not selected_model:
-        # todo this should return PreventUpdate
-        # todo do we need to check for this? Is there a case in which the selected_model is None?
-        no_update, no_update, no_update, no_update, no_update
-
-    input_content = input_environmental_personal(selected_model)
-    graph_content = update_graph_content(selected_model)
-    chart_content = chart_selection(selected_model, selected_chart)
-    result_content = change_cols(selected_model)
-
-    if (
-        selected_model == Models.Phs.value
-        or selected_model == Models.Adaptive_ashrae.value
-        or selected_model == Models.Adaptive_EN.value
-        or selected_model == Models.Fans_heat.value
-    ):
-        figure_content = chart_example(selected_model, None)
-    else:
-        figure_content = chart_example(selected_model, selected_chart)
-
-    return input_content, graph_content, chart_content, result_content, figure_content
-
-
-def change_cols(selected_model):
-    # todo the information about the number of columns should be taken from a the class
-    if (
-        selected_model == Models.Adaptive_EN.value
-        or selected_model == Models.Adaptive_ashrae.value
-        or selected_model == Models.Phs.value
-    ):
-        cols = 1
-    else:
-        cols = 3
-    return cols
-
-
-def update_graph_content(selected_model):
-
-    if selected_model == Models.Adaptive_EN.value:
-        grid_content = [
-            dmc.Center(dmc.Text(AdaptiveEN.class_III.value)),
-            dmc.Center(dmc.Text(AdaptiveEN.class_II.value)),
-            dmc.Center(dmc.Text(AdaptiveEN.class_I.value)),
-            dmc.Center(dmc.Text(AdaptiveEN.adaptive_chart.value)),
-        ]
-    elif selected_model == Models.Adaptive_ashrae.value:
-        grid_content = [
-            dmc.Center(dmc.Text(AdaptiveAshrae.acceptability_limits_80.value)),
-            dmc.Center(dmc.Text(AdaptiveAshrae.acceptability_limits_90.value)),
-            dmc.Center(dmc.Text(AdaptiveAshrae.adaptive_chart.value)),
-        ]
-    elif selected_model == Models.PMV_ashrae.value:
-        grid_content = [
-            dmc.Center(dmc.Text(PmvAshraeResultCard.pmv.value)),
-            dmc.Center(dmc.Text(PmvAshraeResultCard.ppd.value)),
-            dmc.Center(dmc.Text(PmvAshraeResultCard.sensation.value)),
-            dmc.Center(dmc.Text(PmvAshraeResultCard.set.value)),
-        ]
-    elif selected_model == Models.PMV_EN.value:
-        grid_content = [
-            dmc.Center(dmc.Text(PmvENResultCard.pmv.value)),
-            dmc.Center(dmc.Text(PmvENResultCard.ppd.value)),
-            dmc.Center(dmc.Text(PmvENResultCard.set.value)),
-        ]
-
-    elif selected_model == Models.Fans_heat.value:
-        grid_content = []
-
-    elif selected_model == Models.Phs.value:
-        grid_content = [
-            dmc.Center(html.Strong(PhsResultCard.line1.value)),
-            dmc.Center(dmc.Text(PhsResultCard.line2.value)),
-            dmc.Center(dmc.Text(PhsResultCard.line3.value)),
-            dmc.Center(dmc.Text(PhsResultCard.line4.value)),
-        ]
-    else:
-        grid_content = []
-
-    return grid_content
 
 
 if __name__ == "__main__":

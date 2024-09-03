@@ -24,6 +24,15 @@ class ElementsIDs(Enum):
     CHART_CONTAINER = "id-chart-container"
     URL = "url"
     FOOTER = "id-footer"
+    INPUT_SECTION = "id-input-section"
+    t_db_input = "id-dbt-input"
+    t_r_input = "id-tr-input"
+    t_rm_input = "id-trm-input"
+    v_input = "id-v-input"
+    rh_input = "id-rh-input"
+    met_input = "id-met-input"
+    clo_input = "id-clo-input"
+    RESULTS_SECTION = "id-results-section"
     NAVBAR_ID_DOCUMENT = "id-nav-documentation"
     NAVBAR_ID_MORE_CBE_TOOLS = "id-nav-more-cbe-tools"
     ADAPTIVE_ASHARE_SPEED_SELECTION = "id-adaptive-ashare-speed-selection"
@@ -112,51 +121,6 @@ class CHARTS(Enum):
     phs_Chart: str = "PHS Chart"
 
 
-class AdaptiveEN(Enum):
-    class_I: str = (
-        "Class I acceptability limits = Operative temperature: 24.1 to 29.1 °C"
-    )
-    class_II: str = (
-        "Class II acceptability limits = Operative temperature: 23.1 to 30.1 °C"
-    )
-    class_III: str = (
-        "Class III acceptability limits = Operative temperature: 22.1 to 31.1 °C"
-    )
-    adaptive_chart: str = "Adaptive chart"
-
-
-class AdaptiveAshrae(Enum):
-    acceptability_limits_80: str = (
-        "80% acceptability limits = Operative temperature: 22.1 to 29.1 °C"
-    )
-    acceptability_limits_90: str = (
-        "90% acceptability limits = Operative temperature: 23.1 to 28.1 °C"
-    )
-    adaptive_chart: str = "Adaptive chart"
-
-
-class PmvAshraeResultCard(Enum):
-    pmv: str = "PMV = -0.16"
-    ppd: str = "PPD = 6 %"
-    sensation: str = "Sensation = Neutral"
-    set: str = "SET = 24.8 °C"
-
-
-class PmvENResultCard(Enum):
-    pmv: str = "PMV = -0.16"
-    ppd: str = "PPD = 6 %"
-    set: str = "SET = |"
-
-
-class PhsResultCard(Enum):
-    line1: str = (
-        "Maximum allowable exposure time within which the physiological strain is acceptable (no physical damage is to be expected) calculated as a function of:"
-    )
-    line2: str = "max rectal temperature = 53 min"
-    line3: str = "water loss of 5% of the body mass for 95% of the population = 256 min"
-    line4: str = "water loss of 7.5% of the body mass for an average person = 380 min"
-
-
 class AdaptiveAshraeSpeeds(Enum):
     s_1: str = "0.3 m/s (59fpm)"
     s_2: str = "0.6 m/s (118fpm)"
@@ -207,17 +171,25 @@ def convert_units(model_inputs, to_unit_system):
     for input_info in model_inputs:
         if to_unit_system == "IP":
             if input_info.unit == "°C":
-                input_info.value = UnitConverter.convert_value(input_info.value, "°C", "°F")
+                input_info.value = UnitConverter.convert_value(
+                    input_info.value, "°C", "°F"
+                )
                 input_info.unit = "°F"
             elif input_info.unit == "m/s":
-                input_info.value = UnitConverter.convert_value(input_info.value, "m/s", "ft/s")
+                input_info.value = UnitConverter.convert_value(
+                    input_info.value, "m/s", "ft/s"
+                )
                 input_info.unit = "ft/s"
         elif to_unit_system == "SI":
             if input_info.unit == "°F":
-                input_info.value = UnitConverter.convert_value(input_info.value, "°F", "°C")
+                input_info.value = UnitConverter.convert_value(
+                    input_info.value, "°F", "°C"
+                )
                 input_info.unit = "°C"
             elif input_info.unit == "ft/s":
-                input_info.value = UnitConverter.convert_value(input_info.value, "ft/s", "m/s")
+                input_info.value = UnitConverter.convert_value(
+                    input_info.value, "ft/s", "m/s"
+                )
                 input_info.unit = "m/s"
 
 
@@ -228,13 +200,14 @@ class ModelInputsInfo(BaseModel):
     max: float
     step: float
     value: float
+    id: str
 
 
 class ModelsInfo(BaseModel):
     name: str
     description: str
     inputs: List[ModelInputsInfo]
-    # outputs: List[ModelInputsInfo]
+    pythermalcomfort_models: str = None
 
 
 class Models(Enum):
@@ -242,61 +215,145 @@ class Models(Enum):
         name="PMV - ASHRAE 55",
         description="PMV - ASHRAE 55",
         inputs=[
-            ModelInputsInfo(unit="°C", min=0.0, max=50.0, step=0.5, value=25.0,
-                            name="Air Temperature"),
-            ModelInputsInfo(unit="°C", min=0.0, max=50.0, step=0.5, value=25.0,
-                            name="Mean Radiant Temperature"),
-            ModelInputsInfo(unit="m/s", min=0.0, max=4.0, step=0.1, value=0.1, name="Air Speed"),
-            ModelInputsInfo(unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"),
-            ModelInputsInfo(unit="met", min=0.7, max=4.0, step=0.1, value=1.0, name="Metabolic Rate"),
-            ModelInputsInfo(unit="clo", min=0.0, max=4.0, step=0.1, value=0.61, name="Clothing Level"),
-        ]
+            ModelInputsInfo(
+                unit="°C",
+                min=0.0,
+                max=50.0,
+                step=0.5,
+                value=25.0,
+                name="Air Temperature",
+                id=ElementsIDs.t_db_input.value,
+            ),
+            ModelInputsInfo(
+                unit="°C",
+                min=0.0,
+                max=50.0,
+                step=0.5,
+                value=25.0,
+                name="Mean Radiant Temperature",
+                id=ElementsIDs.t_r_input.value,
+            ),
+            ModelInputsInfo(
+                unit="m/s",
+                min=0.0,
+                max=4.0,
+                step=0.1,
+                value=0.1,
+                name="Air Speed",
+                id=ElementsIDs.v_input.value,
+            ),
+            ModelInputsInfo(
+                unit="%",
+                min=0.0,
+                max=100.0,
+                step=1.0,
+                value=50.0,
+                name="Relative Humidity",
+                id=ElementsIDs.rh_input.value,
+            ),
+            ModelInputsInfo(
+                unit="met",
+                min=0.7,
+                max=4.0,
+                step=0.1,
+                value=1.0,
+                name="Metabolic Rate",
+                id=ElementsIDs.met_input.value,
+            ),
+            ModelInputsInfo(
+                unit="clo",
+                min=0.0,
+                max=4.0,
+                step=0.1,
+                value=0.61,
+                name="Clothing Level",
+                id=ElementsIDs.clo_input.value,
+            ),
+        ],
     )
     PMV_EN: ModelsInfo = ModelsInfo(
         name="PMV - EN",
         description="PMV - EN",
         inputs=[
-            ModelInputsInfo(unit="°C", min=0.0, max=50.0, step=0.5, value=25.0,
-                            name="Air Temperature"),
-            ModelInputsInfo(unit="°C", min=0.0, max=50.0, step=0.5, value=25.0,
-                            name="Mean Radiant Temperature"),
-            ModelInputsInfo(unit="m/s", min=0.0, max=4.0, step=0.1, value=0.1, name="Air Speed"),
-            ModelInputsInfo(unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"),
-            ModelInputsInfo(unit="met", min=0.7, max=4.0, step=0.1, value=1.0, name="Metabolic Rate"),
-            ModelInputsInfo(unit="clo", min=0.0, max=4.0, step=0.1, value=0.61, name="Clothing Level"),
-        ]
+            ModelInputsInfo(
+                unit="°C",
+                min=0.0,
+                max=50.0,
+                step=0.5,
+                value=25.0,
+                name="Air Temperature",
+                id=ElementsIDs.t_db_input.value,
+            ),
+            ModelInputsInfo(
+                unit="°C",
+                min=0.0,
+                max=50.0,
+                step=0.5,
+                value=25.0,
+                name="Mean Radiant Temperature",
+                id=ElementsIDs.t_r_input.value,
+            ),
+            ModelInputsInfo(
+                unit="m/s",
+                min=0.0,
+                max=4.0,
+                step=0.1,
+                value=0.1,
+                name="Air Speed",
+                id=ElementsIDs.v_input.value,
+            ),
+            ModelInputsInfo(
+                unit="%",
+                min=0.0,
+                max=100.0,
+                step=1.0,
+                value=50.0,
+                name="Relative Humidity",
+                id=ElementsIDs.rh_input.value,
+            ),
+            ModelInputsInfo(
+                unit="met",
+                min=0.7,
+                max=4.0,
+                step=0.1,
+                value=1.0,
+                name="Metabolic Rate",
+                id=ElementsIDs.met_input.value,
+            ),
+            ModelInputsInfo(
+                unit="clo",
+                min=0.0,
+                max=4.0,
+                step=0.1,
+                value=0.61,
+                name="Clothing Level",
+                id=ElementsIDs.clo_input.value,
+            ),
+        ],
     )
     Adaptive_ASHRAE: ModelsInfo = ModelsInfo(
         name="Adaptive - ASHRAE 55",
         description="Adaptive - ASHRAE 55",
         inputs=[
-            ModelInputsInfo(unit="°C", min=0.0, max=50.0, step=0.5, value=25.0,
-                            name="Air Temperature"),
             ModelInputsInfo(
                 unit="°C",
-                min=10.0,
-                max=35.0,
+                min=0.0,
+                max=50.0,
                 step=0.5,
                 value=25.0,
-                name="Prevailing mean outdoor temperature",
-            )
-        ]
-    )
-    Adaptive_EN: ModelsInfo = ModelsInfo(
-        name="Adaptive - EN 16798",
-        description = "Adaptive - EN 16798",
-        inputs=[
-            ModelInputsInfo(unit="°C", min=0.0, max=50.0, step=0.5, value=25.0,
-                            name="Air Temperature"),
-            ModelInputsInfo(
-                unit="°C",
-                min=10.0,
-                max=35.0,
-                step=0.5,
-                value=25.0,
-                name="Prevailing mean outdoor temperature",
+                name="Air Temperature",
+                id=ElementsIDs.t_db_input.value,
             ),
-        ]
+            ModelInputsInfo(
+                unit="°C",
+                min=10.0,
+                max=35.0,
+                step=0.5,
+                value=25.0,
+                name="Prevailing mean outdoor temperature",
+                id=ElementsIDs.t_rm_input.value,
+            ),
+        ],
     )
 
 

@@ -213,8 +213,7 @@ def chart_example(selected_model, chart_content):
             return fig
 
     # Adaptive - Ashare 55 figure
-    elif selected_model == Models.Adaptive_ashrae.value:
-        print("Adaptive Ashare figure")
+    elif selected_model == Models.Adaptive_ASHRAE.value:
         df = px.data.gapminder()
         countries = df["country"].drop_duplicates().sample(n=10, random_state=42)
         df = df[df["country"].isin(countries)]
@@ -227,72 +226,6 @@ def chart_example(selected_model, chart_content):
             line_group="country",
             title="Adaptive Ashare figure",
             labels={"gdpPercap": "GDP per Capita", "year": "Year"},
-        )
-        return fig
-
-    # Adaptive - EN 16798 figure
-    elif selected_model == Models.Adaptive_EN.value:
-        print("Adaptive EN figure")
-        df = px.data.gapminder()
-        countries = df["country"].drop_duplicates().sample(n=10, random_state=42)
-        df = df[df["country"].isin(countries)]
-
-        fig = px.box(
-            df,
-            x="continent",
-            y="lifeExp",
-            color="continent",
-            title="Adaptive EN figure",
-            labels={"lifeExp": "Life Expectancy", "continent": "Continent"},
-            points="all",
-        )
-        return fig
-
-    # Fans & Heat figure
-    elif selected_model == Models.Fans_heat.value:
-        print("Fans and Heat show figure")
-        df = px.data.gapminder()
-        countries = df["country"].drop_duplicates().sample(n=10, random_state=42)
-        df = df[df["country"].isin(countries)]
-
-        fig = px.scatter(
-            df,
-            x="gdpPercap",
-            y="lifeExp",
-            color="continent",
-            size="pop",
-            hover_name="country",
-            log_x=True,
-            size_max=60,
-            title="Fans and Heat show figure",
-            labels={
-                "gdpPercap": "GDP per Capita",
-                "lifeExp": "Life Expectancy",
-                "pop": "Population",
-            },
-        )
-
-        return fig
-    # PHS figure
-    elif selected_model == Models.Phs.value:
-        print("PHS show figure")
-        df = px.data.gapminder()
-        countries = df["country"].drop_duplicates().sample(n=10, random_state=42)
-        df = df[df["country"].isin(countries)]
-
-        fig = px.scatter(
-            df,
-            x="year",
-            y="gdpPercap",
-            size="pop",
-            color="continent",
-            hover_name="country",
-            log_y=True,
-            size_max=60,
-            animation_frame="year",
-            animation_group="country",
-            title="PHS show figure",
-            labels={"gdpPercap": "GDP per Capita", "year": "Year", "pop": "Population"},
         )
         return fig
 
