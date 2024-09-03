@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-dash = ">=2.17.1"
+dash = "*"
 pandas = "*"
 dash-bootstrap-components = "*"
 dash-mantine-components = "*"
@@ -13,9 +13,11 @@ numpy = "*"
 psychrolib = "*"
 pythermalcomfort = "*"
 icecream = "*"
-pydantic = ">=2.8.2"
-plotly = ">=5.23.0"
-scipy = ">=1.14.0"
+pydantic = "*"
+plotly = "*"
+scipy = "*"
+typing-extensions = "*"
+packaging = "*"
 
 [dev-packages]
 pytest-playwright = "*"
