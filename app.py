@@ -1,5 +1,5 @@
 import os
-
+import pythermalcomfort as pm
 import dash
 import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
@@ -23,7 +23,7 @@ from components.dropdowns import (
     pmv_en_chart,
 )
 from components.input_environmental_personal import input_environmental_personal
-from components.dropdowns import chart_selection
+from components.dropdowns import chart_selection,adaptive_en_air_speed
 from components.charts import chart_example
 from utils.my_config_file import (
     MODELS,
@@ -243,6 +243,28 @@ def change_cols(selected_model):
         cols = 3
     return cols
 
+@app.callback(
+    Output('comfort-data', 'data'),
+    [
+        Input(adaptive_en_air_speed["id"], 'value'),
+        Input('AIR_TEMPERATURE', 'value'),
+        Input('MRT', 'value'),
+        Input('RUNNING_MEAN_OUTDOOR_TEMPERATURE', 'value')
+    ]
+)
+def adaptive_en_calculation(speed,air_temp,mrt,running_meam_temp):
+
+    if speed == "0.6 m/s (118fpm)":
+        correction = 0.6
+    elif speed == "0.9 m/s (177fpm)":
+        correction = 0.9
+    elif speed == "1.2 m/s (236fpm)":
+        correction = 1.2
+    else:
+        correction = 0.3
+    res = pm.adaptive_en(air_temp,mrt,running_meam_temp,correction)
+
+    return res
 
 def update_graph_content(selected_model):
 
