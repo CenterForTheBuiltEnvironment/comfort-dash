@@ -3,6 +3,15 @@ from enum import Enum
 from pydantic import BaseModel
 
 
+class ModelInputsInfo(BaseModel):
+    name: str
+    unit: str
+    min: float
+    max: float
+    step: float
+    value: float
+
+# input_environment_personal & home
 class Dimensions(Enum):
     default_container_width = "md"
     left_container_width = 5
@@ -109,6 +118,23 @@ class MODELS(Enum):
     Fans_heat: str = "FANS & HEAT"
     Phs: str = "PHS"
 
+    # ModelInputsPmvAshrae55
+    # TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
+    #     unit="°C", min=0.0, max=50.0, step=0.5, value=25.0, name="Air Temperature"
+    # )
+    # AIR_SPEED: ModelInputsInfo = ModelInputsInfo(
+    #     unit="m/s", min=0.0, max=4.0, step=0.1, value=0.1, name="Air Speed"
+    # )
+    # RH: ModelInputsInfo = ModelInputsInfo(
+    #     unit="%", min=0.0, max=100.0, step=1.0, value=50.0, name="Relative Humidity"
+    # )
+    # MET: ModelInputsInfo = ModelInputsInfo(
+    #     unit="met", min=0.7, max=4.0, step=0.1, value=1.0, name="Metabolic Rate"
+    # )
+    # CLOTHING: ModelInputsInfo = ModelInputsInfo(
+    #     unit="clo", min=0.0, max=4.0, step=0.1, value=0.61, name="Clothing Level"
+    # )
+
 
 class CHARTS(Enum):
     t_rh: str = "Temperature and Relative Humidity"
@@ -170,13 +196,6 @@ class PhsResultCard(Enum):
     line4: str = "water loss of 7.5% of the body mass for an average person = 380 min"
 
 
-class ModelInputsInfo(BaseModel):
-    name: str
-    unit: str
-    min: float
-    max: float
-    step: float
-    value: float
 
 
 class AdaptiveAshraeSpeeds(Enum):
@@ -193,7 +212,6 @@ class AdaptiveENSpeeds(Enum):
     s_2: str = "0.6 m/s (118fpm)"
     S_3: str = "0.9 m/s (177fpm)"
     s_4: str = "1.2 m/s (236fpm)"
-
 
 class ModelInputsPmvAshrae55(BaseModel):
     TEMPERATURE: ModelInputsInfo = ModelInputsInfo(
@@ -361,7 +379,7 @@ class ModelInputsSelectionMetabolicASHRAE55(Enum):
     h_24: str = "Calisthenics: 3.5"
     h_25: str = "Walking 4mph (6.4kmh): 3.8"
     h_26: str = "Tennis: 3.8"
-    h_27: str = "Heavy machine work: 4.0"
+    h_27: str = "Heavy machine work: 4.0"   
     h_28: str = "Handling 100lb (45 kg) bags: 4.0"
 
 
