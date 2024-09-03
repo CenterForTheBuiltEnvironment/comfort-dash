@@ -287,7 +287,7 @@ def update_output(selected_model, temp, mrt, speed):
         # result_80, result_90 = Calculation.calculate_adaptive_ashrae(temp, mrt, 20, speed)
         # return f"The 80% acceptability limits is: {result_80} and the 90% acceptability limits is: {result_90}"
         # 获取计算结果
-        tmp_cmf, tmp_cmf_80_low, tmp_cmf_80_up, tmp_cmf_90_low, tmp_cmf_90_up, acceptability_80, acceptability_90 = Calculation.calculate_adaptive_ashrae(temp, mrt, 20, speed)
+        tmp_cmf, tmp_cmf_80_low, tmp_cmf_80_up, tmp_cmf_90_low, tmp_cmf_90_up, acceptability_80, acceptability_90 = Calculation.calculate_adaptive_ashrae(temp, mrt, 20, 0.6)
         
         # 生成输出文本
         result_text = (

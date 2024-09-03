@@ -209,6 +209,9 @@ class ModelInputsAdaptiveAshrae55(BaseModel):
         value=25.0,
         name="Prevailing mean outdoor temperature",
     )
+    TRM: ModelInputsInfo = ModelInputsInfo(
+        unit="°C", min=10.0, max=33.5, step=0.1, value=25.0, name="running mean temperature"
+    )
 
 
 class ModelInputsPmvEN16798(BaseModel):
