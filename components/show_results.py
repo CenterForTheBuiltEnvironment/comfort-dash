@@ -124,7 +124,7 @@ def display_results(selected_model: str, form_content: dict, units_selection: st
             )
         )
     elif selected_model == Models.PHS.name:
-        columns = 2
+        columns = 1
 
         # todo I do not like we are unpacking the values from the list using position, we should use the key
         phs_result = phs(
