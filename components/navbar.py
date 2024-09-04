@@ -72,7 +72,6 @@ def my_navbar():
                         style={"textDecoration": "none"},
                     ),
                     span="auto",  # Logo takes up 2 spans
-                    # className="d-flex justify-content-start",  # Align the logo to the left
                     className="grid-col-logo justify-content-start",  # Align the logo to the left
                     style={"margin-left": "20px"},
                 ),
