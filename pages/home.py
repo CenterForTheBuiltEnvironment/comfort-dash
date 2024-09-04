@@ -99,11 +99,11 @@ def update_model_note(selected_model):
 
 @callback(
     Output(ElementsIDs.RESULTS_SECTION.value, "children"),
-    Input(dd_model["id"], "value"),
     Input("test-form", "n_clicks"),
-    Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    State(dd_model["id"], "value"),
+    State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
     State("test-form", "children"),
     # todo this function should also listen to changes in the variables inputs
 )
-def update_outputs(selected_model, _, units_selection: str, form_content: dict):
+def update_outputs(_, selected_model, units_selection: str, form_content: dict):
     return display_results(selected_model, form_content, units_selection)
