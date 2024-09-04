@@ -92,7 +92,7 @@ def update_inputs(selected_model, is_ip):
     if selected_model is None:
         return no_update
     units = "IP" if is_ip else "SI"
-    return input_environmental_personal(selected_model,units)
+    return input_environmental_personal(selected_model, units)
 
 
 @callback(

@@ -1,12 +1,7 @@
 import dash_mantine_components as dmc
 from dash import html
 
-from utils.my_config_file import (
-    ModelInputsInfo,
-    Models,
-    convert_units,
-    ElementsIDs
-)
+from utils.my_config_file import ModelInputsInfo, Models, convert_units, ElementsIDs
 
 
 def input_environmental_personal(selected_model: str = "PMV_ashrae", units: str = "SI"):
@@ -34,7 +29,6 @@ def input_environmental_personal(selected_model: str = "PMV_ashrae", units: str 
     )
 
     inputs.append(unit_toggle)
-
 
     return html.Form(
         dmc.Paper(
