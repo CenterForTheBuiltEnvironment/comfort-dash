@@ -85,12 +85,14 @@ layout = dmc.Stack(
 @callback(
     Output(ElementsIDs.INPUT_SECTION.value, "children"),
     Input(dd_model["id"], "value"),
+    Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
 )
-def update_inputs(selected_model):
+def update_inputs(selected_model, is_ip):
     # todo this should also receive as input the units
     if selected_model is None:
         return no_update
-    return input_environmental_personal(selected_model)
+    units = "IP" if is_ip else "SI"
+    return input_environmental_personal(selected_model,units)
 
 
 @callback(
@@ -106,7 +108,6 @@ def update_outputs(selected_model, form, form_content):
 
     # todo we should extract the input values from the form_content
     # todo we should also check the units
-
     # todo the following function should be moved outside the code
     def find_dict_with_key_value(d, key, value):
         if isinstance(d, dict):
@@ -144,6 +145,7 @@ def update_outputs(selected_model, form, form_content):
             form_content, "id", ElementsIDs.v_input.value
         )
         v = result_dict["value"]
+
         r_pmv = pmv_ppd(
             tdb=tdb,
             tr=tr,
