@@ -88,7 +88,6 @@ layout = dmc.Stack(
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
 )
 def update_inputs(selected_model, is_ip):
-    # todo this should also receive as input the units
     if selected_model is None:
         return no_update
     units = "IP" if is_ip else "SI"
