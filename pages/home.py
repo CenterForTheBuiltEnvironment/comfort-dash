@@ -7,6 +7,7 @@ from components.input_environmental_personal import input_environmental_personal
 from components.dropdowns import (
     model_selection,
     chart_selection,
+    dd_model,
 )
 from components.my_card import my_card
 from utils.my_config_file import (
@@ -14,8 +15,10 @@ from utils.my_config_file import (
     ElementsIDs,
     ModelChartDescription,
     Dimensions,
+    Models,
 )
-from dash import html, dcc
+from dash import html, dcc, callback, Output, Input, no_update, State
+from pythermalcomfort.models import pmv_ppd
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -40,7 +43,7 @@ layout = dmc.Stack(
                 my_card(
                     title="Inputs",
                     children=input_environmental_personal(),
-                    id="input_card",
+                    id=ElementsIDs.INPUT_SECTION.value,
                     span={"base": 12, "sm": Dimensions.left_container_width.value},
                 ),
                 my_card(
@@ -48,30 +51,11 @@ layout = dmc.Stack(
                     children=dmc.Stack(
                         [
                             html.Div(
-                                # todo never pass empty string to functions. Define the default values in the function definition
                                 id="chart-select",
-                                children=chart_selection("", ""),
+                                children=chart_selection(),
                             ),
-                            dmc.SimpleGrid(
-                                cols=3,
-                                spacing="xs",
-                                verticalSpacing="xs",
-                                id="graph-container",
-                                children=[
-                                    dmc.Center(
-                                        dmc.Text("PMV = -0.16"),
-                                    ),
-                                    dmc.Center(
-                                        dmc.Text("PPD = 6 %"),
-                                    ),
-                                    dmc.Center(
-                                        dmc.Text("Sensation = Neutral"),
-                                    ),
-                                    dmc.Center(
-                                        dmc.Text("SET = 24.8 °C"),
-                                    ),
-                                ],
-                                style={"fontSize": "14px"},
+                            html.Div(
+                                id=ElementsIDs.RESULTS_SECTION.value,
                             ),
                             dcc.Graph(
                                 id=ElementsIDs.CHART_CONTAINER.value,
@@ -85,7 +69,6 @@ layout = dmc.Stack(
                                         dmc.Space(h=20),
                                         ModelChartDescription.psy_air_temp_des_2.value,
                                     ],
-                                    style={"fontSize": "14px"},
                                 ),
                             ),
                         ],
@@ -97,3 +80,89 @@ layout = dmc.Stack(
         ),
     ]
 )
+
+
+@callback(
+    Output(ElementsIDs.INPUT_SECTION.value, "children"),
+    Input(dd_model["id"], "value"),
+)
+def update_inputs(selected_model):
+    # todo this should also receive as input the units
+    if selected_model is None:
+        return no_update
+    return input_environmental_personal(selected_model)
+
+
+@callback(
+    Output(ElementsIDs.RESULTS_SECTION.value, "children"),
+    Input(dd_model["id"], "value"),
+    Input("test-form", "n_clicks"),
+    State("test-form", "children"),
+    # todo this function should also listen to changes in the variables inputs
+)
+def update_outputs(selected_model, form, form_content):
+
+    # print(f"{form_content=}")
+
+    # todo we should extract the input values from the form_content
+    # todo we should also check the units
+
+    # todo the following function should be moved outside the code
+    def find_dict_with_key_value(d, key, value):
+        if isinstance(d, dict):
+            if d.get(key) == value:
+                return d
+            for k, v in d.items():
+                result = find_dict_with_key_value(v, key, value)
+                if result is not None:
+                    return result
+        elif isinstance(d, list):
+            for item in d:
+                result = find_dict_with_key_value(item, key, value)
+                if result is not None:
+                    return result
+        return None
+
+    if selected_model is None:
+        return no_update
+
+    results = []
+    columns: int = 2
+    if selected_model == Models.PMV_EN.name:
+        # todo the variables below should not be hardcoded
+        columns = 2
+        # todo the code below is not great and should be improved
+        result_dict = find_dict_with_key_value(
+            form_content, "id", ElementsIDs.t_db_input.value
+        )
+        tdb = result_dict["value"]
+        result_dict = find_dict_with_key_value(
+            form_content, "id", ElementsIDs.t_r_input.value
+        )
+        tr = result_dict["value"]
+        result_dict = find_dict_with_key_value(
+            form_content, "id", ElementsIDs.v_input.value
+        )
+        v = result_dict["value"]
+        r_pmv = pmv_ppd(
+            tdb=tdb,
+            tr=tr,
+            vr=v,
+            rh=50,
+            met=1.2,
+            clo=0.5,
+            wme=0,
+            limit_inputs=False,
+            standard="ISO",
+        )
+        results.append(dmc.Center(dmc.Text(f"PMV: {r_pmv['pmv']}")))
+        results.append(dmc.Center(dmc.Text(f"PPD: {r_pmv['ppd']}")))
+
+    return (
+        dmc.SimpleGrid(
+            cols=columns,
+            spacing="xs",
+            verticalSpacing="xs",
+            children=results,
+        ),
+    )

@@ -4,7 +4,7 @@ from components.drop_down_inline import (
 )
 from utils.my_config_file import (
     ElementsIDs,
-    MODELS,
+    Models,
     CHARTS,
     AdaptiveAshraeSpeeds,
     AdaptiveENSpeeds,
@@ -22,19 +22,18 @@ from utils.my_config_file import (
 )
 from utils.website_text import TextHome
 
+options: list = []
+
+for model in Models:
+    option_dict: dict = {"value": model.name, "label": model.value.name}
+    options.append(option_dict)
+
 dd_model = {
     "id": ElementsIDs.MODEL_SELECTION.value,
     "question": TextHome.model_selection.value,
-    "options": [
-        MODELS.PMV_ashrae.value,
-        MODELS.Adaptive_ashrae.value,
-        MODELS.PMV_EN.value,
-        MODELS.Adaptive_EN.value,
-        MODELS.Fans_heat.value,
-        MODELS.Phs.value,
-    ],
+    "options": options,
     "multi": False,
-    "default": MODELS.PMV_ashrae.value,
+    "default": Models.PMV_ashrae.name,
 }
 
 
@@ -71,27 +70,16 @@ pmv_en_chart = {
 
 
 # todo use type hints and default values
-def chart_selection(selected_model, chart_content):
+def chart_selection(
+    selected_model: str = Models.PMV_ashrae.name, chart_content: str = ""
+):
     chart_inputs = ashare_chart
     current_value = None
-    if selected_model == MODELS.PMV_ashrae.value:
+    if selected_model == Models.PMV_ashrae.name:
         chart_inputs = ashare_chart
         current_value = (
             chart_content if chart_content is not None else CHARTS.psychrometric.value
         )
-    elif selected_model == MODELS.Adaptive_ashrae.value:
-        return
-    elif selected_model == MODELS.Adaptive_EN.value:
-        return
-    elif selected_model == MODELS.PMV_EN.value:
-        chart_inputs = pmv_en_chart
-        current_value = (
-            chart_content if chart_content is not None else CHARTS.psychrometric.value
-        )
-    elif selected_model == MODELS.Fans_heat.value:
-        return
-    elif selected_model == MODELS.Phs.value:
-        return
 
     return generate_dropdown_inline(chart_inputs, value=current_value, clearable=False)
 

@@ -1,6 +1,6 @@
 import plotly.express as px
 from utils.my_config_file import (
-    MODELS,
+    Models,
     CHARTS,
 )
 import pandas as pd
@@ -10,7 +10,7 @@ import pandas as pd
 def chart_example(selected_model, chart_content):
 
     # PMV - EN 16798 figure
-    if selected_model == MODELS.PMV_EN.value:
+    if selected_model == Models.PMV_EN.value:
         if chart_content == CHARTS.psychrometric.value:
             print("PMV_EN psychrometric figure")
             df = px.data.gapminder()  # replace with your own data source
@@ -88,7 +88,7 @@ def chart_example(selected_model, chart_content):
             return fig
 
     # PMV - Ashare 55 figure
-    elif selected_model == MODELS.PMV_ashrae.value:
+    elif selected_model == Models.PMV_ashrae.value:
         if chart_content == CHARTS.psychrometric.value:
             print("PMV_ashrae psychrometric figure")
             df = px.data.gapminder()
@@ -213,8 +213,7 @@ def chart_example(selected_model, chart_content):
             return fig
 
     # Adaptive - Ashare 55 figure
-    elif selected_model == MODELS.Adaptive_ashrae.value:
-        print("Adaptive Ashare figure")
+    elif selected_model == Models.Adaptive_ASHRAE.value:
         df = px.data.gapminder()
         countries = df["country"].drop_duplicates().sample(n=10, random_state=42)
         df = df[df["country"].isin(countries)]
@@ -227,72 +226,6 @@ def chart_example(selected_model, chart_content):
             line_group="country",
             title="Adaptive Ashare figure",
             labels={"gdpPercap": "GDP per Capita", "year": "Year"},
-        )
-        return fig
-
-    # Adaptive - EN 16798 figure
-    elif selected_model == MODELS.Adaptive_EN.value:
-        print("Adaptive EN figure")
-        df = px.data.gapminder()
-        countries = df["country"].drop_duplicates().sample(n=10, random_state=42)
-        df = df[df["country"].isin(countries)]
-
-        fig = px.box(
-            df,
-            x="continent",
-            y="lifeExp",
-            color="continent",
-            title="Adaptive EN figure",
-            labels={"lifeExp": "Life Expectancy", "continent": "Continent"},
-            points="all",
-        )
-        return fig
-
-    # Fans & Heat figure
-    elif selected_model == MODELS.Fans_heat.value:
-        print("Fans and Heat show figure")
-        df = px.data.gapminder()
-        countries = df["country"].drop_duplicates().sample(n=10, random_state=42)
-        df = df[df["country"].isin(countries)]
-
-        fig = px.scatter(
-            df,
-            x="gdpPercap",
-            y="lifeExp",
-            color="continent",
-            size="pop",
-            hover_name="country",
-            log_x=True,
-            size_max=60,
-            title="Fans and Heat show figure",
-            labels={
-                "gdpPercap": "GDP per Capita",
-                "lifeExp": "Life Expectancy",
-                "pop": "Population",
-            },
-        )
-
-        return fig
-    # PHS figure
-    elif selected_model == MODELS.Phs.value:
-        print("PHS show figure")
-        df = px.data.gapminder()
-        countries = df["country"].drop_duplicates().sample(n=10, random_state=42)
-        df = df[df["country"].isin(countries)]
-
-        fig = px.scatter(
-            df,
-            x="year",
-            y="gdpPercap",
-            size="pop",
-            color="continent",
-            hover_name="country",
-            log_y=True,
-            size_max=60,
-            animation_frame="year",
-            animation_group="country",
-            title="PHS show figure",
-            labels={"gdpPercap": "GDP per Capita", "year": "Year", "pop": "Population"},
         )
         return fig
 
