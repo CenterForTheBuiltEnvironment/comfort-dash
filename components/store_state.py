@@ -31,6 +31,7 @@ class StoreState:
     @staticmethod
     def parse_url(url):
         """Parse URL and extract useful information."""
+        url = str(url)
         parsed_url = urlparse(url)
         query_params = parse_qs(parsed_url.query)
         path_parts = parsed_url.path.strip("/").split("/")
@@ -85,8 +86,11 @@ class StoreState:
                         store_data = StoreState.save_state_to_store(store_data, "type", type_part)
                     elif len(path_parts) == 1:
                         model = path_parts[0]
-                        store_data = StoreState.save_state_to_store(store_data, "model", model)
-                        store_data = StoreState.save_state_to_store(store_data, "type", "")
+                        if model in ["single", "range", "compare"]:
+                            store_data = StoreState.save_state_to_store(store_data, "model", model)
+                        else:
+                            store_data = StoreState.save_state_to_store(store_data, "model", None)
+                        store_data = StoreState.save_state_to_store(store_data, "type", None)
 
                     for key, value in query_params.items():
                         value = value[0]
@@ -127,38 +131,66 @@ class StoreState:
             # If modified_timestamp is empty or invalid, return a list with no_update
             return [no_update] * len(ctx.outputs_list)
 
-        # 新增功能，反映到URL上
+        # New feature, reflect to the URL
         @app.callback(
-            Output("url", "search"),
-            Input(store_id, "modified_timestamp"),
+            Output("url", "href"),
+            [Input(id, "value") for id in self.persist_ids],
+            [Input("url", "href")],
             State(store_id, "data"),
             prevent_initial_call=True,
         )
+        def update_url(*args):
+            # The URL is the second-to-last argument
+            url = args[-2]
+            # store_data is the last argument
+            store_data = args[-1]
 
-        def update_url(modified_timestamp, store_data):
-            if modified_timestamp:
-                url_tmp = store_data.get("url", None)
-                model_tmp = store_data.get("model", None)
-                type_tmp = store_data.get("type", None)
+            if ctx.triggered:
+                triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+                if triggered_id == "url":
+                    return no_update
 
-                url_tmp = re.match(r"^https?://[^/]+", url_tmp).group(0)
+                if store_data is not None:
+                    url_tmp = store_data.get("url", None)
+                    model_tmp = store_data.get("model", None)
+                    type_tmp = store_data.get("type", None)
 
-                if model_tmp == "single" or model_tmp == "range":
-                    if not url_tmp.endswith("/"):
-                        url_tmp += "/"
-                    url_tmp += f"{model_tmp}?"
+                    if url_tmp:
+                        url_match = re.match(r"^https?://[^/]+", url_tmp)
+                        if url_match:
+                            base_url = url_match.group(0)
+                        else:
+                            return no_update
+
+                        if model_tmp in ["single", "range"]:
+                            if not base_url.endswith("/"):
+                                base_url += "/"
+                            base_url += f"{model_tmp}?"
+                        elif model_tmp == "compare":
+                            if not base_url.endswith("/"):
+                                base_url += "/"
+                            base_url += f"{model_tmp}/{type_tmp}?"
+                        else:
+                            if not base_url.endswith("/"):
+                                base_url += "/"
+
+                        query_params = []
+                        processed_keys = set()
+
+                        for key, value in store_data.items():
+                            if key not in ["url", "model", "compare"] and value is not None:
+                                if key not in processed_keys:
+                                    query_params.append(f"{key}={value}")
+                                    processed_keys.add(key)
+
+                        full_url = base_url
+                        if query_params:
+                            full_url += "&".join(query_params)
+
+                        return full_url
+                    else:
+                        return no_update
                 else:
-                    if not url_tmp.endswith("/"):
-                        url_tmp += "/"
-                    url_tmp += f"/{model_tmp}/{type_tmp}"
-
-                for key, value in store_data.items():
-                    if key not in ["model", "type", "url"]:
-                        url_tmp += f"{key}={value}&"
-
-                url_tmp = url_tmp[:-1]
-                self.url = url_tmp
-
-                return url_tmp
+                    return no_update
 
             return no_update
