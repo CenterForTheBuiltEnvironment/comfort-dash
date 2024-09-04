@@ -1,16 +1,26 @@
+from copy import deepcopy
+
 import dash_mantine_components as dmc
 from dash import html
 
-from utils.my_config_file import ModelInputsInfo, Models, convert_units, ElementsIDs
+from utils.my_config_file import (
+    ModelInputsInfo,
+    Models,
+    convert_units,
+    ElementsIDs,
+    UnitSystem,
+)
 
 
-def input_environmental_personal(selected_model: str = "PMV_ashrae", units: str = "SI"):
+def input_environmental_personal(
+    selected_model: str = "PMV_ashrae", units: str = UnitSystem.SI.value
+):
     inputs = []
-    model = Models[selected_model].value.inputs
-    convert_units(model, units)
+    model_inputs = Models[selected_model].value.inputs
+    model_inputs = convert_units(model_inputs, units)
 
     values: ModelInputsInfo
-    for values in model:
+    for values in model_inputs:
         input_filed = dmc.NumberInput(
             label=values.name + " (" + values.unit + ")",
             description=f"From {values.min} to {values.max}",
@@ -22,10 +32,12 @@ def input_environmental_personal(selected_model: str = "PMV_ashrae", units: str 
         )
         inputs.append(input_filed)
 
-    unit_toggle = dmc.Switch(
-        id=ElementsIDs.UNIT_TOGGLE.value,
-        label="IP Units" if units == "IP" else "SI Units",
-        checked=units == "IP",
+    unit_toggle = dmc.Center(
+        dmc.Switch(
+            id=ElementsIDs.UNIT_TOGGLE.value,
+            label=f"{units} Units",
+            checked=units == UnitSystem.IP.value,
+        )
     )
 
     inputs.append(unit_toggle)

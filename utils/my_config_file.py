@@ -138,6 +138,15 @@ class AdaptiveENSpeeds(Enum):
     s_4: str = "1.2 m/s (236fpm)"
 
 
+class UnitSystem(Enum):
+    IP: str = "IP"
+    SI: str = "SI"
+    m_s: str = "m/s"
+    ft_s: str = "ft/s"
+    celsius: str = "°C"
+    fahrenheit: str = "°F"
+
+
 class UnitConverter:
     @staticmethod
     def celsius_to_fahrenheit(celsius):
@@ -157,57 +166,83 @@ class UnitConverter:
 
     @staticmethod
     def convert_value(value, from_unit, to_unit):
-        if from_unit == "°C" and to_unit == "°F":
+        if (
+            from_unit == UnitSystem.celsius.value
+            and to_unit == UnitSystem.fahrenheit.value
+        ):
             return UnitConverter.celsius_to_fahrenheit(value)
-        elif from_unit == "°F" and to_unit == "°C":
+        elif (
+            from_unit == UnitSystem.fahrenheit.value
+            and to_unit == UnitSystem.celsius.value
+        ):
             return UnitConverter.fahrenheit_to_celsius(value)
-        elif from_unit == "m/s" and to_unit == "ft/s":
+        elif from_unit == UnitSystem.m_s.value and to_unit == UnitSystem.ft_s.value:
             return UnitConverter.mps_to_fps(value)
-        elif from_unit == "ft/s" and to_unit == "m/s":
+        elif from_unit == UnitSystem.ft_s.value and to_unit == UnitSystem.m_s.value:
             return UnitConverter.fps_to_mps(value)
         return value
 
 
 def convert_units(model_inputs, to_unit_system):
     for input_info in model_inputs:
-        if to_unit_system == "IP":
-            if input_info.unit == "°C":
+        if to_unit_system == UnitSystem.IP.value:
+            if input_info.unit == UnitSystem.celsius.value:
                 input_info.value = UnitConverter.convert_value(
-                    input_info.value, "°C", "°F"
-                )
-                input_info.min = UnitConverter.convert_value(input_info.min, "°C", "°F")
-                input_info.max = UnitConverter.convert_value(input_info.max, "°C", "°F")
-                input_info.unit = "°F"
-            elif input_info.unit == "m/s":
-                input_info.value = UnitConverter.convert_value(
-                    input_info.value, "m/s", "ft/s"
+                    input_info.value,
+                    UnitSystem.celsius.value,
+                    UnitSystem.fahrenheit.value,
                 )
                 input_info.min = UnitConverter.convert_value(
-                    input_info.min, "m/s", "ft/s"
+                    input_info.min,
+                    UnitSystem.celsius.value,
+                    UnitSystem.fahrenheit.value,
                 )
                 input_info.max = UnitConverter.convert_value(
-                    input_info.max, "m/s", "ft/s"
+                    input_info.max,
+                    UnitSystem.celsius.value,
+                    UnitSystem.fahrenheit.value,
                 )
-                input_info.unit = "ft/s"
-        elif to_unit_system == "SI":
-            if input_info.unit == "°F":
+                input_info.unit = UnitSystem.fahrenheit.value
+            elif input_info.unit == UnitSystem.m_s.value:
                 input_info.value = UnitConverter.convert_value(
-                    input_info.value, "°F", "°C"
-                )
-                input_info.min = UnitConverter.convert_value(input_info.min, "°F", "°C")
-                input_info.max = UnitConverter.convert_value(input_info.max, "°F", "°C")
-                input_info.unit = "°C"
-            elif input_info.unit == "ft/s":
-                input_info.value = UnitConverter.convert_value(
-                    input_info.value, "ft/s", "m/s"
+                    input_info.value, UnitSystem.m_s.value, UnitSystem.ft_s.value
                 )
                 input_info.min = UnitConverter.convert_value(
-                    input_info.min, "ft/s", "m/s"
+                    input_info.min, UnitSystem.m_s.value, UnitSystem.ft_s.value
                 )
                 input_info.max = UnitConverter.convert_value(
-                    input_info.max, "ft/s", "m/s"
+                    input_info.max, UnitSystem.m_s.value, UnitSystem.ft_s.value
                 )
-                input_info.unit = "m/s"
+                input_info.unit = UnitSystem.ft_s.value
+        elif to_unit_system == UnitSystem.SI.value:
+            if input_info.unit == UnitSystem.fahrenheit.value:
+                input_info.value = UnitConverter.convert_value(
+                    input_info.value,
+                    UnitSystem.fahrenheit.value,
+                    UnitSystem.celsius.value,
+                )
+                input_info.min = UnitConverter.convert_value(
+                    input_info.min,
+                    UnitSystem.fahrenheit.value,
+                    UnitSystem.celsius.value,
+                )
+                input_info.max = UnitConverter.convert_value(
+                    input_info.max,
+                    UnitSystem.fahrenheit.value,
+                    UnitSystem.celsius.value,
+                )
+                input_info.unit = UnitSystem.celsius.value
+            elif input_info.unit == UnitSystem.ft_s.value:
+                input_info.value = UnitConverter.convert_value(
+                    input_info.value, UnitSystem.ft_s.value, UnitSystem.m_s.value
+                )
+                input_info.min = UnitConverter.convert_value(
+                    input_info.min, UnitSystem.ft_s.value, UnitSystem.m_s.value
+                )
+                input_info.max = UnitConverter.convert_value(
+                    input_info.max, UnitSystem.ft_s.value, UnitSystem.m_s.value
+                )
+                input_info.unit = UnitSystem.m_s.value
     return model_inputs
 
 
@@ -234,7 +269,7 @@ class Models(Enum):
         description="PMV - ASHRAE 55",
         inputs=[
             ModelInputsInfo(
-                unit="°C",
+                unit=UnitSystem.celsius.value,
                 min=0.0,
                 max=50.0,
                 step=0.5,
@@ -243,7 +278,7 @@ class Models(Enum):
                 id=ElementsIDs.t_db_input.value,
             ),
             ModelInputsInfo(
-                unit="°C",
+                unit=UnitSystem.celsius.value,
                 min=0.0,
                 max=50.0,
                 step=0.5,
@@ -252,7 +287,7 @@ class Models(Enum):
                 id=ElementsIDs.t_r_input.value,
             ),
             ModelInputsInfo(
-                unit="m/s",
+                unit=UnitSystem.m_s.value,
                 min=0.0,
                 max=4.0,
                 step=0.1,
@@ -294,7 +329,7 @@ class Models(Enum):
         description="PMV - EN",
         inputs=[
             ModelInputsInfo(
-                unit="°C",
+                unit=UnitSystem.celsius.value,
                 min=0.0,
                 max=50.0,
                 step=0.5,
@@ -303,7 +338,7 @@ class Models(Enum):
                 id=ElementsIDs.t_db_input.value,
             ),
             ModelInputsInfo(
-                unit="°C",
+                unit=UnitSystem.celsius.value,
                 min=0.0,
                 max=50.0,
                 step=0.5,
@@ -312,7 +347,7 @@ class Models(Enum):
                 id=ElementsIDs.t_r_input.value,
             ),
             ModelInputsInfo(
-                unit="m/s",
+                unit=UnitSystem.m_s.value,
                 min=0.0,
                 max=4.0,
                 step=0.1,
@@ -354,7 +389,7 @@ class Models(Enum):
         description="Adaptive - ASHRAE 55",
         inputs=[
             ModelInputsInfo(
-                unit="°C",
+                unit=UnitSystem.celsius.value,
                 min=0.0,
                 max=50.0,
                 step=0.5,
@@ -363,13 +398,31 @@ class Models(Enum):
                 id=ElementsIDs.t_db_input.value,
             ),
             ModelInputsInfo(
-                unit="°C",
+                unit=UnitSystem.celsius.value,
+                min=0.0,
+                max=50.0,
+                step=0.5,
+                value=25.0,
+                name="Mean Radiant Temperature",
+                id=ElementsIDs.t_r_input.value,
+            ),
+            ModelInputsInfo(
+                unit=UnitSystem.celsius.value,
                 min=10.0,
                 max=35.0,
                 step=0.5,
                 value=25.0,
                 name="Prevailing mean outdoor temperature",
                 id=ElementsIDs.t_rm_input.value,
+            ),
+            ModelInputsInfo(
+                unit=UnitSystem.m_s.value,
+                min=0.0,
+                max=4.0,
+                step=0.1,
+                value=0.1,
+                name="Air Speed",
+                id=ElementsIDs.v_input.value,
             ),
         ],
     )
