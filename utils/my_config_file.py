@@ -7,8 +7,10 @@ from pydantic import BaseModel
 
 class Dimensions(Enum):
     default_container_width = "md"
-    left_container_width = 5
-    right_container_width = 7
+    left_container_width = 4
+    right_container_width = (
+        12 - 4
+    )  # the sum of the left and right container width should be 12
 
 
 class ElementsIDs(Enum):
@@ -32,6 +34,7 @@ class ElementsIDs(Enum):
     rh_input = "id-rh-input"
     met_input = "id-met-input"
     clo_input = "id-clo-input"
+    model_note = "id-model-note"
     RESULTS_SECTION = "id-results-section"
     NAVBAR_ID_DOCUMENT = "id-nav-documentation"
     NAVBAR_ID_MORE_CBE_TOOLS = "id-nav-more-cbe-tools"
@@ -48,6 +51,7 @@ class ElementsIDs(Enum):
     PMV_ASHARE_Humidity_SELECTION = "id-pmv-ashrae-humidity-method"
     PMV_ASHARE_Metabolic_SELECTION = "id-pmv-ashrae-metabolic-method"
     PMV_ASHARE_Clothing_SELECTION = "id-pmv-ashrae-clothing-method"
+    UNIT_TOGGLE = "id-unit-toggle"  # FOR IP / SI Unit system switch
 
 
 class Config(Enum):
@@ -137,6 +141,15 @@ class AdaptiveENSpeeds(Enum):
     s_4: str = "1.2 m/s (236fpm)"
 
 
+class UnitSystem(Enum):
+    IP: str = "IP"
+    SI: str = "SI"
+    m_s: str = "m/s"
+    ft_s: str = "ft/s"
+    celsius: str = "°C"
+    fahrenheit: str = "°F"
+
+
 class UnitConverter:
     @staticmethod
     def celsius_to_fahrenheit(celsius):
@@ -156,41 +169,84 @@ class UnitConverter:
 
     @staticmethod
     def convert_value(value, from_unit, to_unit):
-        if from_unit == "°C" and to_unit == "°F":
+        if (
+            from_unit == UnitSystem.celsius.value
+            and to_unit == UnitSystem.fahrenheit.value
+        ):
             return UnitConverter.celsius_to_fahrenheit(value)
-        elif from_unit == "°F" and to_unit == "°C":
+        elif (
+            from_unit == UnitSystem.fahrenheit.value
+            and to_unit == UnitSystem.celsius.value
+        ):
             return UnitConverter.fahrenheit_to_celsius(value)
-        elif from_unit == "m/s" and to_unit == "ft/s":
+        elif from_unit == UnitSystem.m_s.value and to_unit == UnitSystem.ft_s.value:
             return UnitConverter.mps_to_fps(value)
-        elif from_unit == "ft/s" and to_unit == "m/s":
+        elif from_unit == UnitSystem.ft_s.value and to_unit == UnitSystem.m_s.value:
             return UnitConverter.fps_to_mps(value)
         return value
 
 
 def convert_units(model_inputs, to_unit_system):
     for input_info in model_inputs:
-        if to_unit_system == "IP":
-            if input_info.unit == "°C":
+        if to_unit_system == UnitSystem.IP.value:
+            if input_info.unit == UnitSystem.celsius.value:
                 input_info.value = UnitConverter.convert_value(
-                    input_info.value, "°C", "°F"
+                    input_info.value,
+                    UnitSystem.celsius.value,
+                    UnitSystem.fahrenheit.value,
                 )
-                input_info.unit = "°F"
-            elif input_info.unit == "m/s":
+                input_info.min = UnitConverter.convert_value(
+                    input_info.min,
+                    UnitSystem.celsius.value,
+                    UnitSystem.fahrenheit.value,
+                )
+                input_info.max = UnitConverter.convert_value(
+                    input_info.max,
+                    UnitSystem.celsius.value,
+                    UnitSystem.fahrenheit.value,
+                )
+                input_info.unit = UnitSystem.fahrenheit.value
+            elif input_info.unit == UnitSystem.m_s.value:
                 input_info.value = UnitConverter.convert_value(
-                    input_info.value, "m/s", "ft/s"
+                    input_info.value, UnitSystem.m_s.value, UnitSystem.ft_s.value
                 )
-                input_info.unit = "ft/s"
-        elif to_unit_system == "SI":
-            if input_info.unit == "°F":
+                input_info.min = UnitConverter.convert_value(
+                    input_info.min, UnitSystem.m_s.value, UnitSystem.ft_s.value
+                )
+                input_info.max = UnitConverter.convert_value(
+                    input_info.max, UnitSystem.m_s.value, UnitSystem.ft_s.value
+                )
+                input_info.unit = UnitSystem.ft_s.value
+        elif to_unit_system == UnitSystem.SI.value:
+            if input_info.unit == UnitSystem.fahrenheit.value:
                 input_info.value = UnitConverter.convert_value(
-                    input_info.value, "°F", "°C"
+                    input_info.value,
+                    UnitSystem.fahrenheit.value,
+                    UnitSystem.celsius.value,
                 )
-                input_info.unit = "°C"
-            elif input_info.unit == "ft/s":
+                input_info.min = UnitConverter.convert_value(
+                    input_info.min,
+                    UnitSystem.fahrenheit.value,
+                    UnitSystem.celsius.value,
+                )
+                input_info.max = UnitConverter.convert_value(
+                    input_info.max,
+                    UnitSystem.fahrenheit.value,
+                    UnitSystem.celsius.value,
+                )
+                input_info.unit = UnitSystem.celsius.value
+            elif input_info.unit == UnitSystem.ft_s.value:
                 input_info.value = UnitConverter.convert_value(
-                    input_info.value, "ft/s", "m/s"
+                    input_info.value, UnitSystem.ft_s.value, UnitSystem.m_s.value
                 )
-                input_info.unit = "m/s"
+                input_info.min = UnitConverter.convert_value(
+                    input_info.min, UnitSystem.ft_s.value, UnitSystem.m_s.value
+                )
+                input_info.max = UnitConverter.convert_value(
+                    input_info.max, UnitSystem.ft_s.value, UnitSystem.m_s.value
+                )
+                input_info.unit = UnitSystem.m_s.value
+    return model_inputs
 
 
 class ModelInputsInfo(BaseModel):
@@ -208,15 +264,17 @@ class ModelsInfo(BaseModel):
     description: str
     inputs: List[ModelInputsInfo]
     pythermalcomfort_models: str = None
+    model_note: str = None
 
 
 class Models(Enum):
     PMV_ashrae: ModelsInfo = ModelsInfo(
         name="PMV - ASHRAE 55",
         description="PMV - ASHRAE 55",
+        model_note="Limits of Applicability: This standard is only applicable to healthy individuals. This standard does not apply to occupants: a) whose clothing insulation exceed 1.5 clo; b) whose clothing is highly impermeable; or c) who are sleeping, reclining in contact with bedding, or able to adjust blankets or bedding. The CBE comfort tools automatically calculates the relative air speed and the dynamic clothing insulation .",
         inputs=[
             ModelInputsInfo(
-                unit="°C",
+                unit=UnitSystem.celsius.value,
                 min=0.0,
                 max=50.0,
                 step=0.5,
@@ -225,7 +283,7 @@ class Models(Enum):
                 id=ElementsIDs.t_db_input.value,
             ),
             ModelInputsInfo(
-                unit="°C",
+                unit=UnitSystem.celsius.value,
                 min=0.0,
                 max=50.0,
                 step=0.5,
@@ -234,7 +292,7 @@ class Models(Enum):
                 id=ElementsIDs.t_r_input.value,
             ),
             ModelInputsInfo(
-                unit="m/s",
+                unit=UnitSystem.m_s.value,
                 min=0.0,
                 max=4.0,
                 step=0.1,
@@ -274,9 +332,10 @@ class Models(Enum):
     PMV_EN: ModelsInfo = ModelsInfo(
         name="PMV - EN",
         description="PMV - EN",
+        model_note="The CBE comfort tools automatically calculates the relative air speed but does not calculates the dynamic insulation characteristics of clothing as specified in the ISO 7730 Section C.2., hence this value should be calculated by the user and entered as input in the CBE comfort tool.",
         inputs=[
             ModelInputsInfo(
-                unit="°C",
+                unit=UnitSystem.celsius.value,
                 min=0.0,
                 max=50.0,
                 step=0.5,
@@ -285,7 +344,7 @@ class Models(Enum):
                 id=ElementsIDs.t_db_input.value,
             ),
             ModelInputsInfo(
-                unit="°C",
+                unit=UnitSystem.celsius.value,
                 min=0.0,
                 max=50.0,
                 step=0.5,
@@ -294,7 +353,7 @@ class Models(Enum):
                 id=ElementsIDs.t_r_input.value,
             ),
             ModelInputsInfo(
-                unit="m/s",
+                unit=UnitSystem.m_s.value,
                 min=0.0,
                 max=4.0,
                 step=0.1,
@@ -336,7 +395,7 @@ class Models(Enum):
         description="Adaptive - ASHRAE 55",
         inputs=[
             ModelInputsInfo(
-                unit="°C",
+                unit=UnitSystem.celsius.value,
                 min=0.0,
                 max=50.0,
                 step=0.5,
@@ -345,13 +404,31 @@ class Models(Enum):
                 id=ElementsIDs.t_db_input.value,
             ),
             ModelInputsInfo(
-                unit="°C",
+                unit=UnitSystem.celsius.value,
+                min=0.0,
+                max=50.0,
+                step=0.5,
+                value=25.0,
+                name="Mean Radiant Temperature",
+                id=ElementsIDs.t_r_input.value,
+            ),
+            ModelInputsInfo(
+                unit=UnitSystem.celsius.value,
                 min=10.0,
                 max=35.0,
                 step=0.5,
                 value=25.0,
                 name="Prevailing mean outdoor temperature",
                 id=ElementsIDs.t_rm_input.value,
+            ),
+            ModelInputsInfo(
+                unit=UnitSystem.m_s.value,
+                min=0.0,
+                max=4.0,
+                step=0.1,
+                value=0.1,
+                name="Air Speed",
+                id=ElementsIDs.v_input.value,
             ),
         ],
     )
@@ -558,14 +635,3 @@ class ModelInputsSelectionClothingPhs(Enum):
 # PMV - EN Chart selection
 class ModelInputsSelectionOperativeTemperaturePmvEN16798(Enum):
     o_1: str = "Use operative temp"
-
-
-# ALL chart description
-class ModelChartDescription(Enum):
-    note: str = "NOTE:"
-    psy_air_temp_des_1: str = (
-        "In this psychrometric chart the abscissa is the dry-bulb temperature, and the mean radiant temperature (MRT) is fixed, controlled by the inputbox. Each point on the chart has the same MRT, which defines the comfort zone boundary. In this way you can see how changes in MRT affect thermal comfort. You can also still use the operative temperature button, yet each point will have the same MRT."
-    )
-    psy_air_temp_des_2: str = (
-        "The CBE comfort tools automatically calculates the relative air speed but does not calculates the dynamic insulation characteristics of clothing as specified in the ISO 7730 Section C.2., hence this value should be calculated by the user and entered as input in the CBE comfort tool."
-    )
