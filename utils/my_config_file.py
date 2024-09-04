@@ -34,7 +34,7 @@ class ElementsIDs(Enum):
     rh_input = "id-rh-input"
     met_input = "id-met-input"
     clo_input = "id-clo-input"
-    model_note = "id-model-note"
+    note_model = "id-model-note"
     RESULTS_SECTION = "id-results-section"
     NAVBAR_ID_DOCUMENT = "id-nav-documentation"
     NAVBAR_ID_MORE_CBE_TOOLS = "id-nav-more-cbe-tools"
@@ -264,14 +264,14 @@ class ModelsInfo(BaseModel):
     description: str
     inputs: List[ModelInputsInfo]
     pythermalcomfort_models: str = None
-    model_note: str = None
+    note_model: str = None
 
 
 class Models(Enum):
     PMV_ashrae: ModelsInfo = ModelsInfo(
         name="PMV - ASHRAE 55",
         description="PMV - ASHRAE 55",
-        model_note="Limits of Applicability: This standard is only applicable to healthy individuals. This standard does not apply to occupants: a) whose clothing insulation exceed 1.5 clo; b) whose clothing is highly impermeable; or c) who are sleeping, reclining in contact with bedding, or able to adjust blankets or bedding. The CBE comfort tools automatically calculates the relative air speed and the dynamic clothing insulation .",
+        note_model="Limits of Applicability: This standard is only applicable to healthy individuals. This standard does not apply to occupants: a) whose clothing insulation exceed 1.5 clo; b) whose clothing is highly impermeable; or c) who are sleeping, reclining in contact with bedding, or able to adjust blankets or bedding. The CBE comfort tools automatically calculates the relative air speed and the dynamic clothing insulation .",
         inputs=[
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
@@ -332,7 +332,7 @@ class Models(Enum):
     PMV_EN: ModelsInfo = ModelsInfo(
         name="PMV - EN",
         description="PMV - EN",
-        model_note="The CBE comfort tools automatically calculates the relative air speed but does not calculates the dynamic insulation characteristics of clothing as specified in the ISO 7730 Section C.2., hence this value should be calculated by the user and entered as input in the CBE comfort tool.",
+        note_model="The CBE comfort tools automatically calculates the relative air speed but does not calculates the dynamic insulation characteristics of clothing as specified in the ISO 7730 Section C.2., hence this value should be calculated by the user and entered as input in the CBE comfort tool.",
         inputs=[
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
