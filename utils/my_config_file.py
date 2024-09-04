@@ -48,6 +48,7 @@ class ElementsIDs(Enum):
     PMV_ASHARE_Humidity_SELECTION = "id-pmv-ashrae-humidity-method"
     PMV_ASHARE_Metabolic_SELECTION = "id-pmv-ashrae-metabolic-method"
     PMV_ASHARE_Clothing_SELECTION = "id-pmv-ashrae-clothing-method"
+    UNIT_TOGGLE = "id-unit-toggle"  # FOR IP / SI Unit system switch
 
 
 class Config(Enum):
@@ -174,10 +175,18 @@ def convert_units(model_inputs, to_unit_system):
                 input_info.value = UnitConverter.convert_value(
                     input_info.value, "°C", "°F"
                 )
+                input_info.min = UnitConverter.convert_value(input_info.min, "°C", "°F")
+                input_info.max = UnitConverter.convert_value(input_info.max, "°C", "°F")
                 input_info.unit = "°F"
             elif input_info.unit == "m/s":
                 input_info.value = UnitConverter.convert_value(
                     input_info.value, "m/s", "ft/s"
+                )
+                input_info.min = UnitConverter.convert_value(
+                    input_info.min, "m/s", "ft/s"
+                )
+                input_info.max = UnitConverter.convert_value(
+                    input_info.max, "m/s", "ft/s"
                 )
                 input_info.unit = "ft/s"
         elif to_unit_system == "SI":
@@ -185,12 +194,21 @@ def convert_units(model_inputs, to_unit_system):
                 input_info.value = UnitConverter.convert_value(
                     input_info.value, "°F", "°C"
                 )
+                input_info.min = UnitConverter.convert_value(input_info.min, "°F", "°C")
+                input_info.max = UnitConverter.convert_value(input_info.max, "°F", "°C")
                 input_info.unit = "°C"
             elif input_info.unit == "ft/s":
                 input_info.value = UnitConverter.convert_value(
                     input_info.value, "ft/s", "m/s"
                 )
+                input_info.min = UnitConverter.convert_value(
+                    input_info.min, "ft/s", "m/s"
+                )
+                input_info.max = UnitConverter.convert_value(
+                    input_info.max, "ft/s", "m/s"
+                )
                 input_info.unit = "m/s"
+    return model_inputs
 
 
 class ModelInputsInfo(BaseModel):
