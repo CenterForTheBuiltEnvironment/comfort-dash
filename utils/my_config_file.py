@@ -34,6 +34,7 @@ class ElementsIDs(Enum):
     rh_input = "id-rh-input"
     met_input = "id-met-input"
     clo_input = "id-clo-input"
+    posture_input = "id-posture-input"
     model_note = "id-model-note"
     RESULTS_SECTION = "id-results-section"
     NAVBAR_ID_DOCUMENT = "id-nav-documentation"
@@ -429,6 +430,75 @@ class Models(Enum):
                 value=0.1,
                 name="Air Speed",
                 id=ElementsIDs.v_input.value,
+            ),
+        ],
+    )
+    PHS: ModelsInfo = ModelsInfo(
+        name="PHS",
+        description="PHS",
+        inputs=[
+            ModelInputsInfo(
+                unit=UnitSystem.celsius.value,
+                min=15.0,
+                max=50.0,
+                step=0.5,
+                value=25.0,
+                name="Air Temperature",
+                id=ElementsIDs.t_db_input.value,
+            ),
+            ModelInputsInfo(
+                unit=UnitSystem.celsius.value,
+                min=0.0,
+                max=60.0,
+                step=0.5,
+                value=25.0,
+                name="Mean Radiant Temperature",
+                id=ElementsIDs.t_r_input.value,
+            ),
+            ModelInputsInfo(
+                unit=UnitSystem.m_s.value,
+                min=0.0,
+                max=4.0,
+                step=0.1,
+                value=0.1,
+                name="Air Speed",
+                id=ElementsIDs.v_input.value,
+            ),
+            ModelInputsInfo(
+                unit="%",
+                min=0.0,
+                max=100.0,
+                step=1.0,
+                value=50.0,
+                name="Relative Humidity",
+                id=ElementsIDs.rh_input.value,
+            ),
+            ModelInputsInfo(
+                unit="W/(m2)",
+                min=100.0,
+                max=450.0,
+                step=1.0,
+                value=50.0,
+                name="Metabolic Rate",
+                id=ElementsIDs.met_input.value,
+            ),
+            ModelInputsInfo(
+                unit="clo",
+                min=0.1,
+                max=1.0,
+                step=0.1,
+                value=0.5,
+                name="Clothing Level",
+                id=ElementsIDs.clo_input.value,
+            ),
+            ModelInputsInfo(
+                unit="sitting=1, standing=2, crouching=3",
+                min=1,
+                max=3,
+                step=1,
+                value=1,
+                name="POSTURE",
+                id=ElementsIDs.posture_input.value,
             ),
         ],
     )

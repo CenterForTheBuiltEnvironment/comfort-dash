@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import dash_mantine_components as dmc
 from dash import no_update
-from pythermalcomfort.models import pmv_ppd, adaptive_ashrae
+from pythermalcomfort.models import pmv_ppd, adaptive_ashrae, phs
 
 from utils.my_config_file import (
     Models,
@@ -123,6 +123,25 @@ def display_results(selected_model: str, form_content: dict, units_selection: st
                 )
             )
         )
+    elif selected_model == Models.PHS.name:
+        columns = 2
+
+        # todo I do not like we are unpacking the values from the list using position, we should use the key
+        phs_result = phs(
+            tdb=list_model_inputs[0].value,
+            tr=list_model_inputs[1].value,
+            v=list_model_inputs[2].value,
+            rh=list_model_inputs[3].value,
+            met=list_model_inputs[4].value,
+            clo=list_model_inputs[5].value,
+            posture=list_model_inputs[6].value,
+            wme=0,
+            limit_inputs=False,
+        )
+        results.append(dmc.Center(dmc.Text(f"Maximum allowable exposure time within which the physiological strain is acceptable (no physical damage is to be expected) calculated as a function of:")))
+        results.append(dmc.Center(dmc.Text(f"max rectal temperature = {phs_result['t_re']} °C")))
+        results.append(dmc.Center(dmc.Text(f"water loss of 5% of the body mass for 95% of the population = {phs_result['d_lim_loss_95']} min")))
+        results.append(dmc.Center(dmc.Text(f"water loss of 7.5% of the body mass for an average person = {phs_result['d_lim_loss_50']} min")))
 
     return (
         dmc.SimpleGrid(
