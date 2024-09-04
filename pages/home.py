@@ -15,9 +15,9 @@ from components.show_results import display_results
 from utils.my_config_file import (
     URLS,
     ElementsIDs,
-    ModelChartDescription,
     Dimensions,
     UnitSystem,
+    Models,
 )
 
 dash.register_page(__name__, path=URLS.HOME.value)
@@ -62,16 +62,7 @@ layout = dmc.Stack(
                                 id=ElementsIDs.CHART_CONTAINER.value,
                                 figure=chart_example("", ""),
                             ),
-                            dmc.GridCol(
-                                children=dmc.Text(
-                                    [
-                                        html.Strong(ModelChartDescription.note.value),
-                                        ModelChartDescription.psy_air_temp_des_1.value,
-                                        dmc.Space(h=20),
-                                        ModelChartDescription.psy_air_temp_des_2.value,
-                                    ],
-                                ),
-                            ),
+                            dmc.Text(id=ElementsIDs.model_note.value),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -93,6 +84,17 @@ def update_inputs(selected_model, units_selection):
         return no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
     return input_environmental_personal(selected_model, units)
+
+
+@callback(
+    Output(ElementsIDs.model_note.value, "children"),
+    Input(dd_model["id"], "value"),
+)
+def update_model_note(selected_model):
+    if selected_model is None:
+        return no_update
+    if Models[selected_model].value.model_note:
+        return Models[selected_model].value.model_note
 
 
 @callback(
