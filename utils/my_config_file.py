@@ -17,7 +17,7 @@ class ElementsIDs(Enum):
     NAVBAR_ID_ABOUT = "id-nav-about"
     MODEL_SELECTION = "id-model-selection"
     CHART_SELECTION = "id-chart-selection"
-    CHART_CONTAINER = "chart-container"
+    CHART_CONTAINER = "id-chart-container"
     URL = "url"
     FOOTER = "id-footer"
     NAVBAR_ID_DOCUMENT = "id-nav-documentation"
@@ -209,9 +209,6 @@ class ModelInputsAdaptiveAshrae55(BaseModel):
         value=25.0,
         name="Prevailing mean outdoor temperature",
     )
-    TRM: ModelInputsInfo = ModelInputsInfo(
-        unit="°C", min=10.0, max=33.5, step=0.1, value=25.0, name="running mean temperature"
-    )
 
 
 class ModelInputsPmvEN16798(BaseModel):
@@ -305,7 +302,7 @@ class ModelInputsPhs(BaseModel):
     )
 
 
-#PMV - Ashare right selection
+# PMV - Ashare right selection
 class ModelInputsSelectionSpeedASHRAE55(Enum):
     s_1: str = "No local control"
     s_2: str = "witn local control"
@@ -362,7 +359,7 @@ class ModelInputsSelectionClothingASHRAE55(Enum):
     c_9: str = "Typical winter indoor clothing: 1.0 clo"
 
 
-#PMV - EN right selectioon
+# PMV - EN right selectioon
 class ModelInputsSelectionHumidityPmvEN16798(Enum):
     h_1: str = "Relative humidity"
     h_2: str = "Humidity ratio"
@@ -413,7 +410,8 @@ class ModelInputsSelectionClothingPmvEN16798(Enum):
     c_8: str = "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
     c_9: str = "Typical winter indoor clothing: 1.0 clo"
 
-#Fans and Heat right selection
+
+# Fans and Heat right selection
 class ModelInputsSelectionMetablicRateFansAndHeat(Enum):
     h_1: str = "Sleeping: 0.7"
     h_2: str = "Reclining"
@@ -456,7 +454,8 @@ class ModelInputsSelectionClothingFansAndHeat(Enum):
     c_8: str = "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
     c_9: str = "Typical winter indoor clothing: 1.0 clo"
 
-#PHS right selection
+
+# PHS right selection
 class ModelInputsSelectionMetablicRatePhs(Enum):
     h_1: str = "Sleeping: 0.7"
     h_2: str = "Reclining"
@@ -499,11 +498,13 @@ class ModelInputsSelectionClothingPhs(Enum):
     c_8: str = "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
     c_9: str = "Typical winter indoor clothing: 1.0 clo"
 
-#PMV - EN Chart selection
+
+# PMV - EN Chart selection
 class ModelInputsSelectionOperativeTemperaturePmvEN16798(Enum):
     o_1: str = "Use operative temp"
 
-#ALL chart description
+
+# ALL chart description
 class ModelChartDescription(Enum):
     note: str = "NOTE:"
     psy_air_temp_des_1: str = (

@@ -13,6 +13,7 @@ numpy = "*"
 psychrolib = "*"
 pythermalcomfort = "*"
 icecream = "*"
+pythermalcomfort = "*"
 pydantic = ">=2.8.2
 plotly = ">=5.23.0"
 scipy = ">=1.14.0
