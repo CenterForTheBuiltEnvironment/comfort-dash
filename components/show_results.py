@@ -35,12 +35,9 @@ def display_results(selected_model: str, form_content: dict, units_selection: st
     model_inputs_dict = {input.id: input for input in Models[selected_model].value.inputs}
 
     # updating the values of the model inputs with the values from the form
-    for model_input in model_inputs_dict.values():
-        found_input = find_dict_with_key_value(
-            form_content, "id", model_input.id
-        )
-        if found_input is not None:
-            model_input.value = found_input["value"]
+    for model_input_id, model_input in model_inputs_dict.items():
+        found_input = form_content.get(model_input_id)
+        model_input.value = found_input["value"]
 
     # converting the units if necessary
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
@@ -124,7 +121,7 @@ def display_results(selected_model: str, form_content: dict, units_selection: st
     elif selected_model == Models.PHS.name:
         columns = 1
 
-        phs_result = phs(
+        r_phs = phs(
             tdb=model_inputs_dict[ElementsIDs.t_db_input.value].value,
             tr=model_inputs_dict[ElementsIDs.t_r_input.value].value,
             v=model_inputs_dict[ElementsIDs.v_input.value].value,
@@ -136,9 +133,9 @@ def display_results(selected_model: str, form_content: dict, units_selection: st
             limit_inputs=False,
         )
         results.append(dmc.Center(dmc.Text(f"Maximum allowable exposure time within which the physiological strain is acceptable (no physical damage is to be expected) calculated as a function of:")))
-        results.append(dmc.Center(dmc.Text(f"max rectal temperature = {phs_result['t_re']} °C")))
-        results.append(dmc.Center(dmc.Text(f"water loss of 5% of the body mass for 95% of the population = {phs_result['d_lim_loss_95']} min")))
-        results.append(dmc.Center(dmc.Text(f"water loss of 7.5% of the body mass for an average person = {phs_result['d_lim_loss_50']} min")))
+        results.append(dmc.Center(dmc.Text(f"max rectal temperature = {r_phs['t_re']} °C")))
+        results.append(dmc.Center(dmc.Text(f"water loss of 5% of the body mass for 95% of the population = {r_phs['d_lim_loss_95']} min")))
+        results.append(dmc.Center(dmc.Text(f"water loss of 7.5% of the body mass for an average person = {r_phs['d_lim_loss_50']} min")))
 
     return (
         dmc.SimpleGrid(

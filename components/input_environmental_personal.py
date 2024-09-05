@@ -19,8 +19,7 @@ def input_environmental_personal(
     model_inputs = Models[selected_model].value.inputs
     model_inputs = convert_units(model_inputs, units)
 
-    values: ModelInputsInfo
-    for values in model_inputs:
+    for i, values in enumerate(model_inputs):
         input_filed = dmc.NumberInput(
             label=values.name + " (" + values.unit + ")",
             description=f"From {values.min} to {values.max}",
@@ -28,7 +27,7 @@ def input_environmental_personal(
             min=values.min,
             max=values.max,
             step=values.step,
-            id=values.id,
+            id={"type": "dynamic-input", "index": values.id},
         )
         inputs.append(input_filed)
 
@@ -55,5 +54,4 @@ def input_environmental_personal(
             shadow="md",
             p="md",
         ),
-        id="test-form",  # todo remove this id
     )
