@@ -1,13 +1,12 @@
-from copy import deepcopy
-
 import dash_mantine_components as dmc
-from dash import no_update
-from pythermalcomfort.models import pmv_ppd, adaptive_ashrae, phs
 
+from pythermalcomfort.models import pmv_ppd, adaptive_ashrae, phs
+from pythermalcomfort.utilities import v_relative, clo_dynamic, mapping
+
+from utils.get_inputs import get_inputs
 from utils.my_config_file import (
     Models,
     UnitSystem,
-    convert_units,
     UnitConverter,
     ElementsIDs,
 )
@@ -28,64 +27,58 @@ def find_dict_with_key_value(d, key, value):
     return None
 
 def display_results(selected_model: str, form_content: dict, units_selection: str):
-    if selected_model is None:
-        return no_update
 
-    # creating a copy of the model inputs
-    model_inputs_dict = {input.id: input for input in Models[selected_model].value.inputs}
-
-    # updating the values of the model inputs with the values from the form
-    for model_input_id, model_input in model_inputs_dict.items():
-        found_input = form_content.get(model_input_id)
-        model_input.value = found_input["value"]
-
-    # converting the units if necessary
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    if units == UnitSystem.IP.value:
-        model_inputs_dict = convert_units(list(model_inputs_dict.values()), UnitSystem.SI.value)
+    inputs = get_inputs(selected_model, form_content, units)
 
     results = []
     columns: int = 2
-    if selected_model == Models.PMV_EN.name:
-        columns = 2
+    if selected_model == Models.PMV_EN.name or selected_model == Models.PMV_ashrae.name:
+        columns = 3
+        standard = "ISO"
+        if selected_model == Models.PMV_ashrae.name:
+            standard = "ashrae"
 
         r_pmv = pmv_ppd(
-            tdb=model_inputs_dict[ElementsIDs.t_db_input.value].value,
-            tr=model_inputs_dict[ElementsIDs.t_r_input.value].value,
-            vr=model_inputs_dict[ElementsIDs.v_input.value].value,
-            rh=model_inputs_dict[ElementsIDs.rh_input.value].value,
-            met=model_inputs_dict[ElementsIDs.met_input.value].value,
-            clo=model_inputs_dict[ElementsIDs.clo_input.value].value,
+            tdb=inputs[ElementsIDs.t_db_input.value],
+            tr=inputs[ElementsIDs.t_r_input.value],
+            vr=v_relative(
+                v=inputs[ElementsIDs.v_input.value],
+                met=inputs[ElementsIDs.met_input.value],
+            ),
+            rh=inputs[ElementsIDs.rh_input.value],
+            met=inputs[ElementsIDs.met_input.value],
+            clo=clo_dynamic(
+                clo=inputs[ElementsIDs.clo_input.value],
+                met=inputs[ElementsIDs.met_input.value],
+            ),
             wme=0,
-            limit_inputs=False,
-            standard="ISO",
+            limit_inputs=True,
+            standard=standard,
         )
         results.append(dmc.Center(dmc.Text(f"PMV: {r_pmv['pmv']}")))
         results.append(dmc.Center(dmc.Text(f"PPD: {r_pmv['ppd']}")))
-    elif selected_model == Models.PMV_ashrae.name:
-        columns = 2
-
-        r_pmv = pmv_ppd(
-            tdb=model_inputs_dict[ElementsIDs.t_db_input.value].value,
-            tr=model_inputs_dict[ElementsIDs.t_r_input.value].value,
-            vr=model_inputs_dict[ElementsIDs.v_input.value].value,
-            rh=model_inputs_dict[ElementsIDs.rh_input.value].value,
-            met=model_inputs_dict[ElementsIDs.met_input.value].value,
-            clo=model_inputs_dict[ElementsIDs.clo_input.value].value,
-            wme=0,
-            limit_inputs=False,
-            standard="ashrae",
+        comfort_category = mapping(
+            r_pmv["pmv"],
+            {
+                -2.5: "Cold",
+                -1.5: "Cool",
+                -0.5: "Slightly Cool",
+                0.5: "Neutral",
+                1.5: "Slightly Warm",
+                2.5: "Warm",
+                10: "Hot",
+            },
         )
-        results.append(dmc.Center(dmc.Text(f"PMV: {r_pmv['pmv']}")))
-        results.append(dmc.Center(dmc.Text(f"PPD: {r_pmv['ppd']}")))
+        results.append(dmc.Center(dmc.Text(f"Sensation: {comfort_category}")))
     elif selected_model == Models.Adaptive_ASHRAE.name:
         columns = 1
 
         adaptive = adaptive_ashrae(
-            tdb=model_inputs_dict[ElementsIDs.t_db_input.value].value,
-            tr=model_inputs_dict[ElementsIDs.t_r_input.value].value,
-            t_running_mean=model_inputs_dict[ElementsIDs.t_rm_input.value].value,
-            v=model_inputs_dict[ElementsIDs.v_input.value].value,
+            tdb=inputs[ElementsIDs.t_db_input.value],
+            tr=inputs[ElementsIDs.t_r_input.value],
+            t_running_mean=inputs[ElementsIDs.t_rm_input.value],
+            v=inputs[ElementsIDs.v_input.value],
         )
         if units == UnitSystem.IP.value:
             adaptive.tmp_cmf = round(

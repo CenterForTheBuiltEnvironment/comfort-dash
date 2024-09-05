@@ -18,6 +18,7 @@ plotly = "*"
 scipy = "*"
 typing-extensions = "*"
 packaging = "*"
+matplotlib = "*"
 
 [dev-packages]
 pytest-playwright = "*"
