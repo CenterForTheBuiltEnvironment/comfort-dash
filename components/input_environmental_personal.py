@@ -97,7 +97,7 @@ def input_environmental_personal(
             min=values.min,
             max=values.max,
             step=values.step,
-            id={"type": "dynamic-input", "index": values.id},
+            id=values.id,
         )
         inputs.append(input_filed)
 

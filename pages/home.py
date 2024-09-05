@@ -1,6 +1,6 @@
 import dash
 import dash_mantine_components as dmc
-from dash import html, callback, Output, Input, no_update, State, ALL
+from dash import html, callback, Output, Input, no_update, State
 
 from components.charts import t_rh_pmv, chart_selector
 from components.dropdowns import (
@@ -170,16 +170,11 @@ def update_chart(
 
 @callback(
     Output(ElementsIDs.RESULTS_SECTION.value, "children"),
-    Input({"type": "dynamic-input", "index": ALL}, "value"),
-    State(dd_model["id"], "value"),
+    Input(ElementsIDs.inputs_form.value, "n_clicks"),
+    State(ElementsIDs.MODEL_SELECTION.value, "value"),
     State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    State(ElementsIDs.inputs_form.value, "children"),
+    # todo this function should also listen to changes in the variables inputs
 )
-def update_outputs(input_values, selected_model, units_selection: str):
-    if selected_model is None or not input_values:
-        return no_update
-    model_inputs = Models[selected_model].value.inputs
-    form_content = {
-        model_input.id: {"value": input_value}
-        for model_input, input_value in zip(model_inputs, input_values)
-    }
+def update_outputs(_, selected_model, units_selection: str, form_content: dict):
     return display_results(selected_model, form_content, units_selection)
