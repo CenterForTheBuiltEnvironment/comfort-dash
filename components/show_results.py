@@ -13,19 +13,19 @@ from utils.my_config_file import (
 )
 
 def find_dict_with_key_value(d, key, value):
-        if isinstance(d, dict):
-            if d.get(key) == value:
-                return d
-            for k, v in d.items():
-                result = find_dict_with_key_value(v, key, value)
-                if result is not None:
-                    return result
-        elif isinstance(d, list):
-            for item in d:
-                result = find_dict_with_key_value(item, key, value)
-                if result is not None:
-                    return result
-        return None
+    if isinstance(d, dict):
+        if d.get(key) == value:
+            return d
+        for k, v in d.items():
+            result = find_dict_with_key_value(v, key, value)
+            if result is not None:
+                return result
+    elif isinstance(d, list):
+        for item in d:
+            result = find_dict_with_key_value(item, key, value)
+            if result is not None:
+                return result
+    return None
 
 def display_results(selected_model: str, form_content: dict, units_selection: str):
     if selected_model is None:
