@@ -62,7 +62,7 @@ def display_results(selected_model: str, form_content: dict, units_selection: st
         adaptive = adaptive_ashrae(
             tdb=inputs[ElementsIDs.t_db_input.value],
             tr=inputs[ElementsIDs.t_r_input.value],
-            t_running_mean=inputs[ElementsIDs.t_running_mean_input.value],
+            t_running_mean=inputs[ElementsIDs.t_rm_input.value],
             v=inputs[ElementsIDs.v_input.value],
         )
         if units == UnitSystem.IP.value:
