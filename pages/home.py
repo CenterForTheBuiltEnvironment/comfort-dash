@@ -111,5 +111,4 @@ def update_outputs(input_values, selected_model, units_selection: str):
         model_input.id: {"value": input_value}
         for model_input, input_value in zip(model_inputs, input_values)
     }
-    print(f"Form content: {form_content}")
     return display_results(selected_model, form_content, units_selection)
