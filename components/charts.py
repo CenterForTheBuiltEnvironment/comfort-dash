@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from pythermalcomfort.models import pmv
+from pythermalcomfort.utilities import v_relative, clo_dynamic
 from scipy import optimize
 
 from components.drop_down_inline import generate_dropdown_inline
@@ -33,6 +34,12 @@ def chart_selector(selected_model: str):
 def t_rh_pmv(inputs: dict = None, model: str = "iso"):
     results = []
     pmv_limits = [-0.5, 0.5]
+    clo_d = clo_dynamic(
+        clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
+    )
+    vr = v_relative(
+        v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
+    )
     for pmv_limit in pmv_limits:
         for rh in np.arange(0, 110, 10):
 
@@ -40,13 +47,11 @@ def t_rh_pmv(inputs: dict = None, model: str = "iso"):
                 return (
                     pmv(
                         x,
-                        x,
-                        # todo I should be calculating the relative air velocity
-                        vr=inputs[ElementsIDs.v_input.value],
+                        tr=inputs[ElementsIDs.t_r_input.value],
+                        vr=vr,
                         rh=rh,
                         met=inputs[ElementsIDs.met_input.value],
-                        # todo I should be calculating the dynamic clothing insulation
-                        clo=inputs[ElementsIDs.clo_input.value],
+                        clo=clo_d,
                         wme=0,
                         standard=model,
                         limit_inputs=False,

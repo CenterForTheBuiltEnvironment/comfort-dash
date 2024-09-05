@@ -1,5 +1,6 @@
 import dash_mantine_components as dmc
 from pythermalcomfort.models import pmv_ppd, adaptive_ashrae
+from pythermalcomfort.utilities import v_relative, clo_dynamic
 
 from utils.get_inputs import get_inputs
 from utils.my_config_file import (
@@ -23,12 +24,16 @@ def display_results(selected_model: str, form_content: dict, units_selection: st
         r_pmv = pmv_ppd(
             tdb=inputs[ElementsIDs.t_db_input.value],
             tr=inputs[ElementsIDs.t_r_input.value],
-            # todo I should be calculating the relative air velocity
-            vr=inputs[ElementsIDs.v_input.value],
+            vr=v_relative(
+                v=inputs[ElementsIDs.v_input.value],
+                met=inputs[ElementsIDs.met_input.value],
+            ),
             rh=inputs[ElementsIDs.rh_input.value],
             met=inputs[ElementsIDs.met_input.value],
-            # todo I should be calculating the dynamic clothing insulation
-            clo=inputs[ElementsIDs.clo_input.value],
+            clo=clo_dynamic(
+                clo=inputs[ElementsIDs.clo_input.value],
+                met=inputs[ElementsIDs.met_input.value],
+            ),
             wme=0,
             limit_inputs=False,
             standard="ISO",
@@ -41,12 +46,16 @@ def display_results(selected_model: str, form_content: dict, units_selection: st
         r_pmv = pmv_ppd(
             tdb=inputs[ElementsIDs.t_db_input.value],
             tr=inputs[ElementsIDs.t_r_input.value],
-            # todo I should be calculating the relative air velocity
-            vr=inputs[ElementsIDs.v_input.value],
+            vr=v_relative(
+                v=inputs[ElementsIDs.v_input.value],
+                met=inputs[ElementsIDs.met_input.value],
+            ),
             rh=inputs[ElementsIDs.rh_input.value],
             met=inputs[ElementsIDs.met_input.value],
-            # todo I should be calculating the dynamic clothing insulation
-            clo=inputs[ElementsIDs.clo_input.value],
+            clo=clo_dynamic(
+                clo=inputs[ElementsIDs.clo_input.value],
+                met=inputs[ElementsIDs.met_input.value],
+            ),
             wme=0,
             limit_inputs=False,
             standard="ashrae",
@@ -56,7 +65,6 @@ def display_results(selected_model: str, form_content: dict, units_selection: st
     elif selected_model == Models.Adaptive_ASHRAE.name:
         columns = 1
 
-        # todo I do not like we are unpacking the values from the list using position, we should use the key
         adaptive = adaptive_ashrae(
             tdb=inputs[ElementsIDs.t_db_input.value],
             tr=inputs[ElementsIDs.t_r_input.value],
