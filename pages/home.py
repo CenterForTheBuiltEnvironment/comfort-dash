@@ -62,7 +62,7 @@ layout = dmc.Stack(
                                 id=ElementsIDs.CHART_CONTAINER.value,
                                 figure=chart_example("", ""),
                             ),
-                            dmc.Text(id=ElementsIDs.model_note.value),
+                            dmc.Text(id=ElementsIDs.note_model.value),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -87,14 +87,14 @@ def update_inputs(selected_model, units_selection):
 
 
 @callback(
-    Output(ElementsIDs.model_note.value, "children"),
+    Output(ElementsIDs.note_model.value, "children"),
     Input(dd_model["id"], "value"),
 )
-def update_model_note(selected_model):
+def update_note_model(selected_model):
     if selected_model is None:
         return no_update
-    if Models[selected_model].value.model_note:
-        return Models[selected_model].value.model_note
+    if Models[selected_model].value.note_model:
+        return Models[selected_model].value.note_model
 
 
 @callback(
