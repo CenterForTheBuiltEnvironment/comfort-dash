@@ -5,8 +5,6 @@ from components.drop_down_inline import (
 from utils.my_config_file import (
     ElementsIDs,
     Models,
-    CHARTS,
-    AdaptiveAshraeSpeeds,
     AdaptiveENSpeeds,
     ModelInputsSelectionHumidityPmvEN16798,
     ModelInputsSelectionMetablicRatePmvEN16798,
@@ -40,62 +38,6 @@ dd_model = {
 def model_selection():
     return generate_dropdown_inline(dd_model, clearable=False)
 
-
-ashare_chart = {
-    "id": ElementsIDs.CHART_SELECTION.value,
-    "question": TextHome.chart_selection.value,
-    "options": [
-        CHARTS.psychrometric.value,
-        CHARTS.psychrometric_operative.value,
-        CHARTS.relative_humidity.value,
-        CHARTS.air_speed.value,
-        CHARTS.thermal_heat.value,
-        CHARTS.set_outputs.value,
-    ],
-    "multi": False,
-    "default": CHARTS.psychrometric.value,
-}
-
-pmv_en_chart = {
-    "id": ElementsIDs.CHART_SELECTION.value,
-    "question": TextHome.chart_selection.value,
-    "options": [
-        CHARTS.psychrometric.value,
-        CHARTS.psychrometric_operative.value,
-        CHARTS.relative_humidity.value,
-    ],
-    "multi": False,
-    "default": CHARTS.psychrometric.value,
-}
-
-
-# todo use type hints and default values
-def chart_selection(
-    selected_model: str = Models.PMV_ashrae.name, chart_content: str = ""
-):
-    chart_inputs = ashare_chart
-    current_value = None
-    if selected_model == Models.PMV_ashrae.name:
-        chart_inputs = ashare_chart
-        current_value = (
-            chart_content if chart_content is not None else CHARTS.psychrometric.value
-        )
-
-    return generate_dropdown_inline(chart_inputs, value=current_value, clearable=False)
-
-
-adaptive_ashare_air_speed = {
-    "id": ElementsIDs.ADAPTIVE_ASHARE_SPEED_SELECTION.value,
-    "question": TextHome.speed_selection.value,
-    "options": [
-        AdaptiveAshraeSpeeds.s_1.value,
-        AdaptiveAshraeSpeeds.s_2.value,
-        AdaptiveAshraeSpeeds.S_3.value,
-        AdaptiveAshraeSpeeds.s_4.value,
-    ],
-    "multi": False,
-    "default": AdaptiveAshraeSpeeds.s_1.value,
-}
 
 adaptive_en_air_speed = {
     "id": ElementsIDs.ADAPTIVE_EN_SPEED_SELECTION.value,
@@ -368,10 +310,6 @@ pmv_ashare_clothing_selection = {
     "multi": False,
     "default": ModelInputsSelectionClothingASHRAE55.c_1.value,
 }
-
-
-def Ash55_air_speed_selection():
-    return generate_dropdown_inputs_inline(adaptive_ashare_air_speed, clearable=False)
 
 
 def En16798_air_speed_selection():

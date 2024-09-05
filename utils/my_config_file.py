@@ -22,11 +22,13 @@ class ElementsIDs(Enum):
     NAVBAR_ID_SETTINGS = "id-nav-settings"
     NAVBAR_ID_ABOUT = "id-nav-about"
     MODEL_SELECTION = "id-model-selection"
-    CHART_SELECTION = "id-chart-selection"
+    chart_selected = "id-chart-selection"
+    charts_dropdown = "id-charts-dropdown"
     CHART_CONTAINER = "id-chart-container"
     URL = "url"
     FOOTER = "id-footer"
     INPUT_SECTION = "id-input-section"
+    inputs_form = "id-inputs-form"
     t_db_input = "id-dbt-input"
     t_r_input = "id-tr-input"
     t_rm_input = "id-trm-input"
@@ -113,16 +115,28 @@ class Stores(Enum):
     INPUT_DATA = "store_input_data"
 
 
-class CHARTS(Enum):
-    t_rh: str = "Temperature and Relative Humidity"
-    psychrometric: str = "Psychrometric (air temperature)"
-    psychrometric_operative: str = "Psychrometric (operative temperature)"
-    relative_humidity: str = "Relative humidity vs. air temperature"
-    air_speed: str = "Air speed vs. operative temperature"
-    thermal_heat: str = "Thermal heat losses vs. air temperature"
-    set_outputs: str = "SET outputs chart"
-    fans_Heat_Chart: str = "Fans and Heat Chart"
-    phs_Chart: str = "PHS Chart"
+class ChartsInfo(BaseModel):
+    name: str
+    id: str
+    note_chart: str = None
+
+
+class Charts(Enum):
+    t_rh: ChartsInfo = ChartsInfo(
+        name="Temperature vs. Relative Humidity",
+        id="id_t_rh_chart",
+        note_chart="This chart represents only two variables, dry-bulb temperature and relative humidity. The PMV calculations are still based on all the psychrometric variables, but the visualization becomes easier to understand.",
+    )
+    psychrometric: ChartsInfo = ChartsInfo(
+        name="Psychrometric (air temperature)",
+        id="id_psy_t_chart",
+        note_chart="In this psychrometric chart the abscissa is the dry-bulb temperature, and the mean radiant temperature (MRT) is fixed, controlled by the inputbox. Each point on the chart has the same MRT, which defines the comfort zone boundary. In this way you can see how changes in MRT affect thermal comfort. You can also still use the operative temperature button, yet each point will have the same MRT.",
+    )
+    psychrometric_operative: ChartsInfo = ChartsInfo(
+        name="Psychrometric (operative temperature)",
+        id="id_psy_to_chart",
+        note_chart="In this psychrometric chart the abscissa is the operative temperature and for each point dry-bulb temperature equals mean radiant temperature (DBT = MRT). The comfort zone represents the combination of conditions with the same DBT and MRT for which the PMV is between -0.5 and +0.5, according to the standard.",
+    )
 
 
 class AdaptiveAshraeSpeeds(Enum):
@@ -265,18 +279,24 @@ class ModelsInfo(BaseModel):
     inputs: List[ModelInputsInfo]
     pythermalcomfort_models: str = None
     note_model: str = None
+    charts: List[ChartsInfo] = None
 
 
 class Models(Enum):
     PMV_ashrae: ModelsInfo = ModelsInfo(
         name="PMV - ASHRAE 55",
         description="PMV - ASHRAE 55",
-        note_model="Limits of Applicability: This standard is only applicable to healthy individuals. This standard does not apply to occupants: a) whose clothing insulation exceed 1.5 clo; b) whose clothing is highly impermeable; or c) who are sleeping, reclining in contact with bedding, or able to adjust blankets or bedding. The CBE comfort tools automatically calculates the relative air speed and the dynamic clothing insulation .",
+        note_model="This standard is only applicable to healthy individuals. This standard does not apply to occupants: a) whose clothing insulation exceed 1.5 clo; b) whose clothing is highly impermeable; or c) who are sleeping, reclining in contact with bedding, or able to adjust blankets or bedding. The CBE comfort tools automatically calculates the relative air speed and the dynamic clothing insulation.",
+        charts=[
+            Charts.t_rh.value,
+            Charts.psychrometric.value,
+            Charts.psychrometric_operative.value,
+        ],
         inputs=[
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
-                min=0.0,
-                max=50.0,
+                min=10.0,
+                max=40.0,
                 step=0.5,
                 value=25.0,
                 name="Air Temperature",
@@ -284,8 +304,8 @@ class Models(Enum):
             ),
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
-                min=0.0,
-                max=50.0,
+                min=10.0,
+                max=40.0,
                 step=0.5,
                 value=25.0,
                 name="Mean Radiant Temperature",
@@ -294,7 +314,7 @@ class Models(Enum):
             ModelInputsInfo(
                 unit=UnitSystem.m_s.value,
                 min=0.0,
-                max=4.0,
+                max=2.0,
                 step=0.1,
                 value=0.1,
                 name="Air Speed",
@@ -311,7 +331,7 @@ class Models(Enum):
             ),
             ModelInputsInfo(
                 unit="met",
-                min=0.7,
+                min=1,
                 max=4.0,
                 step=0.1,
                 value=1.0,
@@ -321,7 +341,7 @@ class Models(Enum):
             ModelInputsInfo(
                 unit="clo",
                 min=0.0,
-                max=4.0,
+                max=1.5,
                 step=0.1,
                 value=0.61,
                 name="Clothing Level",
@@ -333,11 +353,16 @@ class Models(Enum):
         name="PMV - EN",
         description="PMV - EN",
         note_model="The CBE comfort tools automatically calculates the relative air speed but does not calculates the dynamic insulation characteristics of clothing as specified in the ISO 7730 Section C.2., hence this value should be calculated by the user and entered as input in the CBE comfort tool.",
+        charts=[
+            # todo add the right charts
+            Charts.psychrometric.value,
+            Charts.psychrometric_operative.value,
+        ],
         inputs=[
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
-                min=0.0,
-                max=50.0,
+                min=10.0,
+                max=30.0,
                 step=0.5,
                 value=25.0,
                 name="Air Temperature",
@@ -345,8 +370,8 @@ class Models(Enum):
             ),
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
-                min=0.0,
-                max=50.0,
+                min=10.0,
+                max=40.0,
                 step=0.5,
                 value=25.0,
                 name="Mean Radiant Temperature",
@@ -355,7 +380,7 @@ class Models(Enum):
             ModelInputsInfo(
                 unit=UnitSystem.m_s.value,
                 min=0.0,
-                max=4.0,
+                max=1.0,
                 step=0.1,
                 value=0.1,
                 name="Air Speed",
@@ -372,7 +397,7 @@ class Models(Enum):
             ),
             ModelInputsInfo(
                 unit="met",
-                min=0.7,
+                min=0.8,
                 max=4.0,
                 step=0.1,
                 value=1.0,
@@ -382,7 +407,7 @@ class Models(Enum):
             ModelInputsInfo(
                 unit="clo",
                 min=0.0,
-                max=4.0,
+                max=2.0,
                 step=0.1,
                 value=0.61,
                 name="Clothing Level",
@@ -393,6 +418,10 @@ class Models(Enum):
     Adaptive_ASHRAE: ModelsInfo = ModelsInfo(
         name="Adaptive - ASHRAE 55",
         description="Adaptive - ASHRAE 55",
+        charts=[
+            # todo add the right charts
+            Charts.t_rh.value,
+        ],
         inputs=[
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,

@@ -1,23 +1,24 @@
 import dash
 import dash_mantine_components as dmc
-from dash import html, dcc, callback, Output, Input, no_update, State
+from dash import html, callback, Output, Input, no_update, State
 
-from components.charts import chart_example
+from components.charts import t_rh_pmv, chart_selector
 from components.dropdowns import (
     model_selection,
-    chart_selection,
-    dd_model,
 )
 from components.functionality_selection import functionality_selection
 from components.input_environmental_personal import input_environmental_personal
 from components.my_card import my_card
 from components.show_results import display_results
+from utils.get_inputs import get_inputs
 from utils.my_config_file import (
     URLS,
     ElementsIDs,
     Dimensions,
     UnitSystem,
     Models,
+    Charts,
+    ChartsInfo,
 )
 
 dash.register_page(__name__, path=URLS.HOME.value)
@@ -28,7 +29,6 @@ layout = dmc.Stack(
             children=[
                 dmc.GridCol(
                     model_selection(),
-                    # todo we should define the size of the left columns and of the right columns and then create a class and import from there, we should not define them here in the text, see example below
                     span={"base": 12, "sm": Dimensions.left_container_width.value},
                 ),
                 dmc.GridCol(
@@ -53,14 +53,12 @@ layout = dmc.Stack(
                             html.Div(
                                 id=ElementsIDs.RESULTS_SECTION.value,
                             ),
-                            dmc.Text("Visualization", m="xs", fw=700),
                             html.Div(
-                                id="chart-select",
-                                children=chart_selection(),
+                                id=ElementsIDs.charts_dropdown.value,
+                                children=html.Div(id=ElementsIDs.chart_selected.value),
                             ),
-                            dcc.Graph(
+                            html.Div(
                                 id=ElementsIDs.CHART_CONTAINER.value,
-                                figure=chart_example("", ""),
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
                         ],
@@ -76,7 +74,7 @@ layout = dmc.Stack(
 
 @callback(
     Output(ElementsIDs.INPUT_SECTION.value, "children"),
-    Input(dd_model["id"], "value"),
+    Input(ElementsIDs.MODEL_SELECTION.value, "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
 )
 def update_inputs(selected_model, units_selection):
@@ -88,21 +86,94 @@ def update_inputs(selected_model, units_selection):
 
 @callback(
     Output(ElementsIDs.note_model.value, "children"),
-    Input(dd_model["id"], "value"),
+    Input(ElementsIDs.MODEL_SELECTION.value, "value"),
 )
 def update_note_model(selected_model):
     if selected_model is None:
         return no_update
     if Models[selected_model].value.note_model:
-        return Models[selected_model].value.note_model
+        return html.Div(
+            [
+                dmc.Text("Limits of Applicability: ", size="sm", fw=700, span=True),
+                dmc.Text(Models[selected_model].value.note_model, size="sm", span=True),
+            ]
+        )
+
+
+@callback(
+    Output(ElementsIDs.charts_dropdown.value, "children"),
+    Input(ElementsIDs.MODEL_SELECTION.value, "value"),
+)
+def update_note_model(selected_model):
+    if selected_model is None:
+        return no_update
+    return chart_selector(selected_model=selected_model)
+
+
+@callback(
+    Output(ElementsIDs.CHART_CONTAINER.value, "children"),
+    Input(ElementsIDs.inputs_form.value, "n_clicks"),
+    Input(ElementsIDs.chart_selected.value, "value"),
+    State(ElementsIDs.MODEL_SELECTION.value, "value"),
+    State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    State(ElementsIDs.inputs_form.value, "children"),
+)
+def update_chart(
+    _,
+    chart_selected: str,
+    selected_model: str,
+    units_selection: str,
+    form_content: dict,
+):
+    if selected_model is None:
+        return no_update
+
+    if chart_selected is None:
+        return no_update
+
+    units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
+    inputs = get_inputs(selected_model, form_content, units)
+
+    image = html.Div(
+        [
+            dmc.Title("Unfortunately this chart has not been implemented yet", order=4),
+            dmc.Image(
+                src="assets/media/chart_placeholder.png",
+            ),
+        ]
+    )
+
+    if chart_selected == Charts.t_rh.value.name:
+        if selected_model == Models.PMV_EN.name:
+            image = t_rh_pmv(inputs=inputs, model="iso")
+        elif selected_model == Models.PMV_ashrae.name:
+            image = t_rh_pmv(inputs=inputs, model="ashrae")
+
+    note = ""
+    chart: ChartsInfo
+    for chart in Models[selected_model].value.charts:
+        if chart.name == chart_selected:
+            note = chart.note_chart
+
+    return dmc.Stack(
+        [
+            image,
+            html.Div(
+                [
+                    dmc.Text("Note: ", size="sm", fw=700, span=True),
+                    dmc.Text(note, size="sm", span=True),
+                ]
+            ),
+        ]
+    )
 
 
 @callback(
     Output(ElementsIDs.RESULTS_SECTION.value, "children"),
-    Input("test-form", "n_clicks"),
-    State(dd_model["id"], "value"),
+    Input(ElementsIDs.inputs_form.value, "n_clicks"),
+    State(ElementsIDs.MODEL_SELECTION.value, "value"),
     State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
-    State("test-form", "children"),
+    State(ElementsIDs.inputs_form.value, "children"),
     # todo this function should also listen to changes in the variables inputs
 )
 def update_outputs(_, selected_model, units_selection: str, form_content: dict):
