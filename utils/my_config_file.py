@@ -286,8 +286,8 @@ class Models(Enum):
         inputs=[
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
-                min=0.0,
-                max=50.0,
+                min=10.0,
+                max=40.0,
                 step=0.5,
                 value=25.0,
                 name="Air Temperature",
@@ -295,8 +295,8 @@ class Models(Enum):
             ),
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
-                min=0.0,
-                max=50.0,
+                min=10.0,
+                max=40.0,
                 step=0.5,
                 value=25.0,
                 name="Mean Radiant Temperature",
@@ -305,7 +305,7 @@ class Models(Enum):
             ModelInputsInfo(
                 unit=UnitSystem.m_s.value,
                 min=0.0,
-                max=4.0,
+                max=2.0,
                 step=0.1,
                 value=0.1,
                 name="Air Speed",
@@ -322,7 +322,7 @@ class Models(Enum):
             ),
             ModelInputsInfo(
                 unit="met",
-                min=0.7,
+                min=1,
                 max=4.0,
                 step=0.1,
                 value=1.0,
@@ -332,7 +332,7 @@ class Models(Enum):
             ModelInputsInfo(
                 unit="clo",
                 min=0.0,
-                max=4.0,
+                max=1.5,
                 step=0.1,
                 value=0.61,
                 name="Clothing Level",
@@ -353,8 +353,8 @@ class Models(Enum):
         inputs=[
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
-                min=0.0,
-                max=50.0,
+                min=10.0,
+                max=30.0,
                 step=0.5,
                 value=25.0,
                 name="Air Temperature",
@@ -362,8 +362,8 @@ class Models(Enum):
             ),
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
-                min=0.0,
-                max=50.0,
+                min=10.0,
+                max=40.0,
                 step=0.5,
                 value=25.0,
                 name="Mean Radiant Temperature",
@@ -372,7 +372,7 @@ class Models(Enum):
             ModelInputsInfo(
                 unit=UnitSystem.m_s.value,
                 min=0.0,
-                max=4.0,
+                max=1.0,
                 step=0.1,
                 value=0.1,
                 name="Air Speed",
@@ -389,7 +389,7 @@ class Models(Enum):
             ),
             ModelInputsInfo(
                 unit="met",
-                min=0.7,
+                min=0.8,
                 max=4.0,
                 step=0.1,
                 value=1.0,
@@ -399,7 +399,7 @@ class Models(Enum):
             ModelInputsInfo(
                 unit="clo",
                 min=0.0,
-                max=4.0,
+                max=2.0,
                 step=0.1,
                 value=0.61,
                 name="Clothing Level",
