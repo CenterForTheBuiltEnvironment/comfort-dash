@@ -19,7 +19,8 @@ def input_environmental_personal(
     model_inputs = Models[selected_model].value.inputs
     model_inputs = convert_units(model_inputs, units)
 
-    for i, values in enumerate(model_inputs):
+    values: ModelInputsInfo
+    for values in model_inputs:
         input_filed = dmc.NumberInput(
             label=values.name + " (" + values.unit + ")",
             description=f"From {values.min} to {values.max}",
