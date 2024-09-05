@@ -1,6 +1,6 @@
 import dash
 import dash_mantine_components as dmc
-from dash import html, dcc, callback, Output, Input, no_update, State, ALL, MATCH
+from dash import html, dcc, callback, Output, Input, no_update, State, ALL
 
 from components.charts import chart_example
 from components.dropdowns import (
@@ -111,4 +111,5 @@ def update_outputs(input_values, selected_model, units_selection: str):
         model_input.id: {"value": input_value}
         for model_input, input_value in zip(model_inputs, input_values)
     }
+    print(f"Form content: {form_content}")
     return display_results(selected_model, form_content, units_selection)
