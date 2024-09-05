@@ -29,7 +29,6 @@ layout = dmc.Stack(
             children=[
                 dmc.GridCol(
                     model_selection(),
-                    # todo we should define the size of the left columns and of the right columns and then create a class and import from there, we should not define them here in the text, see example below
                     span={"base": 12, "sm": Dimensions.left_container_width.value},
                 ),
                 dmc.GridCol(
