@@ -17,7 +17,8 @@ from utils.my_config_file import (
     Dimensions,
     UnitSystem,
     Models,
-    CHARTS,
+    Charts,
+    ChartsInfo,
 )
 
 dash.register_page(__name__, path=URLS.HOME.value)
@@ -92,7 +93,12 @@ def update_note_model(selected_model):
     if selected_model is None:
         return no_update
     if Models[selected_model].value.note_model:
-        return Models[selected_model].value.note_model
+        return html.Div(
+            [
+                dmc.Text("Limits of Applicability: ", size="sm", fw=700, span=True),
+                dmc.Text(Models[selected_model].value.note_model, size="sm", span=True),
+            ]
+        )
 
 
 @callback(
@@ -129,17 +135,35 @@ def update_chart(
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
     inputs = get_inputs(selected_model, form_content, units)
 
-    if chart_selected == CHARTS.relative_humidity.value:
-        if selected_model == Models.PMV_EN.name:
-            return t_rh_pmv(inputs=inputs, model="iso")
-        elif selected_model == Models.PMV_ashrae.name:
-            return t_rh_pmv(inputs=inputs, model="ashrae")
-
-    return dmc.Stack(
+    image = html.Div(
         [
             dmc.Title("Unfortunately this chart has not been implemented yet", order=4),
             dmc.Image(
                 src="assets/media/chart_placeholder.png",
+            ),
+        ]
+    )
+
+    if chart_selected == Charts.t_rh.value.name:
+        if selected_model == Models.PMV_EN.name:
+            image = t_rh_pmv(inputs=inputs, model="iso")
+        elif selected_model == Models.PMV_ashrae.name:
+            image = t_rh_pmv(inputs=inputs, model="ashrae")
+
+    note = ""
+    chart: ChartsInfo
+    for chart in Models[selected_model].value.charts:
+        if chart.name == chart_selected:
+            note = chart.note_chart
+
+    return dmc.Stack(
+        [
+            image,
+            html.Div(
+                [
+                    dmc.Text("Note: ", size="sm", fw=700, span=True),
+                    dmc.Text(note, size="sm", span=True),
+                ]
             ),
         ]
     )

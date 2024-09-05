@@ -17,6 +17,7 @@ from utils.website_text import TextHome
 
 def chart_selector(selected_model: str):
     list_charts = deepcopy(Models[selected_model].value.charts)
+    list_charts = [chart.name for chart in list_charts]
     drop_down_chart_dict = {
         "id": ElementsIDs.chart_selected.value,
         "question": TextHome.chart_selection.value,
