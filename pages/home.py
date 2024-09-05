@@ -171,7 +171,7 @@ def update_chart(
 @callback(
     Output(ElementsIDs.RESULTS_SECTION.value, "children"),
     Input({"type": "dynamic-input", "index": ALL}, "value"),
-    State(dd_model["id"], "value"),
+    State(ElementsIDs.MODEL_SELECTION.value, "value"),
     State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
 )
 def update_outputs(input_values, selected_model, units_selection: str):

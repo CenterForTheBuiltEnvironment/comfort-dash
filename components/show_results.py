@@ -115,13 +115,13 @@ def display_results(selected_model: str, form_content: dict, units_selection: st
         columns = 1
 
         r_phs = phs(
-            tdb=model_inputs_dict[ElementsIDs.t_db_input.value].value,
-            tr=model_inputs_dict[ElementsIDs.t_r_input.value].value,
-            v=model_inputs_dict[ElementsIDs.v_input.value].value,
-            rh=model_inputs_dict[ElementsIDs.rh_input.value].value,
-            met=model_inputs_dict[ElementsIDs.met_input.value].value,
-            clo=model_inputs_dict[ElementsIDs.clo_input.value].value,
-            posture=model_inputs_dict[ElementsIDs.posture_input.value].value,
+            tdb=inputs[ElementsIDs.t_db_input.value],
+            tr=inputs[ElementsIDs.t_r_input.value],
+            v=inputs[ElementsIDs.v_input.value],
+            rh=inputs[ElementsIDs.rh_input.value],
+            met=inputs[ElementsIDs.met_input.value],
+            clo=inputs[ElementsIDs.clo_input.value],
+            posture=inputs[ElementsIDs.posture_input.value],
             wme=0,
             limit_inputs=False,
         )
