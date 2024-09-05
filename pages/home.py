@@ -1,24 +1,24 @@
 import dash
 import dash_mantine_components as dmc
+from dash import html, callback, Output, Input, no_update, State
 
-from components.charts import chart_example
-from components.functionality_selection import functionality_selection
-from components.input_environmental_personal import input_environmental_personal
+from components.charts import t_rh_pmv, chart_selector
 from components.dropdowns import (
     model_selection,
-    chart_selection,
-    dd_model,
 )
+from components.functionality_selection import functionality_selection
+from components.input_environmental_personal import input_environmental_personal
 from components.my_card import my_card
+from components.show_results import display_results
+from utils.get_inputs import get_inputs
 from utils.my_config_file import (
     URLS,
     ElementsIDs,
-    ModelChartDescription,
     Dimensions,
+    UnitSystem,
     Models,
+    CHARTS,
 )
-from dash import html, dcc, callback, Output, Input, no_update, State
-from pythermalcomfort.models import pmv_ppd
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -47,30 +47,20 @@ layout = dmc.Stack(
                     span={"base": 12, "sm": Dimensions.left_container_width.value},
                 ),
                 my_card(
-                    title="Results and Visualization",
+                    title="Results",
                     children=dmc.Stack(
                         [
                             html.Div(
-                                id="chart-select",
-                                children=chart_selection(),
-                            ),
-                            html.Div(
                                 id=ElementsIDs.RESULTS_SECTION.value,
                             ),
-                            dcc.Graph(
+                            html.Div(
+                                id=ElementsIDs.charts_dropdown.value,
+                                children=html.Div(id=ElementsIDs.chart_selected.value),
+                            ),
+                            html.Div(
                                 id=ElementsIDs.CHART_CONTAINER.value,
-                                figure=chart_example("", ""),
                             ),
-                            dmc.GridCol(
-                                children=dmc.Text(
-                                    [
-                                        html.Strong(ModelChartDescription.note.value),
-                                        ModelChartDescription.psy_air_temp_des_1.value,
-                                        dmc.Space(h=20),
-                                        ModelChartDescription.psy_air_temp_des_2.value,
-                                    ],
-                                ),
-                            ),
+                            dmc.Text(id=ElementsIDs.note_model.value),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -84,85 +74,84 @@ layout = dmc.Stack(
 
 @callback(
     Output(ElementsIDs.INPUT_SECTION.value, "children"),
-    Input(dd_model["id"], "value"),
+    Input(ElementsIDs.MODEL_SELECTION.value, "value"),
+    Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
 )
-def update_inputs(selected_model):
-    # todo this should also receive as input the units
+def update_inputs(selected_model, units_selection):
     if selected_model is None:
         return no_update
-    return input_environmental_personal(selected_model)
+    units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
+    return input_environmental_personal(selected_model, units)
+
+
+@callback(
+    Output(ElementsIDs.note_model.value, "children"),
+    Input(ElementsIDs.MODEL_SELECTION.value, "value"),
+)
+def update_note_model(selected_model):
+    if selected_model is None:
+        return no_update
+    if Models[selected_model].value.note_model:
+        return Models[selected_model].value.note_model
+
+
+@callback(
+    Output(ElementsIDs.charts_dropdown.value, "children"),
+    Input(ElementsIDs.MODEL_SELECTION.value, "value"),
+)
+def update_note_model(selected_model):
+    if selected_model is None:
+        return no_update
+    return chart_selector(selected_model=selected_model)
+
+
+@callback(
+    Output(ElementsIDs.CHART_CONTAINER.value, "children"),
+    Input(ElementsIDs.inputs_form.value, "n_clicks"),
+    Input(ElementsIDs.chart_selected.value, "value"),
+    State(ElementsIDs.MODEL_SELECTION.value, "value"),
+    State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    State(ElementsIDs.inputs_form.value, "children"),
+)
+def update_chart(
+    _,
+    chart_selected: str,
+    selected_model: str,
+    units_selection: str,
+    form_content: dict,
+):
+    if selected_model is None:
+        return no_update
+
+    if chart_selected is None:
+        return no_update
+
+    units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
+    inputs = get_inputs(selected_model, form_content, units)
+
+    if chart_selected == CHARTS.relative_humidity.value:
+        if selected_model == Models.PMV_EN.name:
+            return t_rh_pmv(inputs=inputs, model="iso")
+        elif selected_model == Models.PMV_ashrae.name:
+            return t_rh_pmv(inputs=inputs, model="ashrae")
+
+    return dmc.Stack(
+        [
+            dmc.Title("Unfortunately this chart has not been implemented yet", order=4),
+            dmc.Image(
+                src="assets/media/chart_placeholder.png",
+            ),
+        ]
+    )
 
 
 @callback(
     Output(ElementsIDs.RESULTS_SECTION.value, "children"),
-    Input(dd_model["id"], "value"),
-    Input("test-form", "n_clicks"),
-    State("test-form", "children"),
+    Input(ElementsIDs.inputs_form.value, "n_clicks"),
+    State(ElementsIDs.MODEL_SELECTION.value, "value"),
+    State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    State(ElementsIDs.inputs_form.value, "children"),
     # todo this function should also listen to changes in the variables inputs
 )
-def update_outputs(selected_model, form, form_content):
-
-    # print(f"{form_content=}")
-
-    # todo we should extract the input values from the form_content
-    # todo we should also check the units
-
-    # todo the following function should be moved outside the code
-    def find_dict_with_key_value(d, key, value):
-        if isinstance(d, dict):
-            if d.get(key) == value:
-                return d
-            for k, v in d.items():
-                result = find_dict_with_key_value(v, key, value)
-                if result is not None:
-                    return result
-        elif isinstance(d, list):
-            for item in d:
-                result = find_dict_with_key_value(item, key, value)
-                if result is not None:
-                    return result
-        return None
-
-    if selected_model is None:
-        return no_update
-
-    results = []
-    columns: int = 2
-    if selected_model == Models.PMV_EN.name:
-        # todo the variables below should not be hardcoded
-        columns = 2
-        # todo the code below is not great and should be improved
-        result_dict = find_dict_with_key_value(
-            form_content, "id", ElementsIDs.t_db_input.value
-        )
-        tdb = result_dict["value"]
-        result_dict = find_dict_with_key_value(
-            form_content, "id", ElementsIDs.t_r_input.value
-        )
-        tr = result_dict["value"]
-        result_dict = find_dict_with_key_value(
-            form_content, "id", ElementsIDs.v_input.value
-        )
-        v = result_dict["value"]
-        r_pmv = pmv_ppd(
-            tdb=tdb,
-            tr=tr,
-            vr=v,
-            rh=50,
-            met=1.2,
-            clo=0.5,
-            wme=0,
-            limit_inputs=False,
-            standard="ISO",
-        )
-        results.append(dmc.Center(dmc.Text(f"PMV: {r_pmv['pmv']}")))
-        results.append(dmc.Center(dmc.Text(f"PPD: {r_pmv['ppd']}")))
-
-    return (
-        dmc.SimpleGrid(
-            cols=columns,
-            spacing="xs",
-            verticalSpacing="xs",
-            children=results,
-        ),
-    )
+def update_outputs(_, selected_model, units_selection: str, form_content: dict):
+    return display_results(selected_model, form_content, units_selection)

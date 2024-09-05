@@ -71,9 +71,6 @@ app.layout = dmc.MantineProvider(
                     p="xs",
                     size=Dimensions.default_container_width.value,
                 ),
-                style={
-                    "paddingBottom": "6.5rem",
-                },
             ),
             my_footer(),
         ],
