@@ -55,5 +55,5 @@ def input_environmental_personal(
             shadow="md",
             p="md",
         ),
-        id="test-form",  # todo remove this id
+        id=ElementsIDs.inputs_form.value,
     )

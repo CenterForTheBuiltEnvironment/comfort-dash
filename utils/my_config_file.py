@@ -22,11 +22,13 @@ class ElementsIDs(Enum):
     NAVBAR_ID_SETTINGS = "id-nav-settings"
     NAVBAR_ID_ABOUT = "id-nav-about"
     MODEL_SELECTION = "id-model-selection"
-    CHART_SELECTION = "id-chart-selection"
+    chart_selected = "id-chart-selection"
+    charts_dropdown = "id-charts-dropdown"
     CHART_CONTAINER = "id-chart-container"
     URL = "url"
     FOOTER = "id-footer"
     INPUT_SECTION = "id-input-section"
+    inputs_form = "id-inputs-form"
     t_db_input = "id-dbt-input"
     t_r_input = "id-tr-input"
     t_rm_input = "id-trm-input"
@@ -265,6 +267,7 @@ class ModelsInfo(BaseModel):
     inputs: List[ModelInputsInfo]
     pythermalcomfort_models: str = None
     note_model: str = None
+    charts: List[str] = None
 
 
 class Models(Enum):
@@ -272,6 +275,14 @@ class Models(Enum):
         name="PMV - ASHRAE 55",
         description="PMV - ASHRAE 55",
         note_model="Limits of Applicability: This standard is only applicable to healthy individuals. This standard does not apply to occupants: a) whose clothing insulation exceed 1.5 clo; b) whose clothing is highly impermeable; or c) who are sleeping, reclining in contact with bedding, or able to adjust blankets or bedding. The CBE comfort tools automatically calculates the relative air speed and the dynamic clothing insulation .",
+        charts=[
+            CHARTS.psychrometric.value,
+            CHARTS.psychrometric_operative.value,
+            CHARTS.relative_humidity.value,
+            CHARTS.air_speed.value,
+            CHARTS.thermal_heat.value,
+            CHARTS.set_outputs.value,
+        ],
         inputs=[
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
@@ -333,6 +344,12 @@ class Models(Enum):
         name="PMV - EN",
         description="PMV - EN",
         note_model="The CBE comfort tools automatically calculates the relative air speed but does not calculates the dynamic insulation characteristics of clothing as specified in the ISO 7730 Section C.2., hence this value should be calculated by the user and entered as input in the CBE comfort tool.",
+        charts=[
+            # todo add the right charts
+            CHARTS.psychrometric.value,
+            CHARTS.psychrometric_operative.value,
+            CHARTS.relative_humidity.value,
+        ],
         inputs=[
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
@@ -393,6 +410,10 @@ class Models(Enum):
     Adaptive_ASHRAE: ModelsInfo = ModelsInfo(
         name="Adaptive - ASHRAE 55",
         description="Adaptive - ASHRAE 55",
+        charts=[
+            # todo add the right charts
+            CHARTS.relative_humidity.value,
+        ],
         inputs=[
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
