@@ -4,7 +4,10 @@ from utils.my_config_file import URLS, ElementsIDs, ToolUrls
 from utils.website_text import TextNavBar, app_name
 
 tool_items = [
-    {"name": TextNavBar.tool1.value, "href": ToolUrls.cbe_thermal_comfort_tool.value},
+    {
+        "name": TextNavBar.tool1.value,
+        "href": ToolUrls.cbe_thermal_comfort_tool.value,
+    },
     {"name": TextNavBar.tool2.value, "href": ToolUrls.clima_tool.value},
     {
         "name": TextNavBar.tool3.value,
@@ -49,97 +52,95 @@ tool_items = [
 ]
 
 
-def logo():
-    return html.A(
-        dbc.Col(html.Img(src="assets/media/logo-placeholder.png", height="80px")),
-        href=URLS.HOME.value,
-    ),
-
-
-def title():
-    return  html.H1(app_name, className="text-center mb-0", style={"color": "#0c2772"}),
-
-
-def right_button():
-    return dbc.Row(
-    [
-        # About
-        dbc.Col(
-            dbc.Button(
-                # Make the button's background color to transparent and font color to blue
-                TextNavBar.about.value, color="transparent", className="ms-2", style={"color": "#3FBBEC"},
-                id=ElementsIDs.NAVBAR_ID_ABOUT.value,
-            ),
-        ),
-
-        # Documentation
-        dbc.Col(
-            dbc.Button(
-                # Make the button's background color to transparent and font color to blue
-                TextNavBar.documentation.value, color="transparent", className="ms-2", style={"color": "#3FBBEC"},
-                id=ElementsIDs.NAVBAR_ID_DOCUMENT.value,
-            ),
-        ),
-
-        # More CBE Tools
-        dbc.DropdownMenu(
-            [
-                # Drop down box's item, can found it on the top of the tool_items
-                dbc.DropdownMenuItem(
-                    item["name"],
-                    href=item["href"],
-                    style={"color": "#0077c2"},
-                )
-                for item in tool_items
-            ],
-            label=TextNavBar.more_tools.value,
-            align_end=True, # Make it show tools' name on the left
-            toggle_style={
-                "background": "transparent",
-                "color": "#3FBBEC",
-                "borderStyle": "none", # no border around the dropdown box
-            },
-            id=ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value,
-        ),
-    ],
-    className="g-0 ms-auto flex-nowrap",
-)
-
-
 def my_navbar():
     return dbc.Navbar(
-    # Container is the navbar itself
-    dbc.Container(
-        [
-            # Use the row is for arrange the position of the LOGO, Title and button
-            dbc.Row(
-                [
-                    # Use the Col to contain A tag for LOGO
-                    dbc.Col(
-                        # Make the LOGO can navigate to other website
-                        logo(),
-                        width="auto",
-                    ),
-
-                    # The title
-                    dbc.Col(
-                        title(),
-                        className="flex-grow-1",
-                    ),
-
-                    # three button
-                    dbc.Col(
-                        right_button(),
-                        width="auto",
-                    ),
-                ],
-                className="w-100 align-items-center",
-            ),
-        ],
-        fluid=True,
-    ),
-    color="white",
-    dark=True,
-    style={"border-bottom": "1px solid black"},
-    id=ElementsIDs.NAVBAR.value,
-)
+        # Container is the navbar itself
+        dbc.Container(
+            [
+                # Use the row is for arrange the position of the LOGO, Title and button
+                dbc.Row(
+                    [
+                        # Use the Col to contain A tag for LOGO
+                        dbc.Col(
+                            # Make the LOGO can navigate to other website
+                            html.A(
+                                dbc.Col(
+                                    html.Img(
+                                        src="assets/media/logo-placeholder.png",
+                                        height="80px",
+                                    )
+                                ),
+                                href=URLS.HOME.value,
+                            ),
+                            width="auto",
+                        ),
+                        # The title
+                        dbc.Col(
+                            html.H1(
+                                app_name,
+                                className="text-center mb-0",
+                                style={"color": "#0c2772"},
+                            ),
+                            className="flex-grow-1",
+                        ),
+                        # three button
+                        dbc.Col(
+                            dbc.Row(
+                                [
+                                    # About
+                                    dbc.Col(
+                                        dbc.Button(
+                                            # Make the button's background color to transparent and font color to blue
+                                            TextNavBar.about.value,
+                                            color="transparent",
+                                            className="ms-2",
+                                            style={"color": "#3FBBEC"},
+                                            id=ElementsIDs.NAVBAR_ID_ABOUT.value,
+                                        ),
+                                    ),
+                                    # Documentation
+                                    dbc.Col(
+                                        dbc.Button(
+                                            # Make the button's background color to transparent and font color to blue
+                                            TextNavBar.documentation.value,
+                                            color="transparent",
+                                            className="ms-2",
+                                            style={"color": "#3FBBEC"},
+                                            id=ElementsIDs.NAVBAR_ID_DOCUMENT.value,
+                                        ),
+                                    ),
+                                    # More CBE Tools
+                                    dbc.DropdownMenu(
+                                        [
+                                            # Drop down box's item, can found it on the top of the tool_items
+                                            dbc.DropdownMenuItem(
+                                                item["name"],
+                                                href=item["href"],
+                                                style={"color": "#0077c2"},
+                                            )
+                                            for item in tool_items
+                                        ],
+                                        label=TextNavBar.more_tools.value,
+                                        align_end=True,  # Make it show tools' name on the left
+                                        toggle_style={
+                                            "background": "transparent",
+                                            "color": "#3FBBEC",
+                                            "borderStyle": "none",  # no border around the dropdown box
+                                        },
+                                        id=ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value,
+                                    ),
+                                ],
+                                className="g-0 ms-auto flex-nowrap",
+                            ),
+                            width="auto",
+                        ),
+                    ],
+                    className="w-100 align-items-center",
+                ),
+            ],
+            fluid=True,
+        ),
+        color="#F1F3F5",
+        dark=True,
+        id=ElementsIDs.NAVBAR.value,
+    )
