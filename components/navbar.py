@@ -1,9 +1,6 @@
 import dash_bootstrap_components as dbc
-import dash_mantine_components as dmc
-from dash import Input, Output, State, html, ctx
-from dash import callback
-
-from utils.my_config_file import URLS, ElementsIDs, Dimensions, ToolUrls
+from dash import html
+from utils.my_config_file import URLS, ElementsIDs, ToolUrls
 from utils.website_text import TextNavBar, app_name
 
 tool_items = [
@@ -52,268 +49,97 @@ tool_items = [
 ]
 
 
-def my_navbar():
-    return dbc.Navbar(
-        dmc.Grid(
-            [
-                # Logo Column
-                dmc.GridCol(
-                    html.A(
-                        dbc.Row(
-                            dbc.Col(
-                                html.Img(
-                                    src="/assets/media/CBE-logo-2018.png",
-                                    alt="logo website navbar",
-                                ),
-                            ),
-                            align="center",
-                        ),
-                        href=URLS.HOME.value,
-                        style={"textDecoration": "none"},
-                    ),
-                    span="auto",  # Logo takes up 2 spans
-                    className="grid-col-logo justify-content-start",  # Align the logo to the left
-                    style={"margin-left": "20px"},
-                ),
-                dmc.GridCol(
-                    html.H1(
-                        app_name,
-                        id=ElementsIDs.NAVBAR_CONTENT.value,
-                        style={
-                            "color": "#0c2772",
-                            "margin": "0",
-                            "fontSize": "32px",
-                            "margin-left": "220px",
-                            "fontFamily": "Open Sans, Arial, Helvetica, sans-serif",
-                            "textAlign": "center",  # Center the text within the H1
-                            "white-space": "nowrap",  # Ensure the text stays on a single line
-                            "width": "100%",  # Ensure the H1 takes up the full width of the column
-                        },
-                    ),
-                    span=2,
-                    className="d-flex justify-content-center align-items-center",
-                ),
-                # Navbar Toggler Column
-                dmc.GridCol(
-                    dbc.NavbarToggler(
-                        dmc.Burger(
-                            id=ElementsIDs.NAVBAR_BURGER_BUTTON.value,
-                            opened=False,
-                            color="black",
-                        ),
-                        id=ElementsIDs.NAVBAR_TOGGLER.value,
-                        n_clicks=0,
-                    ),
-                    span="auto",
-                    className="py-0 grid-toggler",
-                ),
-                # Navigation Links Column
-                dmc.GridCol(
-                    dbc.Collapse(
-                        dbc.Nav(
-                            children=[
-                                dbc.NavItem(
-                                    dbc.NavLink(
-                                        TextNavBar.about.value,
-                                        href=URLS.ABOUT.value,
-                                        id=ElementsIDs.NAVBAR_ID_ABOUT.value,
-                                        style={
-                                            "padding": "0 10px",
-                                            "margin": "0",
-                                            "color": "#3FBBEC",
-                                            "paddingTop": "60px",
-                                            "fontSize": "16px",
-                                            "fontFamily": "Open Sans, Arial, Helvetica, sans-serif",
-                                        },
-                                        className="navbar_right_button",
-                                    )
-                                ),
-                                dbc.NavItem(
-                                    dbc.NavLink(
-                                        TextNavBar.documentation.value,
-                                        href="https://github.com/CenterForTheBuiltEnvironment/comfort-dash",
-                                        id=ElementsIDs.NAVBAR_ID_DOCUMENT.value,
-                                        style={
-                                            "padding": "0 10px",
-                                            "margin": "0",
-                                            "color": "#3FBBEC",
-                                            "paddingTop": "60px",
-                                            "fontSize": "16px",
-                                            "fontFamily": "Open Sans, Arial, Helvetica, sans-serif",
-                                        },
-                                        className="navbar_right_button",
-                                    ),
-                                ),
-                                dbc.DropdownMenu(
-                                    [
-                                        dbc.DropdownMenuItem(
-                                            item["name"],
-                                            href=item["href"],
-                                            style={"color": "#0077c2"},
-                                        )
-                                        for item in tool_items
-                                    ],
-                                    label=TextNavBar.more_tools.value,
-                                    align_end=True,
-                                    toggle_style={
-                                        "background": "transparent",
-                                        "color": "#3FBBEC",
-                                        "borderWidth": "0px",
-                                        "marginTop": "-5px",
-                                        "borderStyle": "none",
-                                        "fontSize": "16px",
-                                        "fontFamily": "Open Sans, Arial, Helvetica, sans-serif",
-                                    },
-                                    id=ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value,
-                                    style={"paddingTop": "60px"},
-                                    className="navbar_right_button",
-                                ),
-                            ],
-                            style={
-                                "width": "100%",
-                                "gap": "20px",
-                                "justify-content": "flex-end",
-                            },
-                        ),
-                        id=ElementsIDs.NAVBAR_COLLAPSE.value,
-                        is_open=False,
-                        navbar=True,
-                    ),
-                    span="auto",
-                    className="py-0 button-right",
-                ),
-            ],
-            justify="space-between",
-            align="center",
-            className="w-100",
-        ),
-        color="#fafafa",
-        dark=True,
-        style={"border-bottom": "1px solid #aeb0ae", "padding": "12px"},
-        id=ElementsIDs.NAVBAR.value,
-    )
+def logo():
+    return html.A(
+        dbc.Col(html.Img(src="assets/media/logo-placeholder.png", height="80px")),
+        href=URLS.HOME.value,
+    ),
 
 
-def my_navbar_only_logo():
-    return dbc.Navbar(
-        dmc.Center(
-            html.Img(
-                src="assets/media/CBE-logo-2019-artwork-blue-background.png",
-                height="30px",
-                width="auto",
-                alt="logo website navbar",
+def title():
+    return  html.H1(app_name, className="text-center mb-0", style={"color": "#0c2772"}),
+
+
+def right_button():
+    return dbc.Row(
+    [
+        # About
+        dbc.Col(
+            dbc.Button(
+                # Make the button's background color to transparent and font color to blue
+                TextNavBar.about.value, color="transparent", className="ms-2", style={"color": "#3FBBEC"},
+                id=ElementsIDs.NAVBAR_ID_ABOUT.value,
             ),
         ),
-        color="dark",
-        dark=True,
-        id=ElementsIDs.NAVBAR.value,
-    )
 
+        # Documentation
+        dbc.Col(
+            dbc.Button(
+                # Make the button's background color to transparent and font color to blue
+                TextNavBar.documentation.value, color="transparent", className="ms-2", style={"color": "#3FBBEC"},
+                id=ElementsIDs.NAVBAR_ID_DOCUMENT.value,
+            ),
+        ),
 
-# add callback for toggling the collapse on small screens
-@callback(
-    [
-        Output(ElementsIDs.NAVBAR_COLLAPSE.value, "is_open"),
-        Output(ElementsIDs.NAVBAR_BURGER_BUTTON.value, "opened"),
-        Output(ElementsIDs.NAVBAR_ID_ABOUT.value, "style"),
-        Output(ElementsIDs.NAVBAR_ID_DOCUMENT.value, "style"),
-        Output(ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value, "style"),
-        Output(ElementsIDs.NAVBAR_CONTENT.value, "style"),
+        # More CBE Tools
+        dbc.DropdownMenu(
+            [
+                # Drop down box's item, can found it on the top of the tool_items
+                dbc.DropdownMenuItem(
+                    item["name"],
+                    href=item["href"],
+                    style={"color": "#0077c2"},
+                )
+                for item in tool_items
+            ],
+            label=TextNavBar.more_tools.value,
+            align_end=True, # Make it show tools' name on the left
+            toggle_style={
+                "background": "transparent",
+                "color": "#3FBBEC",
+                "borderStyle": "none", # no border around the dropdown box
+            },
+            id=ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value,
+        ),
     ],
-    [
-        State(ElementsIDs.NAVBAR_COLLAPSE.value, "is_open"),
-        State(ElementsIDs.NAVBAR_BURGER_BUTTON.value, "opened"),
-    ],
-    [
-        Input(ElementsIDs.NAVBAR_TOGGLER.value, "n_clicks"),
-        Input(ElementsIDs.NAVBAR_ID_ABOUT.value, "n_clicks"),
-        Input(ElementsIDs.NAVBAR_ID_DOCUMENT.value, "n_clicks"),
-    ],
-    prevent_initial_call=True,
+    className="g-0 ms-auto flex-nowrap",
 )
-def toggle_navbar_collapse(is_open, burger_state, *args):
-    trigger = ctx.triggered_id
 
-    # Set default style with padding-top 60px
-    default_style = {
-        "paddingTop": "60px",
-        "padding": "0 10px",
-        "margin": "0",
-        "color": "#3FBBEC",
-        "fontSize": "16px",
-        "fontFamily": "Open Sans, Arial, Helvetica, sans-serif",
-    }
 
-    # Set toggle style with padding-top 0px
-    toggle_style = {
-        "paddingTop": "0px",
-        "padding": "0 10px",
-        "paddingBottom": "10px",
-        "margin": "0",
-        "color": "#3FBBEC",
-        "fontSize": "16px",
-        "fontFamily": "Open Sans, Arial, Helvetica, sans-serif",
-    }
+def my_navbar():
+    return dbc.Navbar(
+    # Container is the navbar itself
+    dbc.Container(
+        [
+            # Use the row is for arrange the position of the LOGO, Title and button
+            dbc.Row(
+                [
+                    # Use the Col to contain A tag for LOGO
+                    dbc.Col(
+                        # Make the LOGO can navigate to other website
+                        logo(),
+                        width="auto",
+                    ),
 
-    # Adjust dropdown menu separately with a margin-left
-    dropdown_toggle_style = {
-        "paddingTop": "0px",
-        "padding": "0 10px",
-        "paddingBottom": "10px",
-        "margin": "0",
-        "color": "#3FBBEC",
-        "fontSize": "16px",
-        "fontFamily": "Open Sans, Arial, Helvetica, sans-serif",
-        "margin-left": "-10px",
-        "background": "transparent",
-    }
+                    # The title
+                    dbc.Col(
+                        title(),
+                        className="flex-grow-1",
+                    ),
 
-    # Set default and toggle styles for H1 element
-    h1_default_style = {
-        "color": "#0c2772",
-        "margin": "0",
-        "fontSize": "32px",
-        "margin-left": "250px",
-        "fontFamily": "Open Sans, Arial, Helvetica, sans-serif",
-        "textAlign": "center",
-        "white-space": "nowrap",
-        "width": "100%",
-        "display": "block",
-    }
-
-    h1_hidden_style = {
-        **h1_default_style,
-        "display": "none",
-    }
-
-    if trigger == ElementsIDs.NAVBAR_TOGGLER.value:
-        # Toggle collapse state and adjust padding-top
-        new_is_open = not is_open
-        new_burger_state = not burger_state
-
-        # Apply different styles for about, documentation, and dropdown menu
-        return (
-            new_is_open,
-            new_burger_state,
-            toggle_style if new_is_open else default_style,
-            toggle_style if new_is_open else default_style,
-            dropdown_toggle_style if new_is_open else default_style,
-            h1_hidden_style if not new_burger_state else h1_default_style,
-        )
-
-    elif trigger in [
-        ElementsIDs.NAVBAR_ID_ABOUT.value,
-        ElementsIDs.NAVBAR_ID_DOCUMENT.value,
-        ElementsIDs.NAVBAR_ID_MORE_CBE_TOOLS.value,
-    ]:
-        # Close the collapse when a NavLink is clicked and reset padding-top
-        return False, False, default_style, default_style, default_style
-
-    return (
-        is_open,
-        burger_state,
-        default_style,
-        default_style,
-        default_style,
-        h1_default_style,
-    )
+                    # three button
+                    dbc.Col(
+                        right_button(),
+                        width="auto",
+                    ),
+                ],
+                className="w-100 align-items-center",
+            ),
+        ],
+        fluid=True,
+    ),
+    color="white",
+    dark=True,
+    style={"border-bottom": "1px solid black"},
+    id=ElementsIDs.NAVBAR.value,
+)
