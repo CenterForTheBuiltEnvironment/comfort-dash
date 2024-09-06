@@ -18,6 +18,7 @@ class ElementsIDs(Enum):
     NAVBAR_COLLAPSE = "navbar-collapse"
     NAVBAR_TOGGLER = "navbar-toggle"
     NAVBAR_BURGER_BUTTON = "burger-button"
+    NAVBAR_CONTENT = "navbar-content"
     NAVBAR_ID_HOME = "id-nav-home"
     NAVBAR_ID_SETTINGS = "id-nav-settings"
     NAVBAR_ID_ABOUT = "id-nav-about"
