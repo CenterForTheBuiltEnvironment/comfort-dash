@@ -203,23 +203,6 @@ def input_environmental_personal(
     State("modal-simple", "opened"),
     prevent_initial_call=True,
 )
-# def modal_demo(nc1, nc2, nc3, nc4, opened):
-
-
-#     return not opened, float(nc1)
-
-
-# @callback(
-#     State(ElementsIDs.MODEL_SELECTION.value, "value"),
-#     State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
-#     State(ElementsIDs.inputs_form.value, "children"),
-#     # todo this function should also listen to changes in the variables inputs
-# )
-# def update_outputs(_, selected_model, units_selection: str, form_content: dict):
-#     return display_results(selected_model, form_content, units_selection)
-
-
-
 
 def modal_demo(clo_value, nc_open, nc_close, nc_submit, opened):
 
