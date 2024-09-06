@@ -3,6 +3,13 @@ from urllib.parse import urlparse, parse_qs
 from dash import no_update, ctx, dcc
 from dash.dependencies import Input, Output, State, ALL
 
+class ParsedURL:
+    def __init__(self, path, query_params, fragment, path_parts):
+        self.path = path  # The path part of the URL
+        self.query_params = query_params  # Query parameters in the URL
+        self.fragment = fragment  # The fragment part of the URL
+        self.path_parts = path_parts  # The different parts of the URL path
+
 class StoreState:
     def __init__(self, persist_ids, store_type="session"):
         """Initialize StoreState class, set the storage type for dcc.Store, and set persistent IDs."""
@@ -30,18 +37,19 @@ class StoreState:
 
     @staticmethod
     def parse_url(url):
-        """Parse URL and extract useful information."""
+        """Parse the URL and extract useful information, returning a ParsedURL object."""
         url = str(url)
         parsed_url = urlparse(url)
         query_params = parse_qs(parsed_url.query)
         path_parts = parsed_url.path.strip("/").split("/")
 
-        return {
-            "path": parsed_url.path,
-            "query_params": query_params,
-            "fragment": parsed_url.fragment,
-            "path_parts": path_parts
-        }
+        # Return a ParsedURL object
+        return ParsedURL(
+            path=parsed_url.path,
+            query_params=query_params,
+            fragment=parsed_url.fragment,
+            path_parts=path_parts
+        )
 
     def setup_dash_callbacks(self, app, store_id):
         """Set up Dash callbacks to manage dcc.Store data, supporting multiple dynamic input components."""
@@ -54,12 +62,10 @@ class StoreState:
             prevent_initial_call=True,
         )
         def manage_store_data(*args):
-            # The URL is the second-to-last argument
-            url = args[-2]
-            # store_data is the last argument
-            store_data = args[-1]
+            print(args)
+            *id, url, store_data = args
 
-            if store_data is None or not isinstance(store_data, dict):
+            if store_data is None:
                 store_data = {}
 
             # Update store data with dynamic input values
@@ -74,9 +80,9 @@ class StoreState:
                 if "url" in triggered_id:
                     parsed_url = StoreState.parse_url(url)
 
-                    path = parsed_url["path"]
-                    query_params = parsed_url["query_params"]
-                    path_parts = parsed_url["path_parts"]
+                    path = parsed_url.path
+                    query_params = parsed_url.query_params
+                    path_parts = parsed_url.path_parts
 
                     # Extract model and type based on URL path
                     if len(path_parts) == 2:
@@ -107,7 +113,7 @@ class StoreState:
         def load_data(modified_timestamp, store_data):
             if modified_timestamp:
 
-                if store_data is None or not isinstance(store_data, dict):
+                if store_data is None:
                     store_data = {}
 
                 # Get the current number of dynamic input components
@@ -140,10 +146,7 @@ class StoreState:
             prevent_initial_call=True,
         )
         def update_url(*args):
-            # The URL is the second-to-last argument
-            url = args[-2]
-            # store_data is the last argument
-            store_data = args[-1]
+            *id, url, store_data = args
 
             if ctx.triggered:
                 triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
