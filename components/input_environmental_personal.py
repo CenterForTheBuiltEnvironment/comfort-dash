@@ -182,7 +182,6 @@ def create_metabolic_rate_input(values: ModelInputsInfo):
 )
 
 def update_metabolic_rate_options(input_value, current_data):
-    print(input_value)
     if input_value is None or input_value == "":
         return [], ""
 
@@ -190,6 +189,8 @@ def update_metabolic_rate_options(input_value, current_data):
         input_number = float(input_value)
     except ValueError:
         # if input is not a number, return all options
+        input_value = float(input_value.split(":")[-1].strip())
+        # print(input_value)
         return [option.value for option in MetabolicRateSelection], input_value
 
     # filter options based on input value
@@ -223,6 +224,8 @@ def update_input_on_selection(selected_value):
             return float(selected_value.split(":")[-1].strip().split()[0])
         except IndexError:
             return "0.8" if "Reclining" in selected_value else selected_value
+
+    # print(float(selected_value.split(":")[-1].strip().split()[0]))
     return selected_value
 
 
