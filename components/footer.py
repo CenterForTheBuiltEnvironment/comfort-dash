@@ -104,6 +104,7 @@ def my_footer():
                 ],
                 align="center",
                 bg="#0077c2",
+                w="100%",
             ),
             dmc.Grid(
                 children=[

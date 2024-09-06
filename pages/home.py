@@ -113,6 +113,7 @@ def update_note_model(selected_model):
 @callback(
     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
     Input(ElementsIDs.inputs_form.value, "n_clicks"),
+    Input(ElementsIDs.clo_input.value,"value"),
     Input(ElementsIDs.chart_selected.value, "value"),
     State(ElementsIDs.MODEL_SELECTION.value, "value"),
     State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
@@ -120,6 +121,7 @@ def update_note_model(selected_model):
 )
 def update_chart(
     _,
+    clo_value,
     chart_selected: str,
     selected_model: str,
     units_selection: str,
@@ -171,10 +173,12 @@ def update_chart(
 @callback(
     Output(ElementsIDs.RESULTS_SECTION.value, "children"),
     Input(ElementsIDs.inputs_form.value, "n_clicks"),
+    Input(ElementsIDs.clo_input.value,"value"),
     State(ElementsIDs.MODEL_SELECTION.value, "value"),
     State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
     State(ElementsIDs.inputs_form.value, "children"),
     # todo this function should also listen to changes in the variables inputs
 )
-def update_outputs(_, selected_model, units_selection: str, form_content: dict):
+def update_outputs(_, clo_value, selected_model, units_selection: str, form_content: dict):
+    
     return display_results(selected_model, form_content, units_selection)
