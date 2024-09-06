@@ -195,7 +195,7 @@ def input_environmental_personal(
 # Custom Ensemble
 @callback(
     Output("modal-simple", "opened"),
-    Output("id-clo-input","value"),
+    Output(ElementsIDs.clo_input.value,"value"),
     Input("modal-clo-value","value"),
     Input("modal-demo-button", "n_clicks"),
     Input("modal-close-button", "n_clicks"),
