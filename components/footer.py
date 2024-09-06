@@ -1,133 +1,168 @@
-from dash import html
 import dash_mantine_components as dmc
-
 from utils.website_text import TextFooter
 
 
 def my_footer():
-    # return html.Div(
-    #     children=[
-    #         html.Footer(
-    #             className="cbe-footer-content",
-    #             children=[
-    #                 # todo do not use html divs but use dash mantine components
-    #                 html.Div(
-    #                     className="cbe-footer-logo",
-    #                     children=[
-    #                         html.Img(
-    #                             src="assets/media/CBE-logo-2019-white.png",
-    #                             alt="CBE Logo",
-    #                         ),
-    #                         html.Img(
-    #                             src="assets/media/ucb-logo-2024-white.png",
-    #                             alt="UC Berkeley Logo",
-    #                         ),
-    #                     ],
-    #                 ),
-    #                 # todo do not use html Nav in the footer, use dash mantine components
-    #                 html.Nav(
-    #                     # todo we should not change the appearance of the logo using css, we should use dash mantine components
-    #                     className="cbe-footer-links",
-    #                     children=[
-    #                         html.A(
-    #                             "Contact Us",
-    #                             href=TextFooter.contact_us_link.value,
-    #                             target="_blank",
-    #                         ),
-    #                         html.A(
-    #                             "Report Issues",
-    #                             href=TextFooter.report_issues_link.value,
-    #                             target="_blank",
-    #                         ),
-    #                     ],
-    #                 ),
-    #                 html.Nav(
-    #                     className="cbe-social-links",
-    #                     children=[
-    #                         html.A(
-    #                             html.Img(
-    #                                 src="assets/media/github-white-transparent.png",
-    #                                 alt="GitHub",
-    #                             ),
-    #                             href="#",
-    #                         ),
-    #                         html.A(
-    #                             html.Img(
-    #                                 src="assets/media/linkedin-white.png",
-    #                                 alt="LinkedIn",
-    #                             ),
-    #                             href="#",
-    #                         ),
-    #                     ],
-    #                     # todo do not use style, use dash mantine components
-    #                     style={"position": "relative", "left": "-9px"},
-    #                 ),
-    #                 html.Div(
-    #                     className="cbe-citation-info",
-    #                     children=[
-    #                         html.Strong(TextFooter.cite_strong.value),
-    #                         html.Div(
-    #                             [
-    #                                 TextFooter.cite.value,
-    #                                 html.A(
-    #                                     TextFooter.cite_link.value,
-    #                                     href=TextFooter.cite_link.value,
-    #                                     className="cbe-doi-link",
-    #                                     target="_blank",
-    #                                 ),
-    #                             ]
-    #                         ),
-    #                     ],
-    #                 ),
-    #             ],
-    #         ),
-    #         html.Div(
-    #             className="cbe-footnotes",
-    #             children=[
-    #                 html.Div(
-    #                     TextFooter.copy_right.value,
-    #                 ),
-    #                 html.Div(
-    #                     className="cbe-version-license",
-    #                     children=[
-    #                         html.Div(TextFooter.version.value),
-    #                         html.A(
-    #                             html.Img(
-    #                                 src="https://img.shields.io/badge/License-MIT-yellow.svg",
-    #                                 alt="License: MIT",
-    #                                 style={"width": "65px", "height": "18px"},
-    #                             ),
-    #                             href=TextFooter.open_source_link.value,
-    #                         ),
-    #                     ],
-    #                 ),
-    #             ],
-    #         ),
-    #     ]
-    # )
-
-    return dmc.Grid(
+    return dmc.Group(
         children=[
-            dmc.GridCol(
-                [
+            dmc.Grid(
+                children=[
+                dmc.GridCol(
                     dmc.Image(
-                        src="assets/media/CBE-logo-2019-white.png",
-                        alt="CBE Logo",
-                        w=200,
+                        src="/assets/media/CBE-logo-2019-white.png",
+                        maw=150,
+                        mt=10,
+                        ml={"base":30,"md":10},
+                        alt="logo",
                     ),
+                    span={"base": 6, "md": 2,"lg":2},
+                ),
+                dmc.GridCol(
                     dmc.Image(
-                        src="assets/media/CBE-logo-2018.png",
-                        alt="UC Berkeley Logo",
-                        w=200,
+                        src="/assets/media/ucb-logo-2024-white.png",
+                        maw=180,
+                        mt=10,
+                        alt="berkeley_logo",
+                    ),
+                    span={"base": 6, "md": 2},
+                ),
+                dmc.GridCol(
+                    dmc.Anchor(
+                        dmc.Text(
+                            TextFooter.contact_us.value,
+                            c="white",
+                            size="sm",
+                            ml={"base":110,"md":10},
+                            mt=20,
+                        ),
+                        href=TextFooter.contact_us_link.value,
+                    ),
+                    span={"base": 6, "md": 1},
+                ),
+                dmc.GridCol(
+                    dmc.Anchor(
+                        dmc.Text(
+                            TextFooter.report_issues.value,
+                            c="white",
+                            size="sm",
+                            mt=20,
+                        ),
+                        href=TextFooter.report_issues_link.value,
+                    ),
+                    span={"base": 6, "md": 1},
+                ),
+                dmc.GridCol(
+                    dmc.Anchor(
+                        dmc.Image(
+                            src="/assets/media/github-white-transparent.png",
+                            maw=45,
+                            mt=20,
+                            ml={"base":140,"md":60},
+                            alt="github logo",
+                        ),
+                        href="#"
+                    ),
+                    span={"base": 6, "md": 1},
+                ),
+                dmc.GridCol(
+                    dmc.Anchor(
+                        dmc.Image(
+                            src="/assets/media/linkedin-white.png",
+                            maw=45,
+                            mt=20,
+                            ml={"base":0,"md":35},
+                            alt="linkedin logo",
+                        ),
+                        href="#"
+                    ),
+                    span={"base": 6, "md": 1},
+                ),
+                dmc.GridCol(
+                    children=[
+                        dmc.Text(
+                            TextFooter.cite_strong.value,
+                            fw=700,
+                            c="white",
+                            size="sm",
+                            mt=20,
+                            ml={"base":50,"md":45},
+                        ),
+                        dmc.Text(
+                            TextFooter.cite.value,
+                            c="white",
+                            size="sm",
+                            ml={"base":50,"md":45},
+                            mr={"base":30,"md":10},
+                        ),
+                        dmc.Anchor(
+                            dmc.Text(
+                                TextFooter.cite_link.value,
+                                c="white",
+                                size="sm",
+                                ml={"base":50,"md":45},
+                                mb=20,
+                                td="underline",
+                            ),
+                            href=TextFooter.cite_link.value,
+                        ),
+                    ],
+                    span={"base": 12, "md": 4},
                     ),
                 ],
-                span={"base": 12, "sm": 4},
+                justify="space-between",
+                align="center",
+                bg="#0077c2",
+                w="100%",
+                h={"base":"auto","md":150},
             ),
-            dmc.GridCol(
-                dmc.Text("Extra small text", size="xs"),
-                span=4,
+            dmc.Grid(
+                children=[
+                    dmc.GridCol(
+                        dmc.Text(
+                            TextFooter.copy_right.value,
+                            c="white",
+                            size="xs",
+                            mt=10,
+                            ml=10,
+                        ),
+                        span={"base": 8, "md": 10},
+                    ),
+                    dmc.GridCol(
+                        dmc.Text(
+                            TextFooter.version.value,
+                            c="white",
+                            size="xs",
+                            mt=10,
+                            ml={"base":-20,"md":50},
+
+                        ),
+                        ml="none",
+                        span={"base": 1, "md": 1},
+                    ),
+                    dmc.GridCol(
+                        dmc.Anchor(
+                            dmc.Image(
+                                src="/assets/License-MIT-yellow.svg",
+                                maw={"base:":70,"md":70},
+                                mah={"base":20},
+                                mt=10,
+                                mr=10,
+                                ml={"base":20,"md":30},
+                                alt="license mit logo",
+                            ),
+                            href=TextFooter.open_source_link.value,
+                        ),
+                        span={"base": 2, "md": 1},
+                    ),
+                ],
+                # justify="space-between",
+                align="center",
+                bg="#0c2772",
+                w="100%",
+                h={"base":50,"md":40},
+                # gutter="xl",
             ),
-            dmc.GridCol(dmc.Text(TextFooter.cite_link.value, size="xs"), span=4),
         ],
-        gutter="xl",
+        gap=0,
+        w="100%"
     )
