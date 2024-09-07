@@ -478,7 +478,7 @@ class HumiditySelection(Enum):
 
 class MetabolicRateSelection(Enum):
     h_1: str = "Sleeping: 0.7"
-    h_2: str = "Reclining"
+    h_2: str = "Reclining: 0.8"
     h_3: str = "Seated, quite: 1.0"
     h_4: str = "Reading, seated: 1.0"
     h_5: str = "Writing: 1.0"
