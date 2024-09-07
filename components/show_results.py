@@ -24,7 +24,6 @@ def display_results(selected_model: str, form_content: dict, units_selection: st
         if selected_model == Models.PMV_ashrae.name:
             standard = "ashrae"
 
-        print(inputs[ElementsIDs.met_input.value])
         r_pmv = pmv_ppd(
             tdb=inputs[ElementsIDs.t_db_input.value],
             tr=inputs[ElementsIDs.t_r_input.value],

@@ -83,7 +83,9 @@ def modal_custom_ensemble():
     )
 
 
-def input_environmental_personal(selected_model: str = "PMV_ashrae", units: str = UnitSystem.SI.value):
+def input_environmental_personal(
+    selected_model: str = "PMV_ashrae", units: str = UnitSystem.SI.value
+):
     inputs = []
     # create empty collection to keep track of the input field names that have been added
     added_inputs = set()
@@ -94,7 +96,7 @@ def input_environmental_personal(selected_model: str = "PMV_ashrae", units: str 
     for values in model_inputs:
         # Checks whether the current input field name already exists in the collection
         if values.name in added_inputs:
-            continue # if already exists, skip the loop to prevent repeated addition
+            continue  # if already exists, skip the loop to prevent repeated addition
 
         if values.name == "Metabolic Rate":
             metabolic_input = create_metabolic_rate_input(values)
@@ -174,13 +176,13 @@ def create_metabolic_rate_input(values: ModelInputsInfo):
         description=f"From {values.min} to {values.max}",
     )
 
+
 @callback(
     Output(ElementsIDs.met_input.value, "data"),
     Output(ElementsIDs.met_input.value, "value"),
     Input(ElementsIDs.met_input.value, "value"),
-    State(ElementsIDs.met_input.value, "data")
+    State(ElementsIDs.met_input.value, "data"),
 )
-
 def update_metabolic_rate_options(input_value, current_data):
     if input_value is None or input_value == "":
         return [], ""
@@ -188,9 +190,6 @@ def update_metabolic_rate_options(input_value, current_data):
     try:
         input_number = float(input_value)
     except ValueError:
-        # if input is not a number, return all options
-        input_value = float(input_value.split(":")[-1].strip())
-        # print(input_value)
         return [option.value for option in MetabolicRateSelection], input_value
 
     # filter options based on input value
@@ -211,13 +210,12 @@ def update_metabolic_rate_options(input_value, current_data):
 
     return filtered_options, input_value
 
+
 @callback(
     Output(ElementsIDs.met_input.value, "value", allow_duplicate=True),
     Input(ElementsIDs.met_input.value, "value"),
-    prevent_initial_call=True
+    prevent_initial_call=True,
 )
-
-
 def update_input_on_selection(selected_value):
     if selected_value in [option.value for option in MetabolicRateSelection]:
         try:
@@ -229,7 +227,7 @@ def update_input_on_selection(selected_value):
     return selected_value
 
 
-#---------------------clo
+# ---------------------clo
 def create_clothing_level_input(values: ModelInputsInfo):
     return dmc.Autocomplete(
         id=values.id,
@@ -240,13 +238,13 @@ def create_clothing_level_input(values: ModelInputsInfo):
         description=f"From {values.min} to {values.max}",
     )
 
+
 @callback(
     Output(ElementsIDs.clo_input.value, "data"),
     Output(ElementsIDs.clo_input.value, "value"),
     Input(ElementsIDs.clo_input.value, "value"),
-    State(ElementsIDs.clo_input.value, "data")
+    State(ElementsIDs.clo_input.value, "data"),
 )
-
 def update_clothing_level_options(input_value, current_data):
     if input_value is None or input_value == "":
         return [], ""
@@ -272,9 +270,8 @@ def update_clothing_level_options(input_value, current_data):
 @callback(
     Output(ElementsIDs.clo_input.value, "value", allow_duplicate=True),
     Input(ElementsIDs.clo_input.value, "value"),
-    prevent_initial_call=True
+    prevent_initial_call=True,
 )
-
 def update_clothing_input_on_selection(selected_value):
     if selected_value in [option.value for option in ClothingSelection]:
         try:

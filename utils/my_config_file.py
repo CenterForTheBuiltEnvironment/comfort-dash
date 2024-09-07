@@ -506,6 +506,7 @@ class MetabolicRateSelection(Enum):
     h_27: str = "Heavy machine work: 4.0"
     h_28: str = "Handling 100lb (45 kg) bags: 4.0"
 
+
 class ClothingSelection(Enum):
     c_1: str = "Walking shorts, short-sleeve shirt: 0.36 clo"
     c_2: str = "Typical summer indoor clothing: 0.5 clo"
@@ -516,6 +517,7 @@ class ClothingSelection(Enum):
     c_7: str = "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
     c_8: str = "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
     c_9: str = "Typical winter indoor clothing: 1.0 clo"
+
 
 # PMV - EN Chart selection
 class ModelInputsSelectionOperativeTemperaturePmvEN16798(Enum):

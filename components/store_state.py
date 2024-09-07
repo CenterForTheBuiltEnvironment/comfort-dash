@@ -3,12 +3,14 @@ from urllib.parse import urlparse, parse_qs
 from dash import no_update, ctx, dcc
 from dash.dependencies import Input, Output, State, ALL
 
+
 class ParsedURL:
     def __init__(self, path, query_params, fragment, path_parts):
         self.path = path  # The path part of the URL
         self.query_params = query_params  # Query parameters in the URL
         self.fragment = fragment  # The fragment part of the URL
         self.path_parts = path_parts  # The different parts of the URL path
+
 
 class StoreState:
     def __init__(self, persist_ids, store_type="session"):
@@ -48,7 +50,7 @@ class StoreState:
             path=parsed_url.path,
             query_params=query_params,
             fragment=parsed_url.fragment,
-            path_parts=path_parts
+            path_parts=path_parts,
         )
 
     def setup_dash_callbacks(self, app, store_id):
@@ -74,7 +76,9 @@ class StoreState:
 
                 # Save dynamic input values
                 value = ctx.triggered[0]["value"]
-                store_data = StoreState.save_state_to_store(store_data, triggered_id, value)
+                store_data = StoreState.save_state_to_store(
+                    store_data, triggered_id, value
+                )
 
                 # Save URL
                 if "url" in triggered_id:
@@ -88,19 +92,31 @@ class StoreState:
                     if len(path_parts) == 2:
                         model = path_parts[0]
                         type_part = path_parts[1]
-                        store_data = StoreState.save_state_to_store(store_data, "model", model)
-                        store_data = StoreState.save_state_to_store(store_data, "type", type_part)
+                        store_data = StoreState.save_state_to_store(
+                            store_data, "model", model
+                        )
+                        store_data = StoreState.save_state_to_store(
+                            store_data, "type", type_part
+                        )
                     elif len(path_parts) == 1:
                         model = path_parts[0]
                         if model in ["single", "range", "compare"]:
-                            store_data = StoreState.save_state_to_store(store_data, "model", model)
+                            store_data = StoreState.save_state_to_store(
+                                store_data, "model", model
+                            )
                         else:
-                            store_data = StoreState.save_state_to_store(store_data, "model", None)
-                        store_data = StoreState.save_state_to_store(store_data, "type", None)
+                            store_data = StoreState.save_state_to_store(
+                                store_data, "model", None
+                            )
+                        store_data = StoreState.save_state_to_store(
+                            store_data, "type", None
+                        )
 
                     for key, value in query_params.items():
                         value = value[0]
-                        store_data = StoreState.save_state_to_store(store_data, key, value)
+                        store_data = StoreState.save_state_to_store(
+                            store_data, key, value
+                        )
 
             return store_data
 
@@ -181,7 +197,10 @@ class StoreState:
                         processed_keys = set()
 
                         for key, value in store_data.items():
-                            if key not in ["url", "model", "compare"] and value is not None:
+                            if (
+                                key not in ["url", "model", "compare"]
+                                and value is not None
+                            ):
                                 if key not in processed_keys:
                                     query_params.append(f"{key}={value}")
                                     processed_keys.add(key)

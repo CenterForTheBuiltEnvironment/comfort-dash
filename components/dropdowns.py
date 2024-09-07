@@ -10,7 +10,6 @@ from utils.my_config_file import (
     HumiditySelection,
     MetabolicRateSelection,
     ClothingSelection,
-
 )
 from utils.website_text import TextHome
 
