@@ -60,11 +60,6 @@ def get_inputs(selected_model: str, form_content: dict, units: str):
                 inputs[model_input.id] = converted_value
             else:
                 inputs[model_input.id] = default_value
-                print(
-                    f"Invalid {model_input.id} value: {original_value}, using default: {default_value}"
-                )
         else:
             inputs[model_input.id] = default_value
-            print(f"No input for {model_input.id}, using default: {default_value}")
-
     return inputs
