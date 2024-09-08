@@ -112,25 +112,29 @@ def update_note_model(selected_model):
 
 @callback(
     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
-    Input(ElementsIDs.inputs_form.value, "n_clicks"),
+    Input({"type": "dynamic-input", "index": ALL}, "value"),
     Input(ElementsIDs.chart_selected.value, "value"),
     State(ElementsIDs.MODEL_SELECTION.value, "value"),
     State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
-    State(ElementsIDs.inputs_form.value, "children"),
 )
 def update_chart(
-    _,
+    input_values: list,
     chart_selected: str,
     selected_model: str,
     units_selection: str,
-    form_content: dict,
 ):
     if selected_model is None:
         return no_update
 
     if chart_selected is None:
         return no_update
-
+    
+    model_inputs = Models[selected_model].value.inputs
+    form_content = {
+        model_input.id: {"value": input_value}
+        for model_input, input_value in zip(model_inputs, input_values)
+    }
+    
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
     inputs = get_inputs(selected_model, form_content, units)
 

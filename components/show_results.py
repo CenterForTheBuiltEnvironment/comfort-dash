@@ -10,7 +10,7 @@ from utils.my_config_file import (
     UnitConverter,
     ElementsIDs,
 )
-
+'''
 def find_dict_with_key_value(d, key, value):
     if isinstance(d, dict):
         if d.get(key) == value:
@@ -25,7 +25,7 @@ def find_dict_with_key_value(d, key, value):
             if result is not None:
                 return result
     return None
-
+'''
 def display_results(selected_model: str, form_content: dict, units_selection: str):
 
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value

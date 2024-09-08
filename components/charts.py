@@ -3,6 +3,8 @@ import io
 from copy import deepcopy
 
 import dash_mantine_components as dmc
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
