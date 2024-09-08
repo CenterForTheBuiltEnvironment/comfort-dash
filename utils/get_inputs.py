@@ -33,7 +33,8 @@ def get_inputs(selected_model: str, form_content: dict, units: str):
     # Update input values ​​to map dynamic IDs to ElementsIDs
     for model_input in list_model_inputs:
         found_input = form_content.get(model_input.id)
-        model_input.value = found_input["value"]
+        if found_input and found_input["value"] not in [None, '', float('nan')]:
+            model_input.value = found_input["value"]
     
     # converting the units if necessary
     if units == UnitSystem.IP.value:
