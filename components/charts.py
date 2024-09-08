@@ -14,6 +14,9 @@ from components.drop_down_inline import generate_dropdown_inline
 from utils.my_config_file import ElementsIDs, Models
 from utils.website_text import TextHome
 
+# Matplotlib GUI Error
+import matplotlib
+matplotlib.use('Agg')
 
 def chart_selector(selected_model: str):
     list_charts = deepcopy(Models[selected_model].value.charts)
