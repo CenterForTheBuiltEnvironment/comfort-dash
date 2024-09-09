@@ -173,6 +173,7 @@ def update_chart(
 @callback(
     Output(ElementsIDs.RESULTS_SECTION.value, "children"),
     Input(ElementsIDs.inputs_form.value, "n_clicks"),
+    # todo we should be careful here since clo is not going to be used in all models.
     Input(ElementsIDs.clo_input.value,"value"),
     State(ElementsIDs.MODEL_SELECTION.value, "value"),
     State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
