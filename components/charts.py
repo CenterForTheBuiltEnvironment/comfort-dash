@@ -16,6 +16,9 @@ from utils.website_text import TextHome
 import matplotlib
 matplotlib.use("Agg")
 
+# Matplotlib GUI Error
+import matplotlib
+matplotlib.use('Agg')
 
 def chart_selector(selected_model: str):
     list_charts = deepcopy(Models[selected_model].value.charts)
