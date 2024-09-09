@@ -14,11 +14,9 @@ from components.drop_down_inline import generate_dropdown_inline
 from utils.my_config_file import ElementsIDs, Models
 from utils.website_text import TextHome
 import matplotlib
+
 matplotlib.use("Agg")
 
-# Matplotlib GUI Error
-import matplotlib
-matplotlib.use('Agg')
 
 def chart_selector(selected_model: str):
     list_charts = deepcopy(Models[selected_model].value.charts)
@@ -65,7 +63,7 @@ def t_rh_pmv(inputs: dict = None, model: str = "iso"):
                     - pmv_limit
                 )
 
-            temp = optimize.brentq(function, 0, 50)
+            temp = optimize.brentq(function, 10, 40)
             results.append(
                 {
                     "rh": rh,

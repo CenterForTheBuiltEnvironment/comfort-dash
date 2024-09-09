@@ -259,22 +259,17 @@ def input_environmental_personal(
 ):
     inputs = []
     # create empty collection to keep track of the input field names that have been added
-    added_inputs = set()
     model_inputs = Models[selected_model].value.inputs
     model_inputs = convert_units(model_inputs, units)
 
     values: ModelInputsInfo
     for values in model_inputs:
-        # Checks whether the current input field name already exists in the collection
-        if values.name in added_inputs:
-            continue  # if already exists, skip the loop to prevent repeated addition
 
-        if values.name == "Metabolic Rate":
-            metabolic_input = create_metabolic_rate_input(values)
-            inputs.append(metabolic_input)
-        elif values.name == "Clothing Level":
-            clothing_input = create_clothing_level_input(values)
-            inputs.append(clothing_input)
+        if (
+            values.id == ElementsIDs.met_input.value
+            or values.id == ElementsIDs.clo_input.value
+        ):
+            inputs.append(create_autocomplete(values))
         else:
             input_filed = dmc.NumberInput(
                 label=values.name + " (" + values.unit + ")",
@@ -286,8 +281,6 @@ def input_environmental_personal(
                 id=values.id,
             )
             inputs.append(input_filed)
-
-        added_inputs.add(values.name)
 
     unit_toggle = dmc.Center(
         dmc.Switch(
@@ -362,11 +355,11 @@ def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened):
     return opened, dash.no_update
 
 
-def create_metabolic_rate_input(values: ModelInputsInfo):
+def create_autocomplete(values: ModelInputsInfo):
     return dmc.Autocomplete(
         id=values.id,
         label=f"{values.name} ({values.unit})",
-        placeholder="Enter a value or select an activity",
+        placeholder=f"Enter a value or select a {values.name}",
         data=[],
         value=str(values.value),
         description=f"From {values.min} to {values.max}",
@@ -379,14 +372,35 @@ def create_metabolic_rate_input(values: ModelInputsInfo):
     Input(ElementsIDs.met_input.value, "value"),
     State(ElementsIDs.met_input.value, "data"),
 )
-def update_metabolic_rate_options(input_value, current_data):
+def update_metabolic_rate_options(input_value, _):
     if input_value is None or input_value == "":
         return [], ""
 
+    metabolic_rates = [option.value for option in MetabolicRateSelection]
+
+    # if the user has selected a predefined value from the dropdown
+    if input_value in metabolic_rates:
+        try:
+            return metabolic_rates, float(input_value.split(":")[-1].strip().split()[0])
+        # todo why do we need this? since we are already checking if the value is in the metabolic_rates
+        except IndexError:
+            # todo improve the following
+            return metabolic_rates, (
+                "0.8" if "Reclining" in input_value else input_value
+            )
+
+    # if the user is typing text
     try:
         input_number = float(input_value)
     except ValueError:
-        return [option.value for option in MetabolicRateSelection], input_value
+        # filter options based on input value
+        filtered_rates = [
+            option for option in metabolic_rates if input_value in option.lower()
+        ]
+        if filtered_rates:
+            return filtered_rates, input_value
+        else:
+            return metabolic_rates, ""
 
     # filter options based on input value
     filtered_options = []
@@ -402,77 +416,48 @@ def update_metabolic_rate_options(input_value, current_data):
 
     # If no close matches, return all options
     if not filtered_options:
-        filtered_options = [option.value for option in MetabolicRateSelection]
+        filtered_options = metabolic_rates
 
     return filtered_options, input_value
 
 
-@callback(
-    Output(ElementsIDs.met_input.value, "value", allow_duplicate=True),
-    Input(ElementsIDs.met_input.value, "value"),
-    prevent_initial_call=True,
-)
-def update_input_on_selection(selected_value):
-    if selected_value in [option.value for option in MetabolicRateSelection]:
-        try:
-            return float(selected_value.split(":")[-1].strip().split()[0])
-        except IndexError:
-            return "0.8" if "Reclining" in selected_value else selected_value
-
-    # print(float(selected_value.split(":")[-1].strip().split()[0]))
-    return selected_value
-
-
-# ---------------------clo
-def create_clothing_level_input(values: ModelInputsInfo):
-    return dmc.Autocomplete(
-        id=values.id,
-        label=f"{values.name} ({values.unit})",
-        placeholder="Enter a value or select clothing",
-        data=[],
-        value=str(values.value),
-        description=f"From {values.min} to {values.max}",
-    )
-
-
-@callback(
-    Output(ElementsIDs.clo_input.value, "data"),
-    Output(ElementsIDs.clo_input.value, "value"),
-    Input(ElementsIDs.clo_input.value, "value"),
-    State(ElementsIDs.clo_input.value, "data"),
-)
-def update_clothing_level_options(input_value, current_data):
-    if input_value is None or input_value == "":
-        return [], ""
-    try:
-        input_number = float(input_value)
-    except ValueError:
-        return [option.value for option in ClothingSelection], input_value
-
-    filtered_options = []
-    for option in ClothingSelection:
-        try:
-            option_value = float(option.value.split(":")[-1].strip().split()[0])
-            if abs(option_value - input_number) < 1:
-                filtered_options.append(option.value)
-        except ValueError:
-            continue
-
-    if not filtered_options:
-        filtered_options = [option.value for option in ClothingSelection]
-    return filtered_options, input_value
-
-
-@callback(
-    Output(ElementsIDs.clo_input.value, "value", allow_duplicate=True),
-    Input(ElementsIDs.clo_input.value, "value"),
-    prevent_initial_call=True,
-)
-def update_clothing_input_on_selection(selected_value):
-    if selected_value in [option.value for option in ClothingSelection]:
-        try:
-            return float(selected_value.split(":")[-1].strip().split()[0])
-        except IndexError:
-            return selected_value
-    return selected_value
-
+# @callback(
+#     Output(ElementsIDs.clo_input.value, "data"),
+#     Output(ElementsIDs.clo_input.value, "value"),
+#     Input(ElementsIDs.clo_input.value, "value"),
+#     State(ElementsIDs.clo_input.value, "data"),
+# )
+# def update_clothing_level_options(input_value, current_data):
+#     if input_value is None or input_value == "":
+#         return [], ""
+#     try:
+#         input_number = float(input_value)
+#     except ValueError:
+#         return [option.value for option in ClothingSelection], input_value
+#
+#     filtered_options = []
+#     for option in ClothingSelection:
+#         try:
+#             option_value = float(option.value.split(":")[-1].strip().split()[0])
+#             if abs(option_value - input_number) < 1:
+#                 filtered_options.append(option.value)
+#         except ValueError:
+#             continue
+#
+#     if not filtered_options:
+#         filtered_options = [option.value for option in ClothingSelection]
+#     return filtered_options, input_value
+#
+#
+# @callback(
+#     Output(ElementsIDs.clo_input.value, "value", allow_duplicate=True),
+#     Input(ElementsIDs.clo_input.value, "value"),
+#     prevent_initial_call=True,
+# )
+# def update_clothing_input_on_selection(selected_value):
+#     if selected_value in [option.value for option in ClothingSelection]:
+#         try:
+#             return float(selected_value.split(":")[-1].strip().split()[0])
+#         except IndexError:
+#             return selected_value
+#     return selected_value

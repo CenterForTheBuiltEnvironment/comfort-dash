@@ -63,8 +63,8 @@ pmv_en_metabolic_selection = {
     "id": ElementsIDs.METABOLIC_RATE_SELECTION.value,
     "question": "",
     "options": [
-        MetabolicRateSelection.h_1.value,
-        MetabolicRateSelection.h_2.value,
+        MetabolicRateSelection.sleeping.value,
+        MetabolicRateSelection.reclining.value,
         MetabolicRateSelection.h_3.value,
         MetabolicRateSelection.h_4.value,
         MetabolicRateSelection.h_5.value,
@@ -93,7 +93,7 @@ pmv_en_metabolic_selection = {
         MetabolicRateSelection.h_28.value,
     ],
     "multi": False,
-    "default": MetabolicRateSelection.h_1.value,
+    "default": MetabolicRateSelection.sleeping.value,
 }
 
 pmv_en_clothing_selection = {
@@ -118,8 +118,8 @@ fans_and_heat_metabolic_selection = {
     "id": ElementsIDs.METABOLIC_RATE_SELECTION.value,
     "question": "",
     "options": [
-        MetabolicRateSelection.h_1.value,
-        MetabolicRateSelection.h_2.value,
+        MetabolicRateSelection.sleeping.value,
+        MetabolicRateSelection.reclining.value,
         MetabolicRateSelection.h_3.value,
         MetabolicRateSelection.h_4.value,
         MetabolicRateSelection.h_5.value,
@@ -148,7 +148,7 @@ fans_and_heat_metabolic_selection = {
         MetabolicRateSelection.h_28.value,
     ],
     "multi": False,
-    "default": MetabolicRateSelection.h_1.value,
+    "default": MetabolicRateSelection.sleeping.value,
 }
 
 fans_and_heat_clothing_selection = {
@@ -173,8 +173,8 @@ phs_metabolic_selection = {
     "id": ElementsIDs.METABOLIC_RATE_SELECTION.value,
     "question": "",
     "options": [
-        MetabolicRateSelection.h_1.value,
-        MetabolicRateSelection.h_2.value,
+        MetabolicRateSelection.sleeping.value,
+        MetabolicRateSelection.reclining.value,
         MetabolicRateSelection.h_3.value,
         MetabolicRateSelection.h_4.value,
         MetabolicRateSelection.h_5.value,
@@ -203,7 +203,7 @@ phs_metabolic_selection = {
         MetabolicRateSelection.h_28.value,
     ],
     "multi": False,
-    "default": MetabolicRateSelection.h_1.value,
+    "default": MetabolicRateSelection.sleeping.value,
 }
 
 phs_clothing_selection = {
@@ -253,8 +253,8 @@ pmv_ashrae_metabolic_selection = {
     "id": ElementsIDs.METABOLIC_RATE_SELECTION.value,
     "question": "",
     "options": [
-        MetabolicRateSelection.h_1.value,
-        MetabolicRateSelection.h_2.value,
+        MetabolicRateSelection.sleeping.value,
+        MetabolicRateSelection.reclining.value,
         MetabolicRateSelection.h_3.value,
         MetabolicRateSelection.h_4.value,
         MetabolicRateSelection.h_5.value,
@@ -283,7 +283,7 @@ pmv_ashrae_metabolic_selection = {
         MetabolicRateSelection.h_28.value,
     ],
     "multi": False,
-    "default": MetabolicRateSelection.h_1.value,
+    "default": MetabolicRateSelection.sleeping.value,
 }
 
 pmv_ashare_clothing_selection = {
