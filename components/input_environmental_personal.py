@@ -268,7 +268,7 @@ def modal_custom_ensemble():
                         # w=400,
                     ),
                     dmc.Alert(
-                        dmc.Text(""),
+                        dmc.Text("warning message"),
                         id=ElementsIDs.modal_custom_ensemble_warning.value,
                         color="red",
                         withCloseButton=False,
