@@ -90,9 +90,18 @@ def update_store_inputs(
     chart_selected: str,
     selected_model: str,
 ):
-
-    if selected_model is None or not input_values:
+    # Check if selected_model, input_values or important fields are missing
+    if selected_model is None or not input_values or chart_selected is None:
         return no_update
+
+    # Check if any of the input values are invalid (None or empty strings)
+    if (
+        any(val in [None, ""] for val in input_values)
+        or clo_value in [None, ""]
+        or met_value in [None, ""]
+    ):
+        return no_update
+
     model_inputs = Models[selected_model].value.inputs
     form_content = {
         model_input.id: {"value": input_value}
@@ -104,9 +113,9 @@ def update_store_inputs(
 
     if ctx.triggered:
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
-        if triggered_id == ElementsIDs.clo_input.value:
+        if triggered_id == ElementsIDs.clo_input.value and clo_value not in [None, ""]:
             inputs[ElementsIDs.clo_input.value] = float(clo_value)
-        if triggered_id == ElementsIDs.met_input.value:
+        if triggered_id == ElementsIDs.met_input.value and met_value not in [None, ""]:
             inputs[ElementsIDs.met_input.value] = float(met_value)
 
     inputs[ElementsIDs.UNIT_TOGGLE.value] = units
