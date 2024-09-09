@@ -83,14 +83,14 @@ layout = dmc.Stack(
     State(ElementsIDs.MODEL_SELECTION.value, "value"),
 )
 def update_store_inputs(
-    input_values:list,
+    input_values: list,
     clo_value: float,
     met_value: float,
     units_selection: str,
     chart_selected: str,
     selected_model: str,
 ):
-  
+
     if selected_model is None or not input_values:
         return no_update
     model_inputs = Models[selected_model].value.inputs
@@ -98,7 +98,7 @@ def update_store_inputs(
         model_input.id: {"value": input_value}
         for model_input, input_value in zip(model_inputs, input_values)
     }
-    
+
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
     inputs = get_inputs(selected_model, form_content, units)
 

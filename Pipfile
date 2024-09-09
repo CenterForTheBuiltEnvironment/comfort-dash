@@ -19,6 +19,7 @@ scipy = "*"
 typing-extensions = "*"
 packaging = "*"
 matplotlib = "*"
+black = "*"
 
 [dev-packages]
 pytest-playwright = "*"

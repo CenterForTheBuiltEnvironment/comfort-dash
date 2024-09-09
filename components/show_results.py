@@ -11,6 +11,7 @@ from utils.my_config_file import (
     ElementsIDs,
 )
 
+
 def display_results(inputs: dict):
 
     selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
@@ -68,19 +69,19 @@ def display_results(inputs: dict):
         if units == UnitSystem.IP.value:
             adaptive.tmp_cmf = round(
                 UnitConverter.celsius_to_fahrenheit(adaptive.tmp_cmf), 2
-                )
+            )
             adaptive.tmp_cmf_80_low = round(
                 UnitConverter.celsius_to_fahrenheit(adaptive.tmp_cmf_80_low), 2
-                )
+            )
             adaptive.tmp_cmf_80_up = round(
                 UnitConverter.celsius_to_fahrenheit(adaptive.tmp_cmf_80_up), 2
-                )
+            )
             adaptive.tmp_cmf_90_low = round(
                 UnitConverter.celsius_to_fahrenheit(adaptive.tmp_cmf_90_low), 2
-                )
+            )
             adaptive.tmp_cmf_90_up = round(
                 UnitConverter.celsius_to_fahrenheit(adaptive.tmp_cmf_90_up), 2
-                )
+            )
         results.append(dmc.Center(dmc.Text(f"Comfort temperature: {adaptive.tmp_cmf}")))
         results.append(
             dmc.Center(
@@ -110,10 +111,30 @@ def display_results(inputs: dict):
             wme=0,
             limit_inputs=False,
         )
-        results.append(dmc.Center(dmc.Text(f"Maximum allowable exposure time within which the physiological strain is acceptable (no physical damage is to be expected) calculated as a function of:")))
-        results.append(dmc.Center(dmc.Text(f"max rectal temperature = {r_phs['t_re']} °C")))
-        results.append(dmc.Center(dmc.Text(f"water loss of 5% of the body mass for 95% of the population = {r_phs['d_lim_loss_95']} min")))
-        results.append(dmc.Center(dmc.Text(f"water loss of 7.5% of the body mass for an average person = {r_phs['d_lim_loss_50']} min")))
+        results.append(
+            dmc.Center(
+                dmc.Text(
+                    f"Maximum allowable exposure time within which the physiological strain is acceptable (no physical damage is to be expected) calculated as a function of:"
+                )
+            )
+        )
+        results.append(
+            dmc.Center(dmc.Text(f"max rectal temperature = {r_phs['t_re']} °C"))
+        )
+        results.append(
+            dmc.Center(
+                dmc.Text(
+                    f"water loss of 5% of the body mass for 95% of the population = {r_phs['d_lim_loss_95']} min"
+                )
+            )
+        )
+        results.append(
+            dmc.Center(
+                dmc.Text(
+                    f"water loss of 7.5% of the body mass for an average person = {r_phs['d_lim_loss_50']} min"
+                )
+            )
+        )
 
     return (
         dmc.SimpleGrid(
