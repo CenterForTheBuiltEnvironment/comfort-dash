@@ -324,7 +324,7 @@ def input_environmental_personal(
 # Custom Ensemble
 @callback(
     Output(ElementsIDs.modal_custom_ensemble.value, "opened"),
-    Output(ElementsIDs.clo_input.value, "value"),
+    Output(ElementsIDs.clo_input.value, "value", allow_duplicate=True),
     Input(ElementsIDs.modal_custom_ensemble_value.value, "value"),
     Input(ElementsIDs.modal_custom_ensemble_open.value, "n_clicks"),
     Input(ElementsIDs.modal_custom_ensemble_close.value, "n_clicks"),
@@ -380,14 +380,7 @@ def update_metabolic_rate_options(input_value, _):
 
     # if the user has selected a predefined value from the dropdown
     if input_value in metabolic_rates:
-        try:
-            return metabolic_rates, float(input_value.split(":")[-1].strip().split()[0])
-        # todo why do we need this? since we are already checking if the value is in the metabolic_rates
-        except IndexError:
-            # todo improve the following
-            return metabolic_rates, (
-                "0.8" if "Reclining" in input_value else input_value
-            )
+        return metabolic_rates, float(input_value.split(":")[-1].strip().split()[0])
 
     # if the user is typing text
     try:
@@ -421,43 +414,43 @@ def update_metabolic_rate_options(input_value, _):
     return filtered_options, input_value
 
 
-# @callback(
-#     Output(ElementsIDs.clo_input.value, "data"),
-#     Output(ElementsIDs.clo_input.value, "value"),
-#     Input(ElementsIDs.clo_input.value, "value"),
-#     State(ElementsIDs.clo_input.value, "data"),
-# )
-# def update_clothing_level_options(input_value, current_data):
-#     if input_value is None or input_value == "":
-#         return [], ""
-#     try:
-#         input_number = float(input_value)
-#     except ValueError:
-#         return [option.value for option in ClothingSelection], input_value
-#
-#     filtered_options = []
-#     for option in ClothingSelection:
-#         try:
-#             option_value = float(option.value.split(":")[-1].strip().split()[0])
-#             if abs(option_value - input_number) < 1:
-#                 filtered_options.append(option.value)
-#         except ValueError:
-#             continue
-#
-#     if not filtered_options:
-#         filtered_options = [option.value for option in ClothingSelection]
-#     return filtered_options, input_value
-#
-#
-# @callback(
-#     Output(ElementsIDs.clo_input.value, "value", allow_duplicate=True),
-#     Input(ElementsIDs.clo_input.value, "value"),
-#     prevent_initial_call=True,
-# )
-# def update_clothing_input_on_selection(selected_value):
-#     if selected_value in [option.value for option in ClothingSelection]:
-#         try:
-#             return float(selected_value.split(":")[-1].strip().split()[0])
-#         except IndexError:
-#             return selected_value
-#     return selected_value
+@callback(
+    Output(ElementsIDs.clo_input.value, "data"),
+    Output(ElementsIDs.clo_input.value, "value"),
+    Input(ElementsIDs.clo_input.value, "value"),
+    State(ElementsIDs.clo_input.value, "data"),
+)
+def update_clothing_level_options(input_value, current_data):
+    if input_value is None or input_value == "":
+        return [], ""
+
+    clothing_levels = [option.value for option in ClothingSelection]
+
+    if input_value in clothing_levels:
+        return clothing_levels, float(input_value.split(":")[-1].strip().split()[0])
+
+    try:
+        input_number = float(input_value)
+    except ValueError:
+        # filter options based on input value
+        filtered_rates = [
+            option for option in clothing_levels if input_value in option.lower()
+        ]
+        if filtered_rates:
+            return filtered_rates, input_value
+        else:
+            return clothing_levels, ""
+
+    filtered_options = []
+    for option in ClothingSelection:
+        try:
+            option_value = float(option.value.split(":")[-1].strip().split()[0])
+            if abs(option_value - input_number) < 1:
+                filtered_options.append(option.value)
+        except ValueError:
+            continue
+
+    if not filtered_options:
+        filtered_options = clothing_levels
+
+    return filtered_options, input_value

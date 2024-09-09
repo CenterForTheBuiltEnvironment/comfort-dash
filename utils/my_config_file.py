@@ -110,8 +110,8 @@ class ToolUrls(Enum):
     )
 
 
-class Stores(Enum):
-    INPUT_DATA = "store_input_data"
+class MyStores(Enum):
+    input_data = "store_input_data"
 
 
 class ChartsInfo(BaseModel):

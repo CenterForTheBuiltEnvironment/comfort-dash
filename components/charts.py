@@ -108,7 +108,7 @@ def t_rh_pmv(inputs: dict = None, model: str = "iso"):
     )
     my_stringIObytes.seek(0)
     my_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode()
-    plt.close()
+    plt.close("all")
     return dmc.Image(
         src=f"data:image/png;base64, {my_base64_jpgData}",
         alt="Heat stress chart",

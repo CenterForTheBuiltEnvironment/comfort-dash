@@ -11,10 +11,10 @@ from utils.my_config_file import (
 )
 
 
-def display_results(selected_model: str, form_content: dict, units_selection: str):
+def display_results(inputs: dict):
 
-    units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    inputs = get_inputs(selected_model, form_content, units)
+    selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
+    units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
 
     results = []
     columns: int = 2

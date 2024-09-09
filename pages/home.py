@@ -1,6 +1,6 @@
 import dash
 import dash_mantine_components as dmc
-from dash import html, callback, Output, Input, no_update, State
+from dash import html, callback, Output, Input, no_update, State, ctx
 
 from components.charts import t_rh_pmv, chart_selector
 from components.dropdowns import (
@@ -19,6 +19,7 @@ from utils.my_config_file import (
     Models,
     Charts,
     ChartsInfo,
+    MyStores,
 )
 
 dash.register_page(__name__, path=URLS.HOME.value)
@@ -73,11 +74,48 @@ layout = dmc.Stack(
 
 
 @callback(
+    Output(MyStores.input_data.value, "data"),
+    Input(ElementsIDs.inputs_form.value, "n_clicks"),
+    Input(ElementsIDs.inputs_form.value, "children"),
+    Input(ElementsIDs.clo_input.value, "value"),
+    Input(ElementsIDs.met_input.value, "value"),
+    Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    Input(ElementsIDs.chart_selected.value, "value"),
+    State(ElementsIDs.MODEL_SELECTION.value, "value"),
+)
+def update_store_inputs(
+    form_clicks: int,
+    form_content: dict,
+    clo_value: float,
+    met_value: float,
+    units_selection: str,
+    chart_selected: str,
+    selected_model: str,
+):
+    units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
+    inputs = get_inputs(selected_model, form_content, units)
+
+    if ctx.triggered:
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if triggered_id == ElementsIDs.clo_input.value:
+            inputs[ElementsIDs.clo_input.value] = float(clo_value)
+        if triggered_id == ElementsIDs.met_input.value:
+            inputs[ElementsIDs.met_input.value] = float(met_value)
+
+    inputs[ElementsIDs.UNIT_TOGGLE.value] = units
+    inputs[ElementsIDs.MODEL_SELECTION.value] = selected_model
+    inputs[ElementsIDs.chart_selected.value] = chart_selected
+
+    return inputs
+
+
+@callback(
     Output(ElementsIDs.INPUT_SECTION.value, "children"),
     Input(ElementsIDs.MODEL_SELECTION.value, "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
 )
 def update_inputs(selected_model, units_selection):
+    # todo here I should first check if some inputs are already stored in the store
     if selected_model is None:
         return no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
@@ -112,29 +150,14 @@ def update_note_model(selected_model):
 
 @callback(
     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
-    Input(ElementsIDs.inputs_form.value, "n_clicks"),
-    Input(ElementsIDs.clo_input.value,"value"),
-    Input(ElementsIDs.chart_selected.value, "value"),
-    State(ElementsIDs.MODEL_SELECTION.value, "value"),
-    State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
-    State(ElementsIDs.inputs_form.value, "children"),
+    Input(MyStores.input_data.value, "data"),
 )
 def update_chart(
-    _,
-    clo_value,
-    chart_selected: str,
-    selected_model: str,
-    units_selection: str,
-    form_content: dict,
+    inputs: int,
 ):
-    if selected_model is None:
-        return no_update
-
-    if chart_selected is None:
-        return no_update
-
-    units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    inputs = get_inputs(selected_model, form_content, units)
+    selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
+    units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
+    chart_selected = inputs[ElementsIDs.chart_selected.value]
 
     image = html.Div(
         [
@@ -172,14 +195,8 @@ def update_chart(
 
 @callback(
     Output(ElementsIDs.RESULTS_SECTION.value, "children"),
-    Input(ElementsIDs.inputs_form.value, "n_clicks"),
-    # todo we should be careful here since clo is not going to be used in all models.
-    Input(ElementsIDs.clo_input.value,"value"),
-    State(ElementsIDs.MODEL_SELECTION.value, "value"),
-    State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
-    State(ElementsIDs.inputs_form.value, "children"),
-    # todo this function should also listen to changes in the variables inputs
+    Input(MyStores.input_data.value, "data"),
 )
-def update_outputs(_, clo_value, selected_model, units_selection: str, form_content: dict):
-    
-    return display_results(selected_model, form_content, units_selection)
+def update_outputs(inputs: dict):
+
+    return display_results(inputs)
