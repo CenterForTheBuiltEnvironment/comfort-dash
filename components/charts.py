@@ -13,6 +13,8 @@ from scipy import optimize
 from components.drop_down_inline import generate_dropdown_inline
 from utils.my_config_file import ElementsIDs, Models
 from utils.website_text import TextHome
+import matplotlib
+matplotlib.use("Agg")
 
 # Matplotlib GUI Error
 import matplotlib
