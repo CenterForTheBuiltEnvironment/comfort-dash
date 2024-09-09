@@ -1,6 +1,6 @@
 import dash_mantine_components as dmc
 
-from utils.my_config_file import Functionalities
+from utils.my_config_file import Functionalities, ElementsIDs
 from utils.website_text import TextHome
 
 
@@ -27,6 +27,7 @@ def functionality_selection():
                 mb=10,
                 radius="lg",
                 transitionDuration=500,
+                id=ElementsIDs.functionality_selection.value,
             ),
         ]
     )
