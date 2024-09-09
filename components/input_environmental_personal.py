@@ -232,6 +232,13 @@ def modal_custom_ensemble():
                         styles={"dropdown": {"z-index": "10002"}},
                         # w=400,
                     ),
+                    dmc.Alert(
+                        "Clothing Level cannot exceed 1.5.",
+                        id=ElementsIDs.modal_custom_ensemble_warning.value,
+                        color="red",
+                        withCloseButton=False,
+                        style={"display": "none"},
+                    ),
                     dmc.Group(
                         [
                             # todo when we press submit we should update the clo value in the inputs
@@ -325,6 +332,7 @@ def input_environmental_personal(
 @callback(
     Output(ElementsIDs.modal_custom_ensemble.value, "opened"),
     Output(ElementsIDs.clo_input.value, "value", allow_duplicate=True),
+    Output(ElementsIDs.modal_custom_ensemble_warning.value, "style"),
     Input(ElementsIDs.modal_custom_ensemble_value.value, "value"),
     Input(ElementsIDs.modal_custom_ensemble_open.value, "n_clicks"),
     Input(ElementsIDs.modal_custom_ensemble_close.value, "n_clicks"),
@@ -337,22 +345,23 @@ def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened):
     ctx = dash.callback_context.triggered_id
 
     if ctx == ElementsIDs.modal_custom_ensemble_open.value:
-        return True, dash.no_update
+        return True, dash.no_update, {"display": "none"}
 
     if ctx == ElementsIDs.modal_custom_ensemble_close.value:
-        return False, dash.no_update
+        return False, dash.no_update, {"display": "none"}
 
     total_clo_value = 0
     for value in clo_value:
         total_clo_value += float(value.split("_")[0])
     total_clo_value = round(total_clo_value, 2)
 
-    if ctx in [
-        ElementsIDs.modal_custom_ensemble_submit.value,
-    ]:
-        return False, total_clo_value
+    if total_clo_value > 1.5:
+        return dash.no_update, dash.no_update, {"display": "block"}
 
-    return opened, dash.no_update
+    if ctx == ElementsIDs.modal_custom_ensemble_submit.value:
+        return False, total_clo_value, {"display": "none"}
+
+    return opened, dash.no_update, {"display": "none"}
 
 
 def create_autocomplete(values: ModelInputsInfo):
