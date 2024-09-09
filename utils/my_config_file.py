@@ -18,6 +18,7 @@ class ElementsIDs(Enum):
     NAVBAR_COLLAPSE = "navbar-collapse"
     NAVBAR_TOGGLER = "navbar-toggle"
     NAVBAR_BURGER_BUTTON = "burger-button"
+    NAVBAR_CONTENT = "navbar-content"
     NAVBAR_ID_HOME = "id-nav-home"
     NAVBAR_ID_SETTINGS = "id-nav-settings"
     NAVBAR_ID_ABOUT = "id-nav-about"
@@ -38,22 +39,20 @@ class ElementsIDs(Enum):
     clo_input = "id-clo-input"
     note_model = "id-model-note"
     posture_input = "id-posture-input"
+    modal_custom_ensemble = "id-modal-custom-ensemble"
+    modal_custom_ensemble_open = "id-modal-custom-ensemble-open"
+    modal_custom_ensemble_close = "id-modal-custom-ensemble-close"
+    modal_custom_ensemble_submit = "id-modal-custom-ensemble-submit"
+    modal_custom_ensemble_value = "id-modal-custom-ensemble-value"
     RESULTS_SECTION = "id-results-section"
     NAVBAR_ID_DOCUMENT = "id-nav-documentation"
     NAVBAR_ID_MORE_CBE_TOOLS = "id-nav-more-cbe-tools"
+    HUMIDITY_SELECTION = "id-humidity-selection"
+    CLOTHING_SELECTION = "id-clothing-selection"
+    METABOLIC_RATE_SELECTION = "id-metabolic-rate-selection"
     ADAPTIVE_ASHARE_SPEED_SELECTION = "id-adaptive-ashare-speed-selection"
     ADAPTIVE_EN_SPEED_SELECTION = "id-adaptive-en-speed-selection"
-    PMV_EN_HUMIDITY_SELECTION = "id-humidity-selection"
-    PMV_EN_METABOLIC_SELECTION = "id-metabolic-selection"
-    PMV_EN_CLOTHING_SELECTION = "id-clothing-selection"
-    FANS_AND_HEAT_METABOLIC_SELECTION = "id-fans-and-heat-metabolic-selection"
-    FANS_AND_HEAT_CLOTHING_SELECTION = "id-fans-and-heat-clothing-selection"
-    PHS_METABOLIC_SELECTION = "id-phs-metabolic-selection"
-    PHS_CLOTHING_SELECTION = "id-phs-clothing-selection"
     PMV_ASHRAE_SPEED_SELECTION = "id-pmv-ashrae-speed-method"
-    PMV_ASHARE_Humidity_SELECTION = "id-pmv-ashrae-humidity-method"
-    PMV_ASHARE_Metabolic_SELECTION = "id-pmv-ashrae-metabolic-method"
-    PMV_ASHARE_Clothing_SELECTION = "id-pmv-ashrae-clothing-method"
     UNIT_TOGGLE = "id-unit-toggle"  # FOR IP / SI Unit system switch
 
 
@@ -112,8 +111,8 @@ class ToolUrls(Enum):
     )
 
 
-class Stores(Enum):
-    INPUT_DATA = "store_input_data"
+class MyStores(Enum):
+    input_data = "store_input_data"
 
 
 class ChartsInfo(BaseModel):
@@ -539,8 +538,12 @@ class ModelInputsSelectionSpeedASHRAE55(Enum):
     s_2: str = "with local control"
 
 
-class ModelInputsSelectionHumidityASHRAE55(Enum):
-    # todo pycharm is telling me that this code is duplicated
+class ModelInputsSelectionSpeedASHRAE55(Enum):
+    s_1: str = "No local control"
+    s_2: str = "with local control"
+
+
+class HumiditySelection(Enum):
     h_1: str = "Relative humidity"
     h_2: str = "Humidity ratio"
     h_3: str = "Dew point"
@@ -548,9 +551,10 @@ class ModelInputsSelectionHumidityASHRAE55(Enum):
     h_5: str = "Vapor pressure"
 
 
-class ModelInputsSelectionMetabolicASHRAE55(Enum):
-    h_1: str = "Sleeping: 0.7"
-    h_2: str = "Reclining"
+class MetabolicRateSelection(Enum):
+    sleeping: str = "Sleeping: 0.7"
+    reclining: str = "Reclining: 0.8"
+    # todo change the key names
     h_3: str = "Seated, quite: 1.0"
     h_4: str = "Reading, seated: 1.0"
     h_5: str = "Writing: 1.0"
@@ -579,147 +583,7 @@ class ModelInputsSelectionMetabolicASHRAE55(Enum):
     h_28: str = "Handling 100lb (45 kg) bags: 4.0"
 
 
-class ModelInputsSelectionClothingASHRAE55(Enum):
-    c_1: str = "Walking shorts, short-sleeve shirt: 0.36 clo"
-    c_2: str = "Typical summer indoor clothing: 0.5 clo"
-    c_3: str = "Knee-length skirt, short-sleeve shirt, sandals, underwear: 0.54 clo"
-    c_4: str = "Trousers, short-sleeve shirt, socks, shoes, underwear: 0.57 clo"
-    c_5: str = "Trousers, long-sleeve shirt: 0.61 clo"
-    c_6: str = "Knee-length skirt, long-sleeve shirt, full slip: 0.67 clo"
-    c_7: str = "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
-    c_8: str = "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
-    c_9: str = "Typical winter indoor clothing: 1.0 clo"
-
-
-# PMV - EN right selectioon
-class ModelInputsSelectionHumidityPmvEN16798(Enum):
-    h_1: str = "Relative humidity"
-    h_2: str = "Humidity ratio"
-    h_3: str = "Dew point"
-    h_4: str = "Wet bulb"
-    h_5: str = "Vapor pressure"
-
-
-class ModelInputsSelectionMetablicRatePmvEN16798(Enum):
-    h_1: str = "Sleeping: 0.7"
-    h_2: str = "Reclining"
-    h_3: str = "Seated, quite: 1.0"
-    h_4: str = "Reading, seated: 1.0"
-    h_5: str = "Writing: 1.0"
-    h_6: str = "Typing: 1.1"
-    h_7: str = "Standing, relaxed: 1.2"
-    h_8: str = "Filing, seated: 1.2"
-    h_9: str = "Flying aircraft, routine: 1.2"
-    h_10: str = "Filing, standing: 1.4"
-    h_11: str = "Driving a car: 1.5"
-    h_12: str = "Walking about: 1.7"
-    h_13: str = "Cooking: 1.8"
-    h_14: str = "Table sawing: 1.8"
-    h_15: str = "Walking 2mph (3.2kmh): 2.0"
-    h_16: str = "Lifting/packing: 2.1"
-    h_17: str = "Seated, heavy limb movement: 2.2"
-    h_18: str = "Light machine work: 2.2"
-    h_19: str = "Flying aircraft, combat: 2.4"
-    h_20: str = "Walking 3mph (4.8kmh): 2.6"
-    h_21: str = "House cleaning: 2.7"
-    h_22: str = "Driving, heavy vehicle: 3.2"
-    h_23: str = "Dancing: 3.4"
-    h_24: str = "Calisthenics: 3.5"
-    h_25: str = "Walking 4mph (6.4kmh): 3.8"
-    h_26: str = "Tennis: 3.8"
-    h_27: str = "Heavy machine work: 4.0"
-    h_28: str = "Handling 100lb (45 kg) bags: 4.0"
-
-
-class ModelInputsSelectionClothingPmvEN16798(Enum):
-    c_1: str = "Walking shorts, short-sleeve shirt: 0.36 clo"
-    c_2: str = "Typical summer indoor clothing: 0.5 clo"
-    c_3: str = "Knee-length skirt, short-sleeve shirt, sandals, underwear: 0.54 clo"
-    c_4: str = "Trousers, short-sleeve shirt, socks, shoes, underwear: 0.57 clo"
-    c_5: str = "Trousers, long-sleeve shirt: 0.61 clo"
-    c_6: str = "Knee-length skirt, long-sleeve shirt, full slip: 0.67 clo"
-    c_7: str = "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
-    c_8: str = "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
-    c_9: str = "Typical winter indoor clothing: 1.0 clo"
-
-
-# Fans and Heat right selection
-class ModelInputsSelectionMetablicRateFansAndHeat(Enum):
-    h_1: str = "Sleeping: 0.7"
-    h_2: str = "Reclining"
-    h_3: str = "Seated, quite: 1.0"
-    h_4: str = "Reading, seated: 1.0"
-    h_5: str = "Writing: 1.0"
-    h_6: str = "Typing: 1.1"
-    h_7: str = "Standing, relaxed: 1.2"
-    h_8: str = "Filing, seated: 1.2"
-    h_9: str = "Flying aircraft, routine: 1.2"
-    h_10: str = "Filing, standing: 1.4"
-    h_11: str = "Driving a car: 1.5"
-    h_12: str = "Walking about: 1.7"
-    h_13: str = "Cooking: 1.8"
-    h_14: str = "Table sawing: 1.8"
-    h_15: str = "Walking 2mph (3.2kmh): 2.0"
-    h_16: str = "Lifting/packing: 2.1"
-    h_17: str = "Seated, heavy limb movement: 2.2"
-    h_18: str = "Light machine work: 2.2"
-    h_19: str = "Flying aircraft, combat: 2.4"
-    h_20: str = "Walking 3mph (4.8kmh): 2.6"
-    h_21: str = "House cleaning: 2.7"
-    h_22: str = "Driving, heavy vehicle: 3.2"
-    h_23: str = "Dancing: 3.4"
-    h_24: str = "Calisthenics: 3.5"
-    h_25: str = "Walking 4mph (6.4kmh): 3.8"
-    h_26: str = "Tennis: 3.8"
-    h_27: str = "Heavy machine work: 4.0"
-    h_28: str = "Handling 100lb (45 kg) bags: 4.0"
-
-
-class ModelInputsSelectionClothingFansAndHeat(Enum):
-    c_1: str = "Walking shorts, short-sleeve shirt: 0.36 clo"
-    c_2: str = "Typical summer indoor clothing: 0.5 clo"
-    c_3: str = "Knee-length skirt, short-sleeve shirt, sandals, underwear: 0.54 clo"
-    c_4: str = "Trousers, short-sleeve shirt, socks, shoes, underwear: 0.57 clo"
-    c_5: str = "Trousers, long-sleeve shirt: 0.61 clo"
-    c_6: str = "Knee-length skirt, long-sleeve shirt, full slip: 0.67 clo"
-    c_7: str = "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
-    c_8: str = "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
-    c_9: str = "Typical winter indoor clothing: 1.0 clo"
-
-
-# PHS right selection
-class ModelInputsSelectionMetablicRatePhs(Enum):
-    h_1: str = "Sleeping: 0.7"
-    h_2: str = "Reclining"
-    h_3: str = "Seated, quite: 1.0"
-    h_4: str = "Reading, seated: 1.0"
-    h_5: str = "Writing: 1.0"
-    h_6: str = "Typing: 1.1"
-    h_7: str = "Standing, relaxed: 1.2"
-    h_8: str = "Filing, seated: 1.2"
-    h_9: str = "Flying aircraft, routine: 1.2"
-    h_10: str = "Filing, standing: 1.4"
-    h_11: str = "Driving a car: 1.5"
-    h_12: str = "Walking about: 1.7"
-    h_13: str = "Cooking: 1.8"
-    h_14: str = "Table sawing: 1.8"
-    h_15: str = "Walking 2mph (3.2kmh): 2.0"
-    h_16: str = "Lifting/packing: 2.1"
-    h_17: str = "Seated, heavy limb movement: 2.2"
-    h_18: str = "Light machine work: 2.2"
-    h_19: str = "Flying aircraft, combat: 2.4"
-    h_20: str = "Walking 3mph (4.8kmh): 2.6"
-    h_21: str = "House cleaning: 2.7"
-    h_22: str = "Driving, heavy vehicle: 3.2"
-    h_23: str = "Dancing: 3.4"
-    h_24: str = "Calisthenics: 3.5"
-    h_25: str = "Walking 4mph (6.4kmh): 3.8"
-    h_26: str = "Tennis: 3.8"
-    h_27: str = "Heavy machine work: 4.0"
-    h_28: str = "Handling 100lb (45 kg) bags: 4.0"
-
-
-class ModelInputsSelectionClothingPhs(Enum):
+class ClothingSelection(Enum):
     c_1: str = "Walking shorts, short-sleeve shirt: 0.36 clo"
     c_2: str = "Typical summer indoor clothing: 0.5 clo"
     c_3: str = "Knee-length skirt, short-sleeve shirt, sandals, underwear: 0.54 clo"

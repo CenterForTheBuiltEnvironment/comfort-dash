@@ -10,7 +10,7 @@ from components.footer import my_footer
 from components.navbar import my_navbar
 from utils.my_config_file import (
     Config,
-    Stores,
+    MyStores,
     ElementsIDs,
     Dimensions,
 )
@@ -64,7 +64,7 @@ app.layout = dmc.MantineProvider(
         [
             my_navbar(),
             dcc.Location(id=ElementsIDs.URL.value),
-            dcc.Store(id=Stores.INPUT_DATA.value, storage_type="local"),
+            dcc.Store(id=MyStores.input_data.value, storage_type="local"),
             html.Div(
                 dmc.Container(
                     dash.page_container,

@@ -1,6 +1,6 @@
 import dash
 import dash_mantine_components as dmc
-from dash import html, callback, Output, Input, no_update, State, ALL
+from dash import html, callback, Output, Input, no_update, State, ctx, ALL
 
 from components.charts import t_rh_pmv, chart_selector
 from components.dropdowns import (
@@ -19,6 +19,7 @@ from utils.my_config_file import (
     Models,
     Charts,
     ChartsInfo,
+    MyStores,
 )
 
 dash.register_page(__name__, path=URLS.HOME.value)
@@ -73,11 +74,55 @@ layout = dmc.Stack(
 
 
 @callback(
+    Output(MyStores.input_data.value, "data"),
+    Input({"type": "dynamic-input", "index": ALL}, "value"),
+    Input(ElementsIDs.clo_input.value, "value"),
+    Input(ElementsIDs.met_input.value, "value"),
+    Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    Input(ElementsIDs.chart_selected.value, "value"),
+    State(ElementsIDs.MODEL_SELECTION.value, "value"),
+)
+def update_store_inputs(
+    input_values:list,
+    clo_value: float,
+    met_value: float,
+    units_selection: str,
+    chart_selected: str,
+    selected_model: str,
+):
+  
+    if selected_model is None or not input_values:
+        return no_update
+    model_inputs = Models[selected_model].value.inputs
+    form_content = {
+        model_input.id: {"value": input_value}
+        for model_input, input_value in zip(model_inputs, input_values)
+    }
+    
+    units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
+    inputs = get_inputs(selected_model, form_content, units)
+
+    if ctx.triggered:
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if triggered_id == ElementsIDs.clo_input.value:
+            inputs[ElementsIDs.clo_input.value] = float(clo_value)
+        if triggered_id == ElementsIDs.met_input.value:
+            inputs[ElementsIDs.met_input.value] = float(met_value)
+
+    inputs[ElementsIDs.UNIT_TOGGLE.value] = units
+    inputs[ElementsIDs.MODEL_SELECTION.value] = selected_model
+    inputs[ElementsIDs.chart_selected.value] = chart_selected
+
+    return inputs
+
+
+@callback(
     Output(ElementsIDs.INPUT_SECTION.value, "children"),
     Input(ElementsIDs.MODEL_SELECTION.value, "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
 )
 def update_inputs(selected_model, units_selection):
+    # todo here I should first check if some inputs are already stored in the store
     if selected_model is None:
         return no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
@@ -112,31 +157,14 @@ def update_note_model(selected_model):
 
 @callback(
     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
-    Input({"type": "dynamic-input", "index": ALL}, "value"),
-    Input(ElementsIDs.chart_selected.value, "value"),
-    State(ElementsIDs.MODEL_SELECTION.value, "value"),
-    State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    Input(MyStores.input_data.value, "data"),
 )
 def update_chart(
-    input_values: list,
-    chart_selected: str,
-    selected_model: str,
-    units_selection: str,
+    inputs: int,
 ):
-    if selected_model is None:
-        return no_update
-
-    if chart_selected is None:
-        return no_update
-    
-    model_inputs = Models[selected_model].value.inputs
-    form_content = {
-        model_input.id: {"value": input_value}
-        for model_input, input_value in zip(model_inputs, input_values)
-    }
-    
-    units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    inputs = get_inputs(selected_model, form_content, units)
+    selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
+    units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
+    chart_selected = inputs[ElementsIDs.chart_selected.value]
 
     image = html.Div(
         [
@@ -174,16 +202,8 @@ def update_chart(
 
 @callback(
     Output(ElementsIDs.RESULTS_SECTION.value, "children"),
-    Input({"type": "dynamic-input", "index": ALL}, "value"),
-    State(ElementsIDs.MODEL_SELECTION.value, "value"),
-    State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    Input(MyStores.input_data.value, "data"),
 )
-def update_outputs(input_values, selected_model, units_selection: str):
-    if selected_model is None or not input_values:
-        return no_update
-    model_inputs = Models[selected_model].value.inputs
-    form_content = {
-        model_input.id: {"value": input_value}
-        for model_input, input_value in zip(model_inputs, input_values)
-    }
-    return display_results(selected_model, form_content, units_selection)
+def update_outputs(inputs: dict):
+
+    return display_results(inputs)

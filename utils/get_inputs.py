@@ -22,15 +22,26 @@ def find_dict_with_key_value(d, key, value):
     return None
 '''
 
-def get_inputs(selected_model: str, form_content: dict, units: str):
 
+def extract_float(value):
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value.split(":")[-1].strip().split()[0])
+        except ValueError:
+            return None
+    return None
+
+
+def get_inputs(selected_model: str, form_content: dict, units: str):
     if selected_model is None:
         return no_update
 
     # creating a copy of the model inputs
     list_model_inputs = deepcopy(Models[selected_model].value.inputs)
     
-    # Update input values ​​to map dynamic IDs to ElementsIDs
+    # Update input values to map dynamic IDs to ElementsIDs
     for model_input in list_model_inputs:
         found_input = form_content.get(model_input.id)
         if found_input and found_input["value"] not in [None, '', float('nan')]:
@@ -40,8 +51,23 @@ def get_inputs(selected_model: str, form_content: dict, units: str):
     if units == UnitSystem.IP.value:
         list_model_inputs = convert_units(list_model_inputs, UnitSystem.SI.value)
 
+    # updating the values of the model inputs with the values from the form
     inputs = {}
     for model_input in list_model_inputs:
-        inputs[model_input.id] = model_input.value
-    
+        default_value = model_input.value
+        input_dict = form_content.get(model_input.id)
+
+        if input_dict and "value" in input_dict:
+            original_value = input_dict["value"]
+            converted_value = extract_float(str(original_value))
+
+            if (
+                converted_value is not None
+                and model_input.min <= converted_value <= model_input.max
+            ):
+                inputs[model_input.id] = converted_value
+            else:
+                inputs[model_input.id] = default_value
+        else:
+            inputs[model_input.id] = default_value
     return inputs

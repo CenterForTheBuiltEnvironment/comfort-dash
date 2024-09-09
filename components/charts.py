@@ -15,6 +15,9 @@ from scipy import optimize
 from components.drop_down_inline import generate_dropdown_inline
 from utils.my_config_file import ElementsIDs, Models
 from utils.website_text import TextHome
+import matplotlib
+
+matplotlib.use("Agg")
 
 
 def chart_selector(selected_model: str):
@@ -62,7 +65,7 @@ def t_rh_pmv(inputs: dict = None, model: str = "iso"):
                     - pmv_limit
                 )
 
-            temp = optimize.brentq(function, 0, 50)
+            temp = optimize.brentq(function, 10, 40)
             results.append(
                 {
                     "rh": rh,
@@ -107,7 +110,7 @@ def t_rh_pmv(inputs: dict = None, model: str = "iso"):
     )
     my_stringIObytes.seek(0)
     my_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode()
-    plt.close()
+    plt.close("all")
     return dmc.Image(
         src=f"data:image/png;base64, {my_base64_jpgData}",
         alt="Heat stress chart",
