@@ -58,7 +58,7 @@ def modal_custom_ensemble():
                             {
                                 "group": "Tops",
                                 "items": [
-                                    {"value": "0.08_T_shirt", "label": "T-shirt"},
+                                    {"value": "0.08_T_shirt", "label": "T-shirt (0.08 clo)"},
                                     {
                                         "value": "0.12",
                                         "label": "Sleeveless scoop-neck blouse (0.12 clo)",
