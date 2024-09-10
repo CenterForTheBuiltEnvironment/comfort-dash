@@ -332,6 +332,13 @@ def input_environmental_personal(
     )
 
     inputs.append(unit_toggle)
+    # show custom ensemble button
+    custom_ensemble_button = None
+    if selected_model in ["PMV_EN", "PMV_ashrae"]:
+        custom_ensemble_button = dmc.Button(
+            "Custom Ensemble",
+            id=ElementsIDs.modal_custom_ensemble_open.value,
+        )
 
     return dmc.Paper(
         children=[
@@ -348,14 +355,11 @@ def input_environmental_personal(
                         ),
                         id=ElementsIDs.inputs_form.value,
                     ),
-                    dmc.Button(
-                        "Custom Ensemble",
-                        id=ElementsIDs.modal_custom_ensemble_open.value,
-                    ),
-                    modal_custom_ensemble(),
+                    custom_ensemble_button,
+                    modal_custom_ensemble() if custom_ensemble_button else None,
                 ],
                 gap="xs",
-            )
+            ),
         ],
         shadow="md",
         p="md",
