@@ -1,6 +1,6 @@
 import dash
 import dash_mantine_components as dmc
-from dash import html, callback, Output, Input, no_update, State, ctx
+from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
 from components.charts import t_rh_pmv, chart_selector
 from components.dropdowns import (
@@ -21,6 +21,20 @@ from utils.my_config_file import (
     ChartsInfo,
     MyStores,
 )
+
+from components.store_state import StoreState
+
+PERSIST_IDS = [
+    ElementsIDs.t_db_input.value,
+    ElementsIDs.t_r_input.value,
+    ElementsIDs.v_input.value,
+    ElementsIDs.rh_input.value,
+    ElementsIDs.met_input.value,
+    ElementsIDs.clo_input.value,
+]
+
+store_state = StoreState(PERSIST_IDS, store_type='local')
+store_id = 'input_environmental_personal'
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -62,6 +76,9 @@ layout = dmc.Stack(
                                 id=ElementsIDs.CHART_CONTAINER.value,
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
+
+                            store_state.get_store_component(store_id),
+                            dcc.Location(id='url', refresh=False),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -84,13 +101,13 @@ layout = dmc.Stack(
     State(ElementsIDs.MODEL_SELECTION.value, "value"),
 )
 def update_store_inputs(
-    form_clicks: int,
-    form_content: dict,
-    clo_value: float,
-    met_value: float,
-    units_selection: str,
-    chart_selected: str,
-    selected_model: str,
+        form_clicks: int,
+        form_content: dict,
+        clo_value: float,
+        met_value: float,
+        units_selection: str,
+        chart_selected: str,
+        selected_model: str,
 ):
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
     inputs = get_inputs(selected_model, form_content, units)
@@ -153,7 +170,7 @@ def update_note_model(selected_model):
     Input(MyStores.input_data.value, "data"),
 )
 def update_chart(
-    inputs: int,
+        inputs: int,
 ):
     selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
     units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
@@ -198,5 +215,46 @@ def update_chart(
     Input(MyStores.input_data.value, "data"),
 )
 def update_outputs(inputs: dict):
-
     return display_results(inputs)
+
+
+@callback(
+    Output(store_id, "data", allow_duplicate=True),
+    [Input(id, "value") for id in PERSIST_IDS],
+    State(store_id, "data"),
+    prevent_initial_call=True,
+)
+def callback_update_local_storage(*args):
+    return store_state.update_local_storage(*args)
+
+
+@callback(
+    Output(store_id, "data", allow_duplicate=True),
+    [Input("url", "href")],
+    State(store_id, "data"),
+    prevent_initial_call=True,
+)
+def callback_update_store_from_url(url, store_data):
+    return store_state.update_store_from_url(url, store_data)
+
+
+# 添加 Dash 回调函数以调用 load_data 方法
+@callback(
+    [Output(id, 'value', allow_duplicate=True) for id in PERSIST_IDS],
+    Input(store_id, 'modified_timestamp'),
+    State(store_id, 'data'),
+    prevent_initial_call=True
+)
+def callback_load_data(modified_timestamp, store_data):
+    return store_state.load_data(modified_timestamp, store_data)
+
+
+# 添加 Dash 回调函数以调用 update_url 方法
+@callback(
+    Output('url', 'href'),
+    [Input(id, 'value') for id in PERSIST_IDS],
+    State(store_id, 'data'),
+    prevent_initial_call=True
+)
+def callback_update_url(*args):
+    return store_state.update_url(*args)
