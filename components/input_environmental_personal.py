@@ -279,17 +279,23 @@ def input_environmental_personal(
             model_input = next(
                 input_info for input_info in model_inputs if input_info.id == input_id
             )
-            # Add the input box that needs to be displayed
-            input_field = dmc.NumberInput(
-                label=f"{model_input.name} ({model_input.unit})",
-                description=f"From {model_input.min} to {model_input.max}",
-                value=model_input.value,
-                min=model_input.min,
-                max=model_input.max,
-                step=model_input.step,
-                id=input_id,
-            )
-            inputs.append(input_field)
+            if (
+                model_input.id == ElementsIDs.met_input.value
+                or model_input.id == ElementsIDs.clo_input.value
+            ):
+                inputs.append(create_autocomplete(model_input))
+            else:
+                # Add the input box that needs to be displayed
+                input_field = dmc.NumberInput(
+                    label=f"{model_input.name} ({model_input.unit})",
+                    description=f"From {model_input.min} to {model_input.max}",
+                    value=model_input.value,
+                    min=model_input.min,
+                    max=model_input.max,
+                    step=model_input.step,
+                    id=model_input.id,
+                )
+                inputs.append(input_field)
         else:
             # Hide unnecessary input boxes and keep default values ​​passed
             inputs.append(
