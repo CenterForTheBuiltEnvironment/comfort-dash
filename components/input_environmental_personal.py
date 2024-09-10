@@ -262,25 +262,48 @@ def input_environmental_personal(
     model_inputs = Models[selected_model].value.inputs
     model_inputs = convert_units(model_inputs, units)
 
-    values: ModelInputsInfo
-    for values in model_inputs:
+    all_inputs = {
+        ElementsIDs.t_db_input.value: "Air Temperature",
+        ElementsIDs.t_r_input.value: "Mean Radiant Temperature",
+        ElementsIDs.t_rm_input.value: "Prevailing mean outdoor temperature",
+        ElementsIDs.v_input.value: "Air Speed",
+        ElementsIDs.rh_input.value: "Relative Humidity",
+        ElementsIDs.met_input.value: "Metabolic Rate",
+        ElementsIDs.clo_input.value: "Clothing Level",
+    }
 
-        if (
-            values.id == ElementsIDs.met_input.value
-            or values.id == ElementsIDs.clo_input.value
-        ):
-            inputs.append(create_autocomplete(values))
-        else:
-            input_filed = dmc.NumberInput(
-                label=values.name + " (" + values.unit + ")",
-                description=f"From {values.min} to {values.max}",
-                value=values.value,
-                min=values.min,
-                max=values.max,
-                step=values.step,
-                id=values.id,
+    model_input: ModelInputsInfo
+    for input_id, input_name in all_inputs.items():
+        # Check whether the current model requires this input parameter
+        if any(input_info.id == input_id for input_info in model_inputs):
+            model_input = next(
+                input_info for input_info in model_inputs if input_info.id == input_id
             )
-            inputs.append(input_filed)
+            # Add the input box that needs to be displayed
+            input_field = dmc.NumberInput(
+                label=f"{model_input.name} ({model_input.unit})",
+                description=f"From {model_input.min} to {model_input.max}",
+                value=model_input.value,
+                min=model_input.min,
+                max=model_input.max,
+                step=model_input.step,
+                id=input_id,
+            )
+            inputs.append(input_field)
+        else:
+            # Hide unnecessary input boxes and keep default values ​​passed
+            inputs.append(
+                html.Div(
+                    style={"display": "none"},
+                    children=[
+                        dmc.NumberInput(
+                            label=f"{input_name}",
+                            value=-1,  # Set the default value to -1
+                            id=input_id,
+                        )
+                    ],
+                )
+            )
 
     unit_toggle = dmc.Center(
         dmc.Switch(
