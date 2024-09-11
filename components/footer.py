@@ -88,24 +88,23 @@ def my_footer():
                                     c="white",
                                     size="sm",
                                 ),
-                                dmc.Group(
+                                dmc.Text(
                                     [
                                         dmc.Text(
                                             TextFooter.cite.value,
                                             c="white",
                                             size="sm",
+                                            display="inline",
                                         ),
                                         dmc.Anchor(
-                                            dmc.Text(
-                                                TextFooter.cite_link.value,
-                                                c="white",
-                                                size="sm",
-                                                td="underline",
-                                            ),
+                                            TextFooter.cite_link.value,
+                                            c="white",
+                                            size="sm",
+                                            td="underline",
+                                            display="inline",
                                             href=TextFooter.cite_link.value,
                                         ),
                                     ],
-                                    gap=0,
                                 ),
                             ],
                             align="center",
