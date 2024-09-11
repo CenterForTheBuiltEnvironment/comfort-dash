@@ -223,7 +223,7 @@ def SET_outputs_chart(inputs: dict = None):
         bbox_to_anchor=(0.5, -0.15),
         fancybox=True,
         shadow=False,
-        ncol=4,
+        ncol=3,  # Set ncol to 3 to arrange in 3 columns
     )
 
     # Apply a tight layout
