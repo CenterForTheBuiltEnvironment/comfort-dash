@@ -25,20 +25,11 @@ class TextNavBar(Enum):
     about: str = "About"
     devices: str = "Devices"
     documentation: str = "Documentation"
-    # todo do not call toolsX but call them by their name, see example below
     more_tools: str = "More CBE Tools"
-    tool1: str = "CBE Thermal Comfort Tool"
-    tool2: str = "CBE Clima Tool"
-    tool3: str = "Advanced Ceiling Fan Design Tool"
-    tool4: str = "Guidebook on Fans for Cooling People"
-    tool5: str = "Occupant Survey Toolkit"
-    tool6: str = "CBE Rad Tool"
-    tool7: str = "Setpoint Energy Savings Calculator"
-    tool8: str = "CBE 3D Mean Radiant Temperature Tool"
-    tool9: str = "CBE Underfloor Air Distribution (UFAD) Design Tool"
-    tool10: str = "Global Comfort Data Visualization Tools"
-    tool11: str = "Python Thermal Comfort Tool: pythermalcomfort"
-    tool12: str = "Energy Modeling of Underfloor Air Distribution (UFAD) Systems"
+    climaTool: str = "CBE Clima Tool"
+    comfortTool: str = "CBE Comfort Tool"
+    fanTool: str = "CBE Fan Tool"
+    pythermalcomfort: str = "pythermalcomfort"
 
 
 class TextHome(Enum):
