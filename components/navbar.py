@@ -38,10 +38,10 @@ def my_navbar():
                                 dbc.Col(
                                     dmc.Image(
                                         src="assets/media/logo-placeholder.png",
-                                        style={
+                                        style={  # Dynamic adjust size in small screen
                                             "width": "min(12vw, 70px)",
                                             "max-width": "70px",
-                                        },  # Dynamic adjust size in small screen
+                                        },
                                         ta="center",
                                     ),
                                 ),
@@ -54,11 +54,11 @@ def my_navbar():
                             dmc.Text(
                                 app_name,
                                 c="#0c2772",
-                                style={
+                                style={  # Dynamic adjust size in small screen
                                     "font-size": "min(5vw, 32px)"
-                                },  # Dynamic adjust size in small screen
+                                },
                                 truncate=True,  # text in single line
-                                ta="center", # text show in middle
+                                ta="center",  # text show in middle
                             ),
                             className="flex-grow-1",
                         ),
