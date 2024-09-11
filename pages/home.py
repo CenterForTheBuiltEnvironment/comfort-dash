@@ -24,8 +24,6 @@ from utils.my_config_file import (
 
 from urllib.parse import parse_qs, urlencode
 
-
-
 dash.register_page(__name__, path=URLS.HOME.value)
 
 layout = dmc.Stack(
@@ -66,8 +64,9 @@ layout = dmc.Stack(
                                 id=ElementsIDs.CHART_CONTAINER.value,
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
-                            #
+
                             # store_state.get_store_component(store_id),
+
                             dcc.Location(id='url', refresh=False),
                         ],
                     ),
@@ -239,4 +238,3 @@ def update_chart(
 )
 def update_outputs(inputs: dict):
     return display_results(inputs)
-
