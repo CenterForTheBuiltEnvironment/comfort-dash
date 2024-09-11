@@ -42,7 +42,6 @@ def my_navbar():
                                             "width": "min(12vw, 70px)",
                                             "max-width": "70px",
                                         },
-                                        ta="center",
                                     ),
                                 ),
                                 href=URLS.HOME.value,
