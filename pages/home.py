@@ -22,19 +22,7 @@ from utils.my_config_file import (
     MyStores,
 )
 
-from components.store_state import StoreState
-
-PERSIST_IDS = [
-    ElementsIDs.t_db_input.value,
-    ElementsIDs.t_r_input.value,
-    ElementsIDs.v_input.value,
-    ElementsIDs.rh_input.value,
-    ElementsIDs.met_input.value,
-    ElementsIDs.clo_input.value,
-]
-
-store_state = StoreState(PERSIST_IDS, store_type='local')
-store_id = 'input_environmental_personal'
+from urllib.parse import parse_qs, urlencode
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -77,7 +65,8 @@ layout = dmc.Stack(
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
 
-                            store_state.get_store_component(store_id),
+                            # store_state.get_store_component(store_id),
+
                             dcc.Location(id='url', refresh=False),
                         ],
                     ),
@@ -92,6 +81,7 @@ layout = dmc.Stack(
 
 @callback(
     Output(MyStores.input_data.value, "data"),
+    Output('url', 'search',allow_duplicate=True),
     Input(ElementsIDs.inputs_form.value, "n_clicks"),
     Input(ElementsIDs.inputs_form.value, "children"),
     Input(ElementsIDs.clo_input.value, "value"),
@@ -99,7 +89,10 @@ layout = dmc.Stack(
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
     Input(ElementsIDs.chart_selected.value, "value"),
     State(ElementsIDs.MODEL_SELECTION.value, "value"),
+    prevent_initial_call=True
+
 )
+# save the inputs in the store, and update the URL
 def update_store_inputs(
         form_clicks: int,
         form_content: dict,
@@ -123,20 +116,49 @@ def update_store_inputs(
     inputs[ElementsIDs.MODEL_SELECTION.value] = selected_model
     inputs[ElementsIDs.chart_selected.value] = chart_selected
 
-    return inputs
+    print(f"inputs: {inputs}")
+    url_data = inputs
+    # encode the inputs to be used in the URL
+    url_search = f"?{urlencode(inputs)}"
+    print(f"url_params: {url_data}")
+
+    return inputs,url_search
 
 
 @callback(
     Output(ElementsIDs.INPUT_SECTION.value, "children"),
     Input(ElementsIDs.MODEL_SELECTION.value, "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    Input("url", "search"),
+    State(MyStores.input_data.value, "data"),
 )
-def update_inputs(selected_model, units_selection):
-    # todo here I should first check if some inputs are already stored in the store
+
+# update the inputs based on the model selected, the units selected, and the URL
+def update_inputs(selected_model, units_selection, url_search, stored_data):
     if selected_model is None:
         return no_update
+
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    return input_environmental_personal(selected_model, units)
+
+    # Parse URL parameters
+    url_params = parse_qs(url_search.lstrip('?'))
+    url_params = {k: v[0] if len(v) == 1 else v for k, v in url_params.items()}
+
+    # If URL parameters exist, use them; otherwise, fall back to stored data
+    params = url_params if url_params else (stored_data or {})
+
+    # Convert numeric strings to float
+    for key, value in params.items():
+        try:
+            params[key] = float(value)
+        except (ValueError, TypeError):
+            pass
+
+    # Ensure that the unit toggle and model selection are always respected
+    params[ElementsIDs.UNIT_TOGGLE.value] = units
+    params[ElementsIDs.MODEL_SELECTION.value] = selected_model
+
+    return input_environmental_personal(selected_model, units, url_params=params)
 
 
 @callback(
@@ -216,45 +238,3 @@ def update_chart(
 )
 def update_outputs(inputs: dict):
     return display_results(inputs)
-
-
-@callback(
-    Output(store_id, "data", allow_duplicate=True),
-    [Input(id, "value") for id in PERSIST_IDS],
-    State(store_id, "data"),
-    prevent_initial_call=True,
-)
-def callback_update_local_storage(*args):
-    return store_state.update_local_storage(*args)
-
-
-@callback(
-    Output(store_id, "data", allow_duplicate=True),
-    [Input("url", "href")],
-    State(store_id, "data"),
-    prevent_initial_call=True,
-)
-def callback_update_store_from_url(url, store_data):
-    return store_state.update_store_from_url(url, store_data)
-
-
-# 添加 Dash 回调函数以调用 load_data 方法
-@callback(
-    [Output(id, 'value', allow_duplicate=True) for id in PERSIST_IDS],
-    Input(store_id, 'modified_timestamp'),
-    State(store_id, 'data'),
-    prevent_initial_call=True
-)
-def callback_load_data(modified_timestamp, store_data):
-    return store_state.load_data(modified_timestamp, store_data)
-
-
-# 添加 Dash 回调函数以调用 update_url 方法
-@callback(
-    Output('url', 'href'),
-    [Input(id, 'value') for id in PERSIST_IDS],
-    State(store_id, 'data'),
-    prevent_initial_call=True
-)
-def callback_update_url(*args):
-    return store_state.update_url(*args)
