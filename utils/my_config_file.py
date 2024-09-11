@@ -112,6 +112,11 @@ class Charts(Enum):
         id="id_psy_to_chart",
         note_chart="In this psychrometric chart the abscissa is the operative temperature and for each point dry-bulb temperature equals mean radiant temperature (DBT = MRT). The comfort zone represents the combination of conditions with the same DBT and MRT for which the PMV is between -0.5 and +0.5, according to the standard.",
     )
+    SET_outputs: ChartsInfo = ChartsInfo(
+        name="SET outputs Chart",
+        id="id_set_outputs_chart",
+        note_chart="This chart shows how some variables, calculated using the SET model, vary as a function of the input parameters you selected. You can toggle on and off the lines by clicking on the relative variable in the legend.",
+    )
 
 
 class AdaptiveAshraeSpeeds(Enum):
@@ -266,6 +271,7 @@ class Models(Enum):
             Charts.t_rh.value,
             Charts.psychrometric.value,
             Charts.psychrometric_operative.value,
+            Charts.SET_outputs.value,
         ],
         inputs=[
             ModelInputsInfo(
