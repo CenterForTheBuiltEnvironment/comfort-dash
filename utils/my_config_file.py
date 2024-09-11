@@ -82,32 +82,8 @@ class ToolUrls(Enum):
     advance_ceiling_fan_design_tool: str = (
         "https://cbe.berkeley.edu/research/advanced-ceiling-fan-design-tool/"
     )
-    guidebook_on_fans_for_cooling_people_tool: str = (
-        "https://cbe.berkeley.edu/research/guidebook-on-fans-for-cooling-people/"
-    )
-    occupant_survey_and_building_benchmarking_tool: str = (
-        "https://cbe.berkeley.edu/research/occupant-survey-and-building-benchmarking/"
-    )
-    cbe_rad_tool_early_design_tool_for_high_thermal_mass_radiant_syste_tool: str = (
-        "https://cbe.berkeley.edu/research/cbe-rad-tool-early-design-tool-for-high-thermal-mass-radiant-systems/"
-    )
-    setpoint_energy_savings_calculator_tool: str = (
-        "https://cbe.berkeley.edu/research/setpoint-energy-savings-calculator/"
-    )
-    cbe_3d_mean_radiant_temperature_tool: str = (
-        "https://cbe.berkeley.edu/research/cbe-3d-mean-radiant-temperature-tool/"
-    )
-    underfloor_air_distribution_ufad_cooling_load_design_tool: str = (
-        "https://cbe.berkeley.edu/research/underfloor-air-distribution-ufad-cooling-load-design-tool/"
-    )
-    global_comfort_data_visualization_tool: str = (
-        "https://cbe.berkeley.edu/research/global-comfort-data-visualization-tools/"
-    )
     python_package_for_thermal_comfort_tool: str = (
         "https://cbe.berkeley.edu/research/python-package-for-thermal-comfort/"
-    )
-    energy_performance_modeling_underfloor_air_distribution_systems_tool: str = (
-        "https://cbe.berkeley.edu/research/energy-performance-modeling-underfloor-air-distribution-systems/"
     )
 
 
