@@ -58,7 +58,10 @@ def modal_custom_ensemble():
                             {
                                 "group": "Tops",
                                 "items": [
-                                    {"value": "0.08_T_shirt", "label": "T-shirt (0.08 clo)"},
+                                    {
+                                        "value": "0.08_T_shirt",
+                                        "label": "T-shirt (0.08 clo)",
+                                    },
                                     {
                                         "value": "0.12",
                                         "label": "Sleeveless scoop-neck blouse (0.12 clo)",
@@ -334,7 +337,7 @@ def input_environmental_personal(
     inputs.append(unit_toggle)
     # show custom ensemble button
     custom_ensemble_button = None
-    if selected_model in ["PMV_EN", "PMV_ashrae"]:
+    if selected_model in [Models.PMV_EN.name, Models.PMV_ashrae.name]:
         custom_ensemble_button = dmc.Button(
             "Custom Ensemble",
             id=ElementsIDs.modal_custom_ensemble_open.value,
@@ -377,9 +380,10 @@ def input_environmental_personal(
     Input(ElementsIDs.modal_custom_ensemble_close.value, "n_clicks"),
     Input(ElementsIDs.modal_custom_ensemble_submit.value, "n_clicks"),
     State(ElementsIDs.modal_custom_ensemble.value, "opened"),
+    State(ElementsIDs.MODEL_SELECTION.value, "value"),
     prevent_initial_call=True,
 )
-def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened):
+def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened, selected_model):
 
     ctx = dash.callback_context.triggered_id
 
@@ -394,10 +398,18 @@ def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened):
         total_clo_value += float(value.split("_")[0])
     total_clo_value = round(total_clo_value, 2)
 
-    if total_clo_value > 1.5:
-        error_message = (
-            f"Clothing Level cannot exceed 1.5. Current total: {total_clo_value} clo."
-        )
+    model_info = Models[selected_model].value
+    max_clo_value = next(
+        (
+            input_info.max
+            for input_info in model_info.inputs
+            if input_info.name == "Clothing Level"
+        ),
+        None,
+    )
+
+    if total_clo_value > max_clo_value:
+        error_message = f"Clothing Level cannot exceed {max_clo_value}. Current total: {total_clo_value} clo."
         return dash.no_update, dash.no_update, "block", error_message
 
     if ctx == ElementsIDs.modal_custom_ensemble_submit.value:
