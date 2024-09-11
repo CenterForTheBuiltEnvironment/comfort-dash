@@ -65,8 +65,6 @@ layout = dmc.Stack(
                                 id=ElementsIDs.CHART_CONTAINER.value,
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
-                            #
-                            # store_state.get_store_component(store_id),
                             dcc.Location(id="url", refresh=False),
                         ],
                     ),
