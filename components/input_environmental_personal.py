@@ -1,5 +1,5 @@
 import dash_mantine_components as dmc
-from dash import html, callback, Output, Input, State, callback_context, no_update
+from dash import html, callback, Output, Input, State
 
 from utils.my_config_file import (
     ModelInputsInfo,
