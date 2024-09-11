@@ -25,7 +25,6 @@ from utils.my_config_file import (
 from urllib.parse import parse_qs, urlencode
 
 
-
 dash.register_page(__name__, path=URLS.HOME.value)
 
 layout = dmc.Stack(
@@ -68,7 +67,7 @@ layout = dmc.Stack(
                             dmc.Text(id=ElementsIDs.note_model.value),
                             #
                             # store_state.get_store_component(store_id),
-                            dcc.Location(id='url', refresh=False),
+                            dcc.Location(id="url", refresh=False),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -82,7 +81,7 @@ layout = dmc.Stack(
 
 @callback(
     Output(MyStores.input_data.value, "data"),
-    Output('url', 'search',allow_duplicate=True),
+    Output("url", "search", allow_duplicate=True),
     Input(ElementsIDs.inputs_form.value, "n_clicks"),
     Input(ElementsIDs.inputs_form.value, "children"),
     Input(ElementsIDs.clo_input.value, "value"),
@@ -90,18 +89,17 @@ layout = dmc.Stack(
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
     Input(ElementsIDs.chart_selected.value, "value"),
     State(ElementsIDs.MODEL_SELECTION.value, "value"),
-    prevent_initial_call=True
-
+    prevent_initial_call=True,
 )
 # save the inputs in the store, and update the URL
 def update_store_inputs(
-        form_clicks: int,
-        form_content: dict,
-        clo_value: float,
-        met_value: float,
-        units_selection: str,
-        chart_selected: str,
-        selected_model: str,
+    form_clicks: int,
+    form_content: dict,
+    clo_value: float,
+    met_value: float,
+    units_selection: str,
+    chart_selected: str,
+    selected_model: str,
 ):
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
     inputs = get_inputs(selected_model, form_content, units)
@@ -123,7 +121,7 @@ def update_store_inputs(
     url_search = f"?{urlencode(inputs)}"
     print(f"url_params: {url_data}")
 
-    return inputs,url_search
+    return inputs, url_search
 
 
 @callback(
@@ -142,7 +140,7 @@ def update_inputs(selected_model, units_selection, url_search, stored_data):
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
 
     # Parse URL parameters
-    url_params = parse_qs(url_search.lstrip('?'))
+    url_params = parse_qs(url_search.lstrip("?"))
     url_params = {k: v[0] if len(v) == 1 else v for k, v in url_params.items()}
 
     # If URL parameters exist, use them; otherwise, fall back to stored data
@@ -193,7 +191,7 @@ def update_note_model(selected_model):
     Input(MyStores.input_data.value, "data"),
 )
 def update_chart(
-        inputs: int,
+    inputs: int,
 ):
     selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
     units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
@@ -239,4 +237,3 @@ def update_chart(
 )
 def update_outputs(inputs: dict):
     return display_results(inputs)
-

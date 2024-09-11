@@ -255,7 +255,9 @@ def modal_custom_ensemble():
 
 
 def input_environmental_personal(
-    selected_model: str = "PMV_ashrae", units: str = UnitSystem.SI.value,url_params: dict = None,
+    selected_model: str = "PMV_ashrae",
+    units: str = UnitSystem.SI.value,
+    url_params: dict = None,
 ):
     inputs = []
     # create empty collection to keep track of the input field names that have been added
@@ -272,7 +274,9 @@ def input_environmental_personal(
             inputs.append(create_autocomplete(values))
         else:
             # if the value is not in the URL params, use the default value
-            default_value =url_params.get(values.id, values.value) if url_params else values.value
+            default_value = (
+                url_params.get(values.id, values.value) if url_params else values.value
+            )
             input_filed = dmc.NumberInput(
                 label=values.name + " (" + values.unit + ")",
                 description=f"From {values.min} to {values.max}",
