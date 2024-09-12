@@ -306,29 +306,37 @@ def input_environmental_personal(
     selected_model: str = "PMV_ashrae", units: str = UnitSystem.SI.value
 ):
     inputs = []
-    # create empty collection to keep track of the input field names that have been added
+    all_inputs = set()
+
+    for model in Models:
+        for input_info in model.value.inputs:
+            all_inputs.add(input_info.id)
+
     model_inputs = Models[selected_model].value.inputs
     model_inputs = convert_units(model_inputs, units)
 
     values: ModelInputsInfo
     for values in model_inputs:
+        input_id = values.id
+        if input_id in all_inputs:
+            if input_id in {ElementsIDs.met_input.value, ElementsIDs.clo_input.value}:
+                inputs.append(create_autocomplete(values))
+            else:
+                inputs.append(
+                    dmc.NumberInput(
+                        label=f"{values.name} ({values.unit})",
+                        description=f"From {values.min} to {values.max}",
+                        value=values.value,
+                        min=values.min,
+                        max=values.max,
+                        step=values.step,
+                        id=values.id,
+                    )
+                )
 
-        if (
-            values.id == ElementsIDs.met_input.value
-            or values.id == ElementsIDs.clo_input.value
-        ):
-            inputs.append(create_autocomplete(values))
-        else:
-            input_filed = dmc.NumberInput(
-                label=values.name + " (" + values.unit + ")",
-                description=f"From {values.min} to {values.max}",
-                value=values.value,
-                min=values.min,
-                max=values.max,
-                step=values.step,
-                id=values.id,
-            )
-            inputs.append(input_filed)
+    for input_id in all_inputs:
+        if input_id not in [input_info.id for input_info in model_inputs]:
+            inputs.append(html.Div(style={"display": "none"}, id=input_id))
 
     unit_toggle = dmc.Center(
         dmc.Switch(
@@ -440,6 +448,37 @@ def create_autocomplete(values: ModelInputsInfo):
     )
 
 
+def update_options(input_value, options, selection_enum):
+    if input_value is None or input_value == "":
+        return [], ""
+
+    option_values = [option.value for option in selection_enum]
+
+    if input_value in option_values:
+        return option_values, float(input_value.split(":")[-1].strip().split()[0])
+
+    try:
+        input_number = float(input_value)
+        filtered_options = []
+        for option in selection_enum:
+            # Extract the value
+            option_value = float(option.value.split(":")[-1].strip().split()[0])
+            # Perform comparison
+            if abs(option_value - input_number) < 1:
+                filtered_options.append(option.value)
+
+        if not filtered_options:
+            return option_values, input_value
+    except ValueError:
+        filtered_options = [
+            option for option in option_values if input_value.lower() in option.lower()
+        ]
+        if not filtered_options:
+            return option_values, ""
+
+    return filtered_options, input_value
+
+
 @callback(
     Output(ElementsIDs.met_input.value, "data"),
     Output(ElementsIDs.met_input.value, "value"),
@@ -447,45 +486,7 @@ def create_autocomplete(values: ModelInputsInfo):
     State(ElementsIDs.met_input.value, "data"),
 )
 def update_metabolic_rate_options(input_value, _):
-    if input_value is None or input_value == "":
-        return [], ""
-
-    metabolic_rates = [option.value for option in MetabolicRateSelection]
-
-    # if the user has selected a predefined value from the dropdown
-    if input_value in metabolic_rates:
-        return metabolic_rates, float(input_value.split(":")[-1].strip().split()[0])
-
-    # if the user is typing text
-    try:
-        input_number = float(input_value)
-    except ValueError:
-        # filter options based on input value
-        filtered_rates = [
-            option for option in metabolic_rates if input_value in option.lower()
-        ]
-        if filtered_rates:
-            return filtered_rates, input_value
-        else:
-            return metabolic_rates, ""
-
-    # filter options based on input value
-    filtered_options = []
-    for option in MetabolicRateSelection:
-        try:
-            option_value = float(option.value.split(":")[-1].strip())
-            # select the related options
-            if abs(option_value - input_number) < 1:
-                filtered_options.append(option.value)
-        except ValueError:
-            # skip if the option doesn't have a numeric value
-            continue
-
-    # If no close matches, return all options
-    if not filtered_options:
-        filtered_options = metabolic_rates
-
-    return filtered_options, input_value
+    return update_options(input_value, MetabolicRateSelection, MetabolicRateSelection)
 
 
 @callback(
@@ -494,37 +495,5 @@ def update_metabolic_rate_options(input_value, _):
     Input(ElementsIDs.clo_input.value, "value"),
     State(ElementsIDs.clo_input.value, "data"),
 )
-def update_clothing_level_options(input_value, current_data):
-    if input_value is None or input_value == "":
-        return [], ""
-
-    clothing_levels = [option.value for option in ClothingSelection]
-
-    if input_value in clothing_levels:
-        return clothing_levels, float(input_value.split(":")[-1].strip().split()[0])
-
-    try:
-        input_number = float(input_value)
-    except ValueError:
-        # filter options based on input value
-        filtered_rates = [
-            option for option in clothing_levels if input_value in option.lower()
-        ]
-        if filtered_rates:
-            return filtered_rates, input_value
-        else:
-            return clothing_levels, ""
-
-    filtered_options = []
-    for option in ClothingSelection:
-        try:
-            option_value = float(option.value.split(":")[-1].strip().split()[0])
-            if abs(option_value - input_number) < 1:
-                filtered_options.append(option.value)
-        except ValueError:
-            continue
-
-    if not filtered_options:
-        filtered_options = clothing_levels
-
-    return filtered_options, input_value
+def update_clothing_level_options(input_value, _):
+    return update_options(input_value, ClothingSelection, ClothingSelection)

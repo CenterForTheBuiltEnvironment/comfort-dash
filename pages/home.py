@@ -153,7 +153,7 @@ def update_note_model(selected_model):
     Input(MyStores.input_data.value, "data"),
 )
 def update_chart(
-    inputs: int,
+    inputs: dict,
 ):
     selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
     units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
