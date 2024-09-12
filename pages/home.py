@@ -113,11 +113,11 @@ def update_store_inputs(
     inputs[ElementsIDs.MODEL_SELECTION.value] = selected_model
     inputs[ElementsIDs.chart_selected.value] = chart_selected
 
-    print(f"inputs: {inputs}")
+    # print(f"inputs: {inputs}")
     url_data = inputs
     # encode the inputs to be used in the URL
     url_search = f"?{urlencode(inputs)}"
-    print(f"url_params: {url_data}")
+    # print(f"url_params: {url_data}")
 
     return inputs, url_search
 
@@ -126,7 +126,7 @@ def update_store_inputs(
     Output(ElementsIDs.INPUT_SECTION.value, "children"),
     Input(ElementsIDs.MODEL_SELECTION.value, "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
-    Input("url", "search"),
+    Input(ElementsIDs.URL.value, "search"),
     State(MyStores.input_data.value, "data"),
 )
 
@@ -136,9 +136,11 @@ def update_inputs(selected_model, units_selection, url_search, stored_data):
         return no_update
 
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
+    print(f"units: {units}")
 
     # Parse URL parameters
     url_params = parse_qs(url_search.lstrip("?"))
+    # map the values to the correct keys
     url_params = {k: v[0] if len(v) == 1 else v for k, v in url_params.items()}
 
     # If URL parameters exist, use them; otherwise, fall back to stored data
