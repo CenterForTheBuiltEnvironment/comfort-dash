@@ -28,7 +28,9 @@ dd_model = {
 }
 
 
-def model_selection():
+def model_selection(selected_model):
+    # 更新默认值和选项列表
+    dd_model["default"] = selected_model
     return generate_dropdown_inline(dd_model, clearable=False)
 
 

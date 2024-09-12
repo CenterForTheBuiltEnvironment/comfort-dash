@@ -255,7 +255,7 @@ def modal_custom_ensemble():
 
 
 def input_environmental_personal(
-    selected_model: str = "PMV_ashrae", units: str = UnitSystem.SI.value,url_params: dict = None,
+    selected_model: str = "PMV_ashrae", units: str = UnitSystem.SI.value, url_params: dict = None,
 ):
     inputs = []
     # create empty collection to keep track of the input field names that have been added
