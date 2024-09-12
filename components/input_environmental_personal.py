@@ -258,29 +258,37 @@ def input_environmental_personal(
     selected_model: str = "PMV_ashrae", units: str = UnitSystem.SI.value
 ):
     inputs = []
-    # create empty collection to keep track of the input field names that have been added
+    all_inputs = set()
+
+    for model in Models:
+        for input_info in model.value.inputs:
+            all_inputs.add(input_info.id)
+
     model_inputs = Models[selected_model].value.inputs
     model_inputs = convert_units(model_inputs, units)
 
     values: ModelInputsInfo
     for values in model_inputs:
+        input_id = values.id
+        if input_id in all_inputs:
+            if input_id in {ElementsIDs.met_input.value, ElementsIDs.clo_input.value}:
+                inputs.append(create_autocomplete(values))
+            else:
+                inputs.append(
+                    dmc.NumberInput(
+                        label=f"{values.name} ({values.unit})",
+                        description=f"From {values.min} to {values.max}",
+                        value=values.value,
+                        min=values.min,
+                        max=values.max,
+                        step=values.step,
+                        id=values.id,
+                    )
+                )
 
-        if (
-            values.id == ElementsIDs.met_input.value
-            or values.id == ElementsIDs.clo_input.value
-        ):
-            inputs.append(create_autocomplete(values))
-        else:
-            input_filed = dmc.NumberInput(
-                label=values.name + " (" + values.unit + ")",
-                description=f"From {values.min} to {values.max}",
-                value=values.value,
-                min=values.min,
-                max=values.max,
-                step=values.step,
-                id=values.id,
-            )
-            inputs.append(input_filed)
+    for input_id in all_inputs:
+        if input_id not in [input_info.id for input_info in model_inputs]:
+            inputs.append(html.Div(style={"display": "none"}, id=input_id))
 
     unit_toggle = dmc.Center(
         dmc.Switch(

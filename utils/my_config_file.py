@@ -400,8 +400,8 @@ class Models(Enum):
         inputs=[
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
-                min=0.0,
-                max=50.0,
+                min=10.0,
+                max=40.0,
                 step=0.5,
                 value=25.0,
                 name="Air Temperature",
@@ -409,8 +409,8 @@ class Models(Enum):
             ),
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
-                min=0.0,
-                max=50.0,
+                min=10.0,
+                max=40.0,
                 step=0.5,
                 value=25.0,
                 name="Mean Radiant Temperature",
@@ -419,7 +419,7 @@ class Models(Enum):
             ModelInputsInfo(
                 unit=UnitSystem.celsius.value,
                 min=10.0,
-                max=35.0,
+                max=33.5,
                 step=0.5,
                 value=25.0,
                 name="Prevailing mean outdoor temperature",
@@ -428,7 +428,7 @@ class Models(Enum):
             ModelInputsInfo(
                 unit=UnitSystem.m_s.value,
                 min=0.0,
-                max=4.0,
+                max=2.0,
                 step=0.1,
                 value=0.1,
                 name="Air Speed",
