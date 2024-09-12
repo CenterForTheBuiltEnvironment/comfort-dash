@@ -267,6 +267,7 @@ def input_environmental_personal(
     model_inputs = Models[selected_model].value.inputs
     model_inputs = convert_units(model_inputs, units)
 
+    values: ModelInputsInfo
     for values in model_inputs:
         input_id = values.id
         if input_id in all_inputs:
