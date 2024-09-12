@@ -113,7 +113,7 @@ class Charts(Enum):
         id="id_psy_to_chart",
         note_chart="In this psychrometric chart the abscissa is the operative temperature and for each point dry-bulb temperature equals mean radiant temperature (DBT = MRT). The comfort zone represents the combination of conditions with the same DBT and MRT for which the PMV is between -0.5 and +0.5, according to the standard.",
     )
-    as_psychrometric: ChartsInfo = ChartsInfo(
+    win_temp_chart: ChartsInfo = ChartsInfo(
         name="Air speed vs. operative temperature",
         id="id_as_psy_chart",
         note_chart="This chart represents only two variables, air speed against operative temperature. The operative temperature for each point is determined by dry-bulb temperature equals mean radiant temperature (DBT = MRT). The calculation of PMV comfort zone is based on all the psychrometric variables, with PMV values between -0.5 and +0.5 according to the standard.",
@@ -282,7 +282,7 @@ class Models(Enum):
             Charts.t_rh.value,
             Charts.psychrometric.value,
             Charts.psychrometric_operative.value,
-            Charts.as_psychrometric.value,
+            Charts.win_temp_chart.value,
             Charts.thl_psychrometric.value,
             Charts.set_outputs.value,
         ],
@@ -523,3 +523,7 @@ class ClothingSelection(Enum):
 # PMV - EN Chart selection
 class ModelInputsSelectionOperativeTemperaturePmvEN16798(Enum):
     o_1: str = "Use operative temp"
+
+
+class InputsName(Enum):
+    Clothing_Level: str = "Clothing Level"

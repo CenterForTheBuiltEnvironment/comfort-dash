@@ -9,6 +9,7 @@ from utils.my_config_file import (
     UnitSystem,
     MetabolicRateSelection,
     ClothingSelection,
+    InputsName,
 )
 import dash
 from components.show_results import display_results
@@ -399,17 +400,24 @@ def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened, selected_mo
     total_clo_value = round(total_clo_value, 2)
 
     model_info = Models[selected_model].value
-    max_clo_value = next(
-        (
-            input_info.max
-            for input_info in model_info.inputs
-            if input_info.name == "Clothing Level"
-        ),
-        None,
-    )
+    max_clo_value = [
+        input_info.max
+        for input_info in model_info.inputs
+        if input_info.name == InputsName.Clothing_Level.value
+    ][0]
+
+    min_clo_value = [
+        input_info.min
+        for input_info in model_info.inputs
+        if input_info.name == InputsName.Clothing_Level.value
+    ][0]
 
     if total_clo_value > max_clo_value:
         error_message = f"Clothing Level cannot exceed {max_clo_value}. Current total: {total_clo_value} clo."
+        return dash.no_update, dash.no_update, "block", error_message
+
+    if total_clo_value < min_clo_value:
+        error_message = f"Clothing Level cannot less than {min_clo_value}. Current total: {total_clo_value} clo."
         return dash.no_update, dash.no_update, "block", error_message
 
     if ctx == ElementsIDs.modal_custom_ensemble_submit.value:
