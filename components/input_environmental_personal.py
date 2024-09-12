@@ -11,6 +11,9 @@ from utils.my_config_file import (
     ClothingSelection,
     InputsName,
 )
+from utils.website_text import (
+    TextWarning,
+)
 import dash
 from components.show_results import display_results
 
@@ -413,11 +416,11 @@ def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened, selected_mo
     ][0]
 
     if total_clo_value > max_clo_value:
-        error_message = f"Clothing Level cannot exceed {max_clo_value}. Current total: {total_clo_value} clo."
+        error_message = f"{TextWarning.clo_warning_exceed.value} {max_clo_value}{TextWarning.clo_warning_current_total.value} {total_clo_value} {TextWarning.clo_warning_clo.value}"
         return dash.no_update, dash.no_update, "block", error_message
 
     if total_clo_value < min_clo_value:
-        error_message = f"Clothing Level cannot less than {min_clo_value}. Current total: {total_clo_value} clo."
+        error_message = f"{TextWarning.clo_warning_less.value} {min_clo_value}{TextWarning.clo_warning_current_total.value} {total_clo_value} {TextWarning.clo_warning_clo.value}"
         return dash.no_update, dash.no_update, "block", error_message
 
     if ctx == ElementsIDs.modal_custom_ensemble_submit.value:

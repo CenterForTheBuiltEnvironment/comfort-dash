@@ -282,7 +282,7 @@ class Models(Enum):
             Charts.t_rh.value,
             Charts.psychrometric.value,
             Charts.psychrometric_operative.value,
-            Charts.win_temp_chart.value,
+            Charts.wind_temp_chart.value,
             Charts.thl_psychrometric.value,
             Charts.set_outputs.value,
         ],
