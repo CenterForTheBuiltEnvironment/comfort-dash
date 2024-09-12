@@ -377,12 +377,14 @@ def update_options(input_value, options, selection_enum):
 
     try:
         input_number = float(input_value)
-        filtered_options = [
-            option.value
-            for option in selection_enum
-            if abs(float(option.value.split(":")[-1].strip().split()[0]) - input_number)
-            < 1
-        ]
+        filtered_options = []
+        for option in selection_enum:
+            # Extract the value
+            option_value = float(option.value.split(":")[-1].strip().split()[0])
+            # Perform comparison
+            if abs(option_value - input_number) < 1:
+                filtered_options.append(option.value)
+
         if not filtered_options:
             return option_values, input_value
     except ValueError:
