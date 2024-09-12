@@ -55,16 +55,6 @@ class ElementsIDs(Enum):
     UNIT_TOGGLE = "id-unit-toggle"  # FOR IP / SI Unit system switch
 
 
-class AllInputs(Enum):
-    t_db_input = ElementsIDs.t_db_input.value
-    t_r_input = ElementsIDs.t_r_input.value
-    t_rm_input = ElementsIDs.t_rm_input.value
-    v_input = ElementsIDs.v_input.value
-    rh_input = ElementsIDs.rh_input.value
-    met_input = ElementsIDs.met_input.value
-    clo_input = ElementsIDs.clo_input.value
-
-
 class Config(Enum):
     # DEBUG: bool = False
     DEBUG: bool = "macOS" in platform.platform() or "Windows" in platform.platform()

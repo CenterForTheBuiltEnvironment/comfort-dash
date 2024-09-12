@@ -9,7 +9,6 @@ from utils.my_config_file import (
     UnitSystem,
     MetabolicRateSelection,
     ClothingSelection,
-    AllInputs,
 )
 import dash
 from components.show_results import display_results
@@ -259,20 +258,19 @@ def input_environmental_personal(
     selected_model: str = "PMV_ashrae", units: str = UnitSystem.SI.value
 ):
     inputs = []
+    all_inputs = set()
+
+    for model in Models:
+        for input_info in model.value.inputs:
+            all_inputs.add(input_info.id)
 
     model_inputs = Models[selected_model].value.inputs
     model_inputs = convert_units(model_inputs, units)
 
-    for input_field in AllInputs:
-        input_id = input_field.value
-
-        values: ModelInputsInfo = next(
-            (input_info for input_info in model_inputs if input_info.id == input_id),
-            None,
-        )
-
-        if values:
-            if values.id in {AllInputs.met_input.value, AllInputs.clo_input.value}:
+    for values in model_inputs:
+        input_id = values.id
+        if input_id in all_inputs:
+            if input_id in {ElementsIDs.met_input.value, ElementsIDs.clo_input.value}:
                 inputs.append(create_autocomplete(values))
             else:
                 inputs.append(
@@ -286,7 +284,9 @@ def input_environmental_personal(
                         id=values.id,
                     )
                 )
-        else:
+
+    for input_id in all_inputs:
+        if input_id not in [input_info.id for input_info in model_inputs]:
             inputs.append(html.Div(style={"display": "none"}, id=input_id))
 
     unit_toggle = dmc.Center(
