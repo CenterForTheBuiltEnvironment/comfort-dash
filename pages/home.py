@@ -32,8 +32,7 @@ layout = dmc.Stack(
         dmc.Grid(
             children=[
                 dmc.GridCol(
-                    # model_selection(),
-                    id = ElementsIDs.MODEL_SELECTION.value,
+                    model_selection(),
                     span={"base": 12, "sm": Dimensions.left_container_width.value},
                 ),
                 dmc.GridCol(
@@ -124,27 +123,26 @@ def update_store_inputs(
 
 
 @callback(
+    Output(ElementsIDs.MODEL_SELECTION.value, "value"),
     Output(ElementsIDs.INPUT_SECTION.value, "children"),
-    Input(ElementsIDs.MODEL_SELECTION.value, "value"),
-    Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
     Input(ElementsIDs.URL.value, "search"),
     State(MyStores.input_data.value, "data"),
+    State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
 )
-# update the inputs based on the model selected, the units selected, and the URL
-def update_inputs(selected_model, units_selection, url_search, stored_data):
-    if selected_model is None:
-        return no_update
-
-    units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    print(f"units: {units}")
-
+def update_model_and_inputs(url_search, stored_data, units_selection):
     # Parse URL parameters
     url_params = parse_qs(url_search.lstrip("?"))
-    # map the values to the correct keys
     url_params = {k: v[0] if len(v) == 1 else v for k, v in url_params.items()}
 
     # If URL parameters exist, use them; otherwise, fall back to stored data
     params = url_params if url_params else (stored_data or {})
+
+    # Get the selected model from params, or use the default if not found
+    selected_model = params.get(
+        ElementsIDs.MODEL_SELECTION.value, Models.PMV_ashrae.name
+    )
+
+    units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
 
     # Convert numeric strings to float
     for key, value in params.items():
@@ -157,24 +155,12 @@ def update_inputs(selected_model, units_selection, url_search, stored_data):
     params[ElementsIDs.UNIT_TOGGLE.value] = units
     params[ElementsIDs.MODEL_SELECTION.value] = selected_model
 
-    return input_environmental_personal(selected_model, units, url_params=params)
+    # Update the input section
+    input_section = input_environmental_personal(
+        selected_model, units, url_params=params
+    )
 
-@callback(
-    Output(ElementsIDs.MODEL_SELECTION.value, 'children'),
-    Input('url', 'search'),
-    State(MyStores.input_data.value, 'data')
-)
-def update_model_selection(url_search, stored_data):
-    # Retrieve the selected model from the URL or local storage
-    url_params = parse_qs(url_search.lstrip('?'))
-    selected_model = url_params.get(ElementsIDs.MODEL_SELECTION.value, [Models.PMV_ashrae.name])[0]
-
-    # If a valid model is retrieved from stored data, override the selected model
-    if stored_data and ElementsIDs.MODEL_SELECTION.value in stored_data:
-        selected_model = stored_data[ElementsIDs.MODEL_SELECTION.value]
-
-    # Dynamically update the model selection component
-    return model_selection(selected_model)
+    return selected_model, input_section
 
 
 @callback(
