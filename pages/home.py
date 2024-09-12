@@ -155,7 +155,6 @@ def update_inputs(selected_model, units_selection, url_search, stored_data):
             pass
 
     # Ensure that the unit toggle and model selection are always respected
-    units = params.get(ElementsIDs.UNIT_TOGGLE.value, UnitSystem.SI.value)
     params[ElementsIDs.UNIT_TOGGLE.value] = units
     params[ElementsIDs.MODEL_SELECTION.value] = selected_model
 
