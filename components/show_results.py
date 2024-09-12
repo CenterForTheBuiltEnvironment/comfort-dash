@@ -10,6 +10,8 @@ from utils.my_config_file import (
     ElementsIDs,
 )
 
+def feet_per_second_to_meters_per_second(ftps: float) -> float:
+        return ftps * 0.3048
 
 def display_results(inputs: dict):
 
@@ -24,23 +26,39 @@ def display_results(inputs: dict):
         if selected_model == Models.PMV_ashrae.name:
             standard = "ashrae"
 
+        # Retrieve input temperature values.
+        tdb_get = inputs[ElementsIDs.t_db_input.value]
+        tr_get = inputs[ElementsIDs.t_r_input.value]
+        vr_get=inputs[ElementsIDs.v_input.value]
+        met_get = inputs[ElementsIDs.met_input.value]
+
+        # If the user selects imperial units, convert them to the international standard.
+        if units == UnitSystem.IP.value:
+            tdb_get = UnitConverter.fahrenheit_to_celsius(tdb_get)
+            tr_get = UnitConverter.fahrenheit_to_celsius(tr_get)
+            vr_get = feet_per_second_to_meters_per_second(vr_get)
+            
+
         r_pmv = pmv_ppd(
-            tdb=inputs[ElementsIDs.t_db_input.value],
-            tr=inputs[ElementsIDs.t_r_input.value],
-            vr=v_relative(
-                v=inputs[ElementsIDs.v_input.value],
-                met=inputs[ElementsIDs.met_input.value],
+            tdb= tdb_get,
+            tr= tr_get,
+            vr = v_relative(
+                vr_get,
+                met=met_get
             ),
-            rh=inputs[ElementsIDs.rh_input.value],
-            met=inputs[ElementsIDs.met_input.value],
-            clo=clo_dynamic(
+            rh = inputs[ElementsIDs.rh_input.value],
+            met = met_get,
+            clo = clo_dynamic(
                 clo=inputs[ElementsIDs.clo_input.value],
-                met=inputs[ElementsIDs.met_input.value],
+                met=met_get,
             ),
             wme=0,
             limit_inputs=True,
             standard=standard,
         )
+        
+
+
         results.append(dmc.Center(dmc.Text(f"PMV: {r_pmv['pmv']}")))
         results.append(dmc.Center(dmc.Text(f"PPD: {r_pmv['ppd']}")))
         comfort_category = mapping(
@@ -56,6 +74,10 @@ def display_results(inputs: dict):
             },
         )
         results.append(dmc.Center(dmc.Text(f"Sensation: {comfort_category}")))
+    
+        
+
+
     elif selected_model == Models.Adaptive_ASHRAE.name:
         columns = 1
 
