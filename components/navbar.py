@@ -1,7 +1,7 @@
 import dash_bootstrap_components as dbc
-from dash import html
 from utils.my_config_file import URLS, ElementsIDs, ToolUrls
 from utils.website_text import TextNavBar, app_name
+import dash_mantine_components as dmc
 
 tool_items = [
     {
@@ -34,24 +34,30 @@ def my_navbar():
                         # Use the Col to contain A tag for LOGO
                         dbc.Col(
                             # Make the LOGO can navigate to other website
-                            html.A(
+                            dmc.Anchor(
                                 dbc.Col(
-                                    html.Img(
+                                    dmc.Image(
                                         src="assets/media/logo-placeholder.png",
-                                        height="80px",
+                                        style={  # Dynamic adjust size in small screen
+                                            "width": "min(12vw, 70px)",
+                                            "max-width": "70px",
+                                        },
                                     ),
                                 ),
                                 href=URLS.HOME.value,
                             ),
-                            className="mx-auto",
                             width="auto",
                         ),
                         # The title
                         dbc.Col(
-                            html.H1(
+                            dmc.Text(
                                 app_name,
-                                className="text-center mb-0",
-                                style={"color": "#0c2772", "white-space": "nowrap"},
+                                c="#0c2772",
+                                style={  # Dynamic adjust size in small screen
+                                    "font-size": "min(5vw, 32px)"
+                                },
+                                truncate=True,  # text in single line
+                                ta="center",  # text show in middle
                             ),
                             className="flex-grow-1",
                         ),
