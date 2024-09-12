@@ -28,7 +28,8 @@ dd_model = {
 }
 
 
-def model_selection():
+def model_selection(selected_model):
+    dd_model["default"] = selected_model
     return generate_dropdown_inline(dd_model, clearable=False)
 
 

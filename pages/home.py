@@ -32,7 +32,8 @@ layout = dmc.Stack(
         dmc.Grid(
             children=[
                 dmc.GridCol(
-                    model_selection(),
+                    # model_selection(),
+                    id = ElementsIDs.MODEL_SELECTION.value,
                     span={"base": 12, "sm": Dimensions.left_container_width.value},
                 ),
                 dmc.GridCol(
@@ -129,7 +130,6 @@ def update_store_inputs(
     Input(ElementsIDs.URL.value, "search"),
     State(MyStores.input_data.value, "data"),
 )
-
 # update the inputs based on the model selected, the units selected, and the URL
 def update_inputs(selected_model, units_selection, url_search, stored_data):
     if selected_model is None:
@@ -158,6 +158,23 @@ def update_inputs(selected_model, units_selection, url_search, stored_data):
     params[ElementsIDs.MODEL_SELECTION.value] = selected_model
 
     return input_environmental_personal(selected_model, units, url_params=params)
+
+@callback(
+    Output(ElementsIDs.MODEL_SELECTION.value, 'children'),
+    Input('url', 'search'),
+    State(MyStores.input_data.value, 'data')
+)
+def update_model_selection(url_search, stored_data):
+    # Retrieve the selected model from the URL or local storage
+    url_params = parse_qs(url_search.lstrip('?'))
+    selected_model = url_params.get(ElementsIDs.MODEL_SELECTION.value, [Models.PMV_ashrae.name])[0]
+
+    # If a valid model is retrieved from stored data, override the selected model
+    if stored_data and ElementsIDs.MODEL_SELECTION.value in stored_data:
+        selected_model = stored_data[ElementsIDs.MODEL_SELECTION.value]
+
+    # Dynamically update the model selection component
+    return model_selection(selected_model)
 
 
 @callback(
