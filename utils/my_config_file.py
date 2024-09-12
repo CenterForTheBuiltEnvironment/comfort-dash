@@ -521,7 +521,8 @@ class ClothingSelection(Enum):
 # PMV - EN Chart selection
 class ModelInputsSelectionOperativeTemperaturePmvEN16798(Enum):
     o_1: str = "Use operative temp"
-      
+
+
 class InputsName(Enum):
     Clothing_Level: str = "Clothing Level"
     use_operative_temp: str = "Use operative temp"
