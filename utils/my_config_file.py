@@ -44,6 +44,7 @@ class ElementsIDs(Enum):
     modal_custom_ensemble_submit = "id-modal-custom-ensemble-submit"
     modal_custom_ensemble_value = "id-modal-custom-ensemble-value"
     modal_custom_ensemble_warning = "id-modal-custom-ensemble-warning"
+    functionality_selection = "id-functionality-selection"
     RESULTS_SECTION = "id-results-section"
     NAVBAR_ID_DOCUMENT = "id-nav-documentation"
     NAVBAR_ID_MORE_CBE_TOOLS = "id-nav-more-cbe-tools"
