@@ -29,6 +29,7 @@ class ElementsIDs(Enum):
     URL = "url"
     FOOTER = "id-footer"
     INPUT_SECTION = "id-input-section"
+    functionality_selection = "id-functionality-selection"
     inputs_form = "id-inputs-form"
     t_db_input = "id-dbt-input"
     t_r_input = "id-tr-input"
