@@ -9,7 +9,6 @@ from utils.my_config_file import (
     UnitSystem,
     MetabolicRateSelection,
     ClothingSelection,
-    InputsName,
 )
 from utils.website_text import (
     TextWarning,
@@ -414,13 +413,13 @@ def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened, selected_mo
     max_clo_value = [
         input_info.max
         for input_info in model_info.inputs
-        if input_info.name == InputsName.Clothing_Level.value
+        if input_info.id == ElementsIDs.clo_input.value
     ][0]
 
     min_clo_value = [
         input_info.min
         for input_info in model_info.inputs
-        if input_info.name == InputsName.Clothing_Level.value
+        if input_info.id == ElementsIDs.clo_input.value
     ][0]
 
     if total_clo_value > max_clo_value:

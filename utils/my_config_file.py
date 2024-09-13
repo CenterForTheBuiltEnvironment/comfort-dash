@@ -524,5 +524,4 @@ class ModelInputsSelectionOperativeTemperaturePmvEN16798(Enum):
 
 
 class InputsName(Enum):
-    Clothing_Level: str = "Clothing Level"
     use_operative_temp: str = "Use operative temp"
