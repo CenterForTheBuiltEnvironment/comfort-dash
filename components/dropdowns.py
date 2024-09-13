@@ -19,16 +19,15 @@ for model in Models:
     option_dict: dict = {"value": model.name, "label": model.value.name}
     options.append(option_dict)
 
-dd_model = {
-    "id": ElementsIDs.MODEL_SELECTION.value,
-    "question": TextHome.model_selection.value,
-    "options": options,
-    "multi": False,
-    "default": Models.PMV_ashrae.name,
-}
 
-
-def model_selection():
+def model_selection(selected_model=None):
+    dd_model = {
+        "id": ElementsIDs.MODEL_SELECTION.value,
+        "question": TextHome.model_selection.value,
+        "options": options,
+        "multi": False,
+        "default": selected_model or Models.PMV_ashrae.name,
+    }
     return generate_dropdown_inline(dd_model, clearable=False)
 
 
