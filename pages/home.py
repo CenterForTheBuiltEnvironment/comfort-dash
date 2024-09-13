@@ -65,7 +65,7 @@ layout = dmc.Stack(
                                 id=ElementsIDs.CHART_CONTAINER.value,
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
-                            dcc.Location(id="url", refresh=False),
+                            dcc.Location(id=ElementsIDs.URL.value, refresh=False),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -79,7 +79,7 @@ layout = dmc.Stack(
 
 @callback(
     Output(MyStores.input_data.value, "data"),
-    Output("url", "search", allow_duplicate=True),
+    Output(ElementsIDs.URL.value, "search", allow_duplicate=True),
     Input(ElementsIDs.inputs_form.value, "n_clicks"),
     Input(ElementsIDs.inputs_form.value, "children"),
     Input(ElementsIDs.clo_input.value, "value"),
