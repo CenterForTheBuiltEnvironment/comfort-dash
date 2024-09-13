@@ -319,22 +319,22 @@ def input_environmental_personal(
 
     values: ModelInputsInfo
     for values in model_inputs:
-
+        # print(f"input_values: {values}")
         if (
             values.id == ElementsIDs.met_input.value
             or values.id == ElementsIDs.clo_input.value
         ):
-            inputs.append(create_autocomplete(values))
+            inputs.append(create_autocomplete(values, url_params))
         else:
             # if the value is not in the URL params, use the default value
-            # default_value = (
-            #     url_params.get(values.id, values.value) if url_params else values.value
-            # )
+            default_value = (
+                url_params.get(values.id, values.value) if url_params else values.value
+            )
 
             input_filed = dmc.NumberInput(
                 label=values.name + " (" + values.unit + ")",
                 description=f"From {values.min} to {values.max}",
-                value=values.value,
+                value=default_value,
                 min=values.min,
                 max=values.max,
                 step=values.step,
@@ -441,13 +441,16 @@ def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened, selected_mo
     return opened, dash.no_update, "none", dash.no_update
 
 
-def create_autocomplete(values: ModelInputsInfo):
+def create_autocomplete(values: ModelInputsInfo, url_params: dict):
+    default_value = (
+        url_params.get(values.id, values.value) if url_params else values.value
+    )
     return dmc.Autocomplete(
         id=values.id,
         label=f"{values.name} ({values.unit})",
         placeholder=f"Enter a value or select a {values.name}",
         data=[],
-        value=str(values.value),
+        value=str(default_value),
         description=f"From {values.min} to {values.max}",
     )
 
