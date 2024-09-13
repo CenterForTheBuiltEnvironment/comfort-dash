@@ -29,7 +29,6 @@ class ElementsIDs(Enum):
     URL = "url"
     FOOTER = "id-footer"
     INPUT_SECTION = "id-input-section"
-    functionality_selection = "id-functionality-selection"
     inputs_form = "id-inputs-form"
     t_db_input = "id-dbt-input"
     t_r_input = "id-tr-input"
@@ -517,3 +516,8 @@ class ClothingSelection(Enum):
     sweat_pants_sweatshirt: str = "Sweat pants, long-sleeve sweatshirt: 0.74 clo"
     jacket_trousers_long_sleeve: str = "Jacket, Trousers, long-sleeve shirt: 0.96 clo"
     typical_winter_indoor: str = "Typical winter indoor clothing: 1.0 clo"
+
+
+# PMV - EN Chart selection
+class ModelInputsSelectionOperativeTemperaturePmvEN16798(Enum):
+    use_operative_temp: str = "Use operative temp"
