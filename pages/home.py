@@ -116,8 +116,6 @@ def update_store_inputs(
     inputs[ElementsIDs.chart_selected.value] = chart_selected
     inputs[ElementsIDs.functionality_selection.value] = functionality_selection
 
-    # print(f"inputs: {inputs}")
-    url_data = inputs
     # encode the inputs to be used in the URL
     url_search = f"?{urlencode(inputs)}"
     # print(f"url_params: {url_data}")
