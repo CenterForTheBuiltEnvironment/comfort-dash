@@ -320,7 +320,6 @@ def input_environmental_personal(
     values: ModelInputsInfo
     for values in model_inputs:
 
-
         if (
             values.id == ElementsIDs.met_input.value
             or values.id == ElementsIDs.clo_input.value
@@ -328,20 +327,20 @@ def input_environmental_personal(
             inputs.append(create_autocomplete(values))
         else:
             # if the value is not in the URL params, use the default value
-            default_value = (
-                url_params.get(values.id, values.value) if url_params else values.value
-            )
+            # default_value = (
+            #     url_params.get(values.id, values.value) if url_params else values.value
+            # )
+
             input_filed = dmc.NumberInput(
                 label=values.name + " (" + values.unit + ")",
                 description=f"From {values.min} to {values.max}",
-                value=default_value,
+                value=values.value,
                 min=values.min,
                 max=values.max,
                 step=values.step,
                 id=values.id,
             )
             inputs.append(input_filed)
-
 
     unit_toggle = dmc.Center(
         dmc.Switch(

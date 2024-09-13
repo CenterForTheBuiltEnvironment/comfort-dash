@@ -41,6 +41,8 @@ def get_inputs(selected_model: str, form_content: dict, units: str):
 
     # converting the units if necessary
     if units == UnitSystem.IP.value:
+        list_model_inputs = convert_units(list_model_inputs, UnitSystem.IP.value)
+    elif units == UnitSystem.SI.value:
         list_model_inputs = convert_units(list_model_inputs, UnitSystem.SI.value)
 
     # updating the values of the model inputs with the values from the form
