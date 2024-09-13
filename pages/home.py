@@ -86,6 +86,7 @@ layout = dmc.Stack(
     Input(ElementsIDs.met_input.value, "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
     Input(ElementsIDs.chart_selected.value, "value"),
+    Input(ElementsIDs.functionality_selection.value, "value"),
     State(ElementsIDs.MODEL_SELECTION.value, "value"),
     prevent_initial_call=True,
 )
@@ -97,6 +98,7 @@ def update_store_inputs(
     met_value: float,
     units_selection: str,
     chart_selected: str,
+    functionality_selection: str,
     selected_model: str,
 ):
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
@@ -112,6 +114,7 @@ def update_store_inputs(
     inputs[ElementsIDs.UNIT_TOGGLE.value] = units
     inputs[ElementsIDs.MODEL_SELECTION.value] = selected_model
     inputs[ElementsIDs.chart_selected.value] = chart_selected
+    inputs[ElementsIDs.functionality_selection.value] = functionality_selection
 
     # print(f"inputs: {inputs}")
     url_data = inputs
@@ -194,7 +197,7 @@ def update_note_model(selected_model):
     Input(MyStores.input_data.value, "data"),
 )
 def update_chart(
-    inputs: int,
+    inputs: dict,
 ):
     selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
     units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
