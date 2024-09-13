@@ -1,3 +1,4 @@
+import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, State
 
@@ -10,8 +11,6 @@ from utils.my_config_file import (
     MetabolicRateSelection,
     ClothingSelection,
 )
-import dash
-from components.show_results import display_results
 
 
 def modal_custom_ensemble():
@@ -49,7 +48,6 @@ def modal_custom_ensemble():
                             {
                                 "group": "Tops",
                                 "items": [
-                                    # todo change these values
                                     {"value": "0.08_T_shirt", "label": "T-shirt"},
                                     {
                                         "value": "0.12",
@@ -234,7 +232,6 @@ def modal_custom_ensemble():
                     ),
                     dmc.Group(
                         [
-                            # todo when we press submit we should update the clo value in the inputs
                             dmc.Button(
                                 "Set Clo value",
                                 id=ElementsIDs.modal_custom_ensemble_submit.value,
