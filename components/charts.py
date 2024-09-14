@@ -125,8 +125,8 @@ def pmot_ot_adaptive_ashrae(inputs: dict = None, model: str = "ashrae"):
     ]  # Prevailing Mean Outdoor Temperature
     air_speed = inputs[ElementsIDs.v_input.value]  # Air Speed
     units = inputs[ElementsIDs.UNIT_TOGGLE.value]  # unit（IP or SI）
-    operative_temperature = (air_temperature + mean_radiant_temp) / 2
-    outdoor_temp_range = np.arange(10, 36, 1)
+    operative_temperature = (air_temperature + mean_radiant_temp) / 2 #I do not know how to calculate 'operative_temperature', and assume it equals (air_temperature + mean_radiant_temp) / 2
+    outdoor_temp_range = np.arange(10, 36, 1)# the range of outdoor_temp_range is (10, 35)
 
     # Traverse the temperature range and calculate the corresponding comfort range
     for t_running_mean in outdoor_temp_range:
