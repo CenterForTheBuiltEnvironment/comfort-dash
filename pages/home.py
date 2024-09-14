@@ -20,6 +20,7 @@ from utils.my_config_file import (
     Charts,
     ChartsInfo,
     MyStores,
+    Functionalities,
 )
 
 dash.register_page(__name__, path=URLS.HOME.value)
@@ -79,10 +80,6 @@ layout = dmc.Stack(
     Input(ElementsIDs.inputs_form.value, "children"),
     Input(ElementsIDs.clo_input.value, "value"),
     Input(ElementsIDs.met_input.value, "value"),
-    # Input(ElementsIDs.clo_input.value + "_left", 'value'),
-    # Input(ElementsIDs.clo_input.value + "right", 'value'),
-    # Input(ElementsIDs.met_input.value + "_left", "value"),
-    # Input(ElementsIDs.met_input.value + "_right", "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
     Input(ElementsIDs.chart_selected.value, "value"),
     Input(ElementsIDs.functionality_selection.value, "value"),
@@ -93,17 +90,13 @@ def update_store_inputs(
     form_content: dict,
     clo_value: float,
     met_value: float,
-    # clo_left_value: float,
-    # clo_right_value: float,
-    # met_left_value: float,
-    # met_right_value: float,
     units_selection: str,
     chart_selected: str,
     functionality_selection: str,
     selected_model: str,
 ):
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    inputs = get_inputs(selected_model, form_content, units)
+    inputs = get_inputs(selected_model, form_content, units, functionality_selection)
 
     if ctx.triggered:
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
@@ -163,13 +156,13 @@ def update_note_model(selected_model):
 @callback(
     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
     Input(MyStores.input_data.value, "data"),
+    Input(ElementsIDs.functionality_selection.value, "value"),
 )
-def update_chart(
-    inputs: dict,
-):
+def update_chart(inputs: dict, function_selection: str):
     selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
     units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
     chart_selected = inputs[ElementsIDs.chart_selected.value]
+    function_selection = inputs[ElementsIDs.functionality_selection.value]
 
     image = html.Div(
         [
@@ -182,9 +175,13 @@ def update_chart(
 
     if chart_selected == Charts.t_rh.value.name:
         if selected_model == Models.PMV_EN.name:
-            image = t_rh_pmv(inputs=inputs, model="iso")
+            image = t_rh_pmv(
+                inputs=inputs, model="iso", function_selection=function_selection
+            )
         elif selected_model == Models.PMV_ashrae.name:
-            image = t_rh_pmv(inputs=inputs, model="ashrae")
+            image = t_rh_pmv(
+                inputs=inputs, model="ashrae", function_selection=function_selection
+            )
 
     note = ""
     chart: ChartsInfo
