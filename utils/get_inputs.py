@@ -26,15 +26,15 @@ def find_dict_with_key_value(d, key, value):
     return None
 
 
-def extract_float(value):
-    if isinstance(value, (int, float)):
-        return float(value)
-    if isinstance(value, str):
-        try:
-            return float(value.split(":")[-1].strip().split()[0])
-        except ValueError:
-            return None
-    return None
+# def extract_float(value):
+#     if isinstance(value, (int, float)):
+#         return float(value)
+#     if isinstance(value, str):
+#         try:
+#             return float(value.split(":")[-1].strip().split()[0])
+#         except ValueError:
+#             return None
+#     return None
 
 
 # def get_inputs(selected_model: str, form_content: dict, units: str, function_selection: str):
@@ -110,6 +110,22 @@ def extract_float(value):
 #             inputs[model_input.id] = default_value
 
 #     return inputs
+
+
+def extract_float(value):
+    if isinstance(value, (int, float)):
+        return float(value)
+
+    if isinstance(value, str):
+        try:
+            parts = value.split(":")
+            if len(parts) > 1:
+                return float(parts[-1].strip().split()[0])
+            else:
+                return float(value.strip().split()[0])
+        except (ValueError, IndexError):
+            return None
+    return None
 
 
 def get_inputs(
