@@ -158,5 +158,5 @@ def get_inputs(
         else:
             inputs[input_id] = default_value
 
-    print(f"Final inputs collected: {inputs}")
+    # print(f"Final inputs collected: {inputs}")
     return inputs

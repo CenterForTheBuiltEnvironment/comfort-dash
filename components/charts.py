@@ -132,8 +132,8 @@ def t_rh_pmv(
         v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
     )
 
-    # Print keys to debug
-    print("Available keys in inputs:", inputs.keys())
+    # # Print keys to debug
+    # print("Available keys in inputs:", inputs.keys())
 
     # Initialize comparison values if in Compare mode
     if function_selection == Functionalities.Compare.value:
