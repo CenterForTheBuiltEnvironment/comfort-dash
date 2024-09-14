@@ -10,6 +10,7 @@ from utils.my_config_file import (
     UnitSystem,
     MetabolicRateSelection,
     ClothingSelection,
+    Functionalities,
 )
 from utils.website_text import (
     TextWarning,
@@ -303,7 +304,9 @@ def modal_custom_ensemble():
 
 
 def input_environmental_personal(
-    selected_model: str = "PMV_ashrae", units: str = UnitSystem.SI.value
+    selected_model: str = "PMV_ashrae",
+    units: str = UnitSystem.SI.value,
+    function_selection: str = Functionalities.Default.value,
 ):
     inputs = []
     all_inputs = set()
@@ -315,24 +318,59 @@ def input_environmental_personal(
     model_inputs = Models[selected_model].value.inputs
     model_inputs = convert_units(model_inputs, units)
 
+    def shared_label_and_description(values):
+        """Create the shared label and description for inputs."""
+        return dmc.Stack(
+            [
+                dmc.Text(f"{values.name} ({values.unit})", size="sm"),  # Shared label
+                dmc.Text(
+                    f"From {values.min} to {values.max}", size="xs", c="gray"
+                ),  # Shared description
+            ],
+            gap=0,
+        )
+
     values: ModelInputsInfo
     for values in model_inputs:
         input_id = values.id
         if input_id in all_inputs:
-            if input_id in {ElementsIDs.met_input.value, ElementsIDs.clo_input.value}:
-                inputs.append(create_autocomplete(values))
-            else:
-                inputs.append(
-                    dmc.NumberInput(
-                        label=f"{values.name} ({values.unit})",
-                        description=f"From {values.min} to {values.max}",
-                        value=values.value,
-                        min=values.min,
-                        max=values.max,
-                        step=values.step,
-                        id=values.id,
-                    )
+            # if input_id in {ElementsIDs.met_input.value, ElementsIDs.clo_input.value}:
+            #     inputs.append(create_autocomplete(values))
+            # else:
+            default_input = dmc.NumberInput(
+                value=values.value,
+                min=values.min,
+                max=values.max,
+                step=values.step,
+                id=values.id,
+            )
+            if function_selection == Functionalities.Compare.value:
+                right_input = dmc.NumberInput(
+                    value=values.value,
+                    min=values.min,
+                    max=values.max,
+                    step=values.step,
+                    id=values.id,
                 )
+                default_input = dmc.Grid(
+                    children=[
+                        dmc.GridCol(default_input, span={"base": 6}),
+                        dmc.GridCol(right_input, span={"base": 6}),
+                    ],
+                    gutter="xs",
+                )
+
+            inputs.append(
+                dmc.Stack(
+                    [
+                        shared_label_and_description(
+                            values
+                        ),  # Shared label and description
+                        default_input,
+                    ],
+                    gap=0,
+                )
+            )
 
     for input_id in all_inputs:
         if input_id not in [input_info.id for input_info in model_inputs]:
@@ -349,7 +387,10 @@ def input_environmental_personal(
     inputs.append(unit_toggle)
     # show custom ensemble button
     custom_ensemble_button = None
-    if selected_model in [Models.PMV_EN.name, Models.PMV_ashrae.name]:
+    if (
+        selected_model in [Models.PMV_EN.name, Models.PMV_ashrae.name]
+        and function_selection == Functionalities.Default.value
+    ):
         custom_ensemble_button = dmc.Button(
             "Custom Ensemble",
             id=ElementsIDs.modal_custom_ensemble_open.value,
@@ -362,6 +403,9 @@ def input_environmental_personal(
                     html.Form(
                         dmc.Grid(
                             children=[
+                                dmc.GridCol(
+                                    dmc.Text("Inputs", fw=700),
+                                ),
                                 dmc.GridCol(
                                     dmc.Stack(inputs, gap="xs"), span={"base": 12}
                                 ),

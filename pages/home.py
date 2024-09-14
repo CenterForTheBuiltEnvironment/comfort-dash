@@ -79,6 +79,10 @@ layout = dmc.Stack(
     Input(ElementsIDs.inputs_form.value, "children"),
     Input(ElementsIDs.clo_input.value, "value"),
     Input(ElementsIDs.met_input.value, "value"),
+    # Input(ElementsIDs.clo_input.value + "_left", 'value'),
+    # Input(ElementsIDs.clo_input.value + "right", 'value'),
+    # Input(ElementsIDs.met_input.value + "_left", "value"),
+    # Input(ElementsIDs.met_input.value + "_right", "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
     Input(ElementsIDs.chart_selected.value, "value"),
     Input(ElementsIDs.functionality_selection.value, "value"),
@@ -89,6 +93,10 @@ def update_store_inputs(
     form_content: dict,
     clo_value: float,
     met_value: float,
+    # clo_left_value: float,
+    # clo_right_value: float,
+    # met_left_value: float,
+    # met_right_value: float,
     units_selection: str,
     chart_selected: str,
     functionality_selection: str,
@@ -116,13 +124,14 @@ def update_store_inputs(
     Output(ElementsIDs.INPUT_SECTION.value, "children"),
     Input(ElementsIDs.MODEL_SELECTION.value, "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    Input(ElementsIDs.functionality_selection.value, "value"),
 )
-def update_inputs(selected_model, units_selection):
+def update_inputs(selected_model, units_selection, function_selection):
     # todo here I should first check if some inputs are already stored in the store
     if selected_model is None:
         return no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    return input_environmental_personal(selected_model, units)
+    return input_environmental_personal(selected_model, units, function_selection)
 
 
 @callback(
