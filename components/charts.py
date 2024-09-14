@@ -115,11 +115,14 @@ def t_rh_pmv(inputs: dict = None, model: str = "iso"):
         py=0,
     )
 
+
 def pmot_ot_adaptive_ashrae(inputs: dict = None, model: str = "ashrae"):
     results = []
     air_temperature = inputs[ElementsIDs.t_db_input.value]  # Air Temperature
     mean_radiant_temp = inputs[ElementsIDs.t_r_input.value]  # Mean Radiant Temperature
-    prevailing_mean_outdoor_temp = inputs[ElementsIDs.t_rm_input.value]  # Prevailing Mean Outdoor Temperature
+    prevailing_mean_outdoor_temp = inputs[
+        ElementsIDs.t_rm_input.value
+    ]  # Prevailing Mean Outdoor Temperature
     air_speed = inputs[ElementsIDs.v_input.value]  # Air Speed
     units = inputs[ElementsIDs.UNIT_TOGGLE.value]  # unit（IP or SI）
     operative_temperature = (air_temperature + mean_radiant_temp) / 2
@@ -131,15 +134,17 @@ def pmot_ot_adaptive_ashrae(inputs: dict = None, model: str = "ashrae"):
             tdb=air_temperature,
             tr=mean_radiant_temp,
             t_running_mean=t_running_mean,
-            v=air_speed
+            v=air_speed,
         )
-        results.append({
-            "prevailing_mean_outdoor_temp": t_running_mean,
-            "tmp_cmf_80_low": round(adaptive.tmp_cmf_80_low, 2),
-            "tmp_cmf_80_up": round(adaptive.tmp_cmf_80_up, 2),
-            "tmp_cmf_90_low": round(adaptive.tmp_cmf_90_low, 2),
-            "tmp_cmf_90_up": round(adaptive.tmp_cmf_90_up, 2)
-        })
+        results.append(
+            {
+                "prevailing_mean_outdoor_temp": t_running_mean,
+                "tmp_cmf_80_low": round(adaptive.tmp_cmf_80_low, 2),
+                "tmp_cmf_80_up": round(adaptive.tmp_cmf_80_up, 2),
+                "tmp_cmf_90_low": round(adaptive.tmp_cmf_90_low, 2),
+                "tmp_cmf_90_up": round(adaptive.tmp_cmf_90_up, 2),
+            }
+        )
 
     df = pd.DataFrame(results)
 
@@ -152,18 +157,23 @@ def pmot_ot_adaptive_ashrae(inputs: dict = None, model: str = "ashrae"):
         df["tmp_cmf_80_low"],
         df["tmp_cmf_80_up"],
         color="lightblue",
-        label="80% Acceptability"
+        label="80% Acceptability",
     )
     ax.fill_between(
         df["prevailing_mean_outdoor_temp"],
         df["tmp_cmf_90_low"],
         df["tmp_cmf_90_up"],
         color="blue",
-        label="90% Acceptability"
+        label="90% Acceptability",
     )
 
     # Draw red dots：Operative Temperature and Prevailing Mean Outdoor Temperature
-    ax.scatter(prevailing_mean_outdoor_temp, operative_temperature, color="red", label="Current Condition")
+    ax.scatter(
+        prevailing_mean_outdoor_temp,
+        operative_temperature,
+        color="red",
+        label="Current Condition",
+    )
 
     # Set the axis label and range
     ax.set_xlabel("Prevailing Mean Outdoor Temperature (°C)")

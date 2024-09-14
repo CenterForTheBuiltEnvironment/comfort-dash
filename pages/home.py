@@ -177,7 +177,7 @@ def update_chart(
         elif selected_model == Models.PMV_ashrae.name:
             image = t_rh_pmv(inputs=inputs, model="ashrae")
     if chart_selected == Charts.pmot_ot.value.name:
-        if  selected_model == Models.Adaptive_ASHRAE.name:
+        if selected_model == Models.Adaptive_ASHRAE.name:
             image = pmot_ot_adaptive_ashrae(inputs=inputs, model="ashrae")
 
     note = ""
