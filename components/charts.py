@@ -6,7 +6,7 @@ import dash_mantine_components as dmc
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from pythermalcomfort.models import pmv
+from pythermalcomfort.models import pmv, adaptive_ashrae
 from pythermalcomfort.utilities import v_relative, clo_dynamic
 from scipy import optimize
 
@@ -112,5 +112,82 @@ def t_rh_pmv(inputs: dict = None, model: str = "iso"):
     return dmc.Image(
         src=f"data:image/png;base64, {my_base64_jpgData}",
         alt="Heat stress chart",
+        py=0,
+    )
+
+def pmot_ot_adaptive_ashrae(inputs: dict = None, model: str = "ashrae"):
+    results = []
+    air_temperature = inputs[ElementsIDs.t_db_input.value]  # Air Temperature
+    mean_radiant_temp = inputs[ElementsIDs.t_r_input.value]  # Mean Radiant Temperature
+    prevailing_mean_outdoor_temp = inputs[ElementsIDs.t_rm_input.value]  # Prevailing Mean Outdoor Temperature
+    air_speed = inputs[ElementsIDs.v_input.value]  # Air Speed
+    units = inputs[ElementsIDs.UNIT_TOGGLE.value]  # unit（IP or SI）
+    operative_temperature = (air_temperature + mean_radiant_temp) / 2
+    outdoor_temp_range = np.arange(10, 36, 1)
+
+    # Traverse the temperature range and calculate the corresponding comfort range
+    for t_running_mean in outdoor_temp_range:
+        adaptive = adaptive_ashrae(
+            tdb=air_temperature,
+            tr=mean_radiant_temp,
+            t_running_mean=t_running_mean,
+            v=air_speed
+        )
+        results.append({
+            "prevailing_mean_outdoor_temp": t_running_mean,
+            "tmp_cmf_80_low": round(adaptive.tmp_cmf_80_low, 2),
+            "tmp_cmf_80_up": round(adaptive.tmp_cmf_80_up, 2),
+            "tmp_cmf_90_low": round(adaptive.tmp_cmf_90_low, 2),
+            "tmp_cmf_90_up": round(adaptive.tmp_cmf_90_up, 2)
+        })
+
+    df = pd.DataFrame(results)
+
+    # Create image
+    fig, ax = plt.subplots(figsize=(6, 4))
+
+    # Draw blue areas with 80% and 90% acceptance ranges
+    ax.fill_between(
+        df["prevailing_mean_outdoor_temp"],
+        df["tmp_cmf_80_low"],
+        df["tmp_cmf_80_up"],
+        color="lightblue",
+        label="80% Acceptability"
+    )
+    ax.fill_between(
+        df["prevailing_mean_outdoor_temp"],
+        df["tmp_cmf_90_low"],
+        df["tmp_cmf_90_up"],
+        color="blue",
+        label="90% Acceptability"
+    )
+
+    # Draw red dots：Operative Temperature and Prevailing Mean Outdoor Temperature
+    ax.scatter(prevailing_mean_outdoor_temp, operative_temperature, color="red", label="Current Condition")
+
+    # Set the axis label and range
+    ax.set_xlabel("Prevailing Mean Outdoor Temperature (°C)")
+    ax.set_ylabel("Operative Temperature (°C)")
+    ax.set_xlim(10, 35)
+    ax.set_ylim(df["tmp_cmf_80_low"].min(), df["tmp_cmf_80_up"].max())
+
+    # Displays legends and grids
+    ax.legend()
+    ax.grid(True)
+
+    plt.tight_layout()
+
+    # Save the image as base64 encoding
+    my_stringIObytes = io.BytesIO()
+    plt.savefig(my_stringIObytes, format="png", dpi=300, bbox_inches="tight")
+    my_stringIObytes.seek(0)
+    my_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode()
+
+    # Close the currently drawn image to prevent memory leaks
+    plt.close(fig)
+
+    return dmc.Image(
+        src=f"data:image/png;base64, {my_base64_jpgData}",
+        alt="Adaptive chart",
         py=0,
     )
