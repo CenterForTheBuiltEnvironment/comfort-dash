@@ -207,5 +207,4 @@ def update_chart(inputs: dict, function_selection: str):
     Input(MyStores.input_data.value, "data"),
 )
 def update_outputs(inputs: dict):
-
     return display_results(inputs)

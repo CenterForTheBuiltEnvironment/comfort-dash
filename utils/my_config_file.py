@@ -77,6 +77,11 @@ class Functionalities(Enum):
     Ranges: str = "Ranges"
 
 
+class CompareInputColor(Enum):
+    InputColor1: str = "#ff0000"
+    InputColor2: str = "#0000ff"
+
+
 class URLS(Enum):
     HOME: str = "/"
     ABOUT: str = "/about"

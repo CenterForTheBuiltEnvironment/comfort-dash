@@ -361,6 +361,7 @@ def input_environmental_personal(
                     id=values.id,
                 )
 
+            # User click on compare and model is PMV - ASHARE 55
             if function_selection == Functionalities.Compare.value and model_inputs2:
                 comparison_values = model_inputs2[idx]
 
