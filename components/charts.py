@@ -222,7 +222,7 @@ def t_rh_pmv(
             t2_compare["temp"],
             alpha=0.3,
             label=model + " Compare",
-            color="#005f73",
+            color="#808080",
         )
         axs.scatter(
             inputs[ElementsIDs.t_db_input_input2.value],

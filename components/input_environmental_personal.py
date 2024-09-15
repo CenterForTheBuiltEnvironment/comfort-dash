@@ -312,7 +312,7 @@ def input_environmental_personal(
     all_inputs = set()
 
     for model in Models:
-        print(model)
+        # print(model)
         for input_info in model.value.inputs:
             all_inputs.add(input_info.id)
         if (

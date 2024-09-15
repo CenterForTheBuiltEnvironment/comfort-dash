@@ -61,7 +61,8 @@ def display_results(inputs: dict):
         # User click on compare button and calculate the result
         if (
             inputs[ElementsIDs.functionality_selection.value]
-            == Functionalities.Compare.value and selected_model == Models.PMV_ashrae.name
+            == Functionalities.Compare.value
+            and selected_model == Models.PMV_ashrae.name
         ):
             r_pmv_input2 = pmv_ppd(
                 tdb=inputs[ElementsIDs.t_db_input_input2.value],
