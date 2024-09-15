@@ -101,6 +101,8 @@ def update_store_inputs(
     functionality_selection: str,
     selected_model: str,
 ):
+    if form_clicks is None:
+        return no_update, no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
     inputs = get_inputs(selected_model, form_content, units)
 

@@ -26,8 +26,15 @@ def extract_float(value):
         return float(value)
     if isinstance(value, str):
         try:
-            return float(value.split(":")[-1].strip().split()[0])
-        except ValueError:
+            # Strip leading/trailing whitespace and split by ':' if it exists
+            stripped_value = value.strip()
+            if ":" in stripped_value:
+                stripped_value = stripped_value.split(":")[-1].strip()
+            # Split by any non-numeric character to handle different formats
+            parts = stripped_value.split()
+            # Convert the first part that looks numeric to float
+            return float(parts[0])
+        except (ValueError, IndexError):
             return None
     return None
 
@@ -39,29 +46,34 @@ def get_inputs(selected_model: str, form_content: dict, units: str):
     # creating a copy of the model inputs
     list_model_inputs = deepcopy(Models[selected_model].value.inputs)
 
-    # converting the units if necessary
-    if units == UnitSystem.IP.value:
-        list_model_inputs = convert_units(list_model_inputs, UnitSystem.IP.value)
-    elif units == UnitSystem.SI.value:
-        list_model_inputs = convert_units(list_model_inputs, UnitSystem.SI.value)
-
     # updating the values of the model inputs with the values from the form
-    inputs = {}
     for model_input in list_model_inputs:
-        default_value = model_input.value
         input_dict = find_dict_with_key_value(form_content, "id", model_input.id)
 
         if input_dict and "value" in input_dict:
             original_value = input_dict["value"]
             converted_value = extract_float(str(original_value))
 
-            if (
-                converted_value is not None
-                and model_input.min <= converted_value <= model_input.max
-            ):
-                inputs[model_input.id] = converted_value
-            else:
-                inputs[model_input.id] = default_value
+            if converted_value is not None:
+                model_input.value = converted_value
+
+    # converting the units if necessary
+    if units == UnitSystem.IP.value:
+        list_model_inputs = convert_units(list_model_inputs, UnitSystem.IP.value)
+    elif units == UnitSystem.SI.value:
+        list_model_inputs = convert_units(list_model_inputs, UnitSystem.SI.value)
+
+    # range checking after unit conversion
+    inputs = {}
+    model_inputs_dict = {
+        input.id: input for input in Models[selected_model].value.inputs
+    }
+    for model_input in list_model_inputs:
+        if model_input.min <= model_input.value <= model_input.max:
+            inputs[model_input.id] = model_input.value
         else:
+            # change the value to default
+            default_value = model_inputs_dict[model_input.id].value
             inputs[model_input.id] = default_value
+
     return inputs
