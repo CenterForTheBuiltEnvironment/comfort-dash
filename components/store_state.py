@@ -128,7 +128,6 @@ class StoreState:
         )
         def load_data(modified_timestamp, store_data):
             if modified_timestamp:
-
                 if store_data is None:
                     store_data = {}
 

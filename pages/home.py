@@ -2,7 +2,7 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx
 
-from components.charts import chart_selector 
+from components.charts import chart_selector
 from components.charts import t_rh_pmv
 from components.charts import t_hr_pmv
 
@@ -209,5 +209,4 @@ def update_chart(
     Input(MyStores.input_data.value, "data"),
 )
 def update_outputs(inputs: dict):
-
     return display_results(inputs)

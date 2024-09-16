@@ -396,7 +396,6 @@ def input_environmental_personal(
     prevent_initial_call=True,
 )
 def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened, selected_model):
-
     ctx = dash.callback_context.triggered_id
 
     if ctx == ElementsIDs.modal_custom_ensemble_open.value:
