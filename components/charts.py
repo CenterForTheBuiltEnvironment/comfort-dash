@@ -116,7 +116,7 @@ def t_rh_pmv(inputs: dict = None, model: str = "iso"):
     )
 
 
-def SET_outputs_chart(inputs: dict = None):
+def SET_outputs_chart(inputs: dict = None, calculate_ce: bool = False, p_atmospheric: int = 101325):
     # Dry-bulb air temperature (x-axis)
     tdb_values = np.arange(10, 40, 0.5, dtype=float).tolist()
 
@@ -200,12 +200,13 @@ def SET_outputs_chart(inputs: dict = None):
         )  # Convert to percentage and float
 
         # calculate clothing temperature t_cl
+        pressure_in_atmospheres = float(p_atmospheric / 101325)
         r_clo = 0.155 * clo
         f_a_cl = 1.0 + 0.15 * clo
-        h_cc = 3.0 * pow(1, 0.53)
-        h_fc = 8.600001 * pow((vr * 1), 0.53)
+        h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53)
+        h_fc = 8.600001 * pow((vr * pressure_in_atmospheres), 0.53)
         h_cc = max(h_cc, h_fc)
-        if met > 0.85:
+        if not calculate_ce and met > 0.85:
             h_c_met = 5.66 * (met - 0.85) ** 0.39
             h_cc = max(h_cc, h_c_met)
         h_r = 4.7
