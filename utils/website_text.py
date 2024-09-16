@@ -37,3 +37,10 @@ class TextHome(Enum):
     functionality_selection = "Select functionality:"
     chart_selection = "Select chart:"
     speed_selection = "Speed:"
+
+
+class TextWarning(Enum):
+    clo_warning_exceed: str = "Clothing Level cannot exceed "
+    clo_warning_less: str = "Clothing Level cnnot less than "
+    clo_warning_current_total: str = ". Current total: "
+    clo_warning_clo: str = " clo."
