@@ -2,7 +2,7 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx
 
-from components.charts import t_rh_pmv, chart_selector
+from components.charts import t_rh_pmv, chart_selector,t_hr_pmv
 from components.dropdowns import (
     model_selection,
 )
@@ -176,6 +176,11 @@ def update_chart(
             image = t_rh_pmv(inputs=inputs, model="iso")
         elif selected_model == Models.PMV_ashrae.name:
             image = t_rh_pmv(inputs=inputs, model="ashrae")
+    if chart_selected == Charts.psychrometric.value.name:
+        if selected_model == Models.PMV_EN.name:
+            image = t_hr_pmv(inputs=inputs, model="iso")
+        elif selected_model == Models.PMV_ashrae.name:
+            image = t_hr_pmv(inputs=inputs, model="ashrae")
 
     note = ""
     chart: ChartsInfo
