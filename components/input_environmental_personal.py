@@ -359,6 +359,7 @@ def input_environmental_personal(
                     max=values.max,
                     step=values.step,
                     id=values.id,
+                    debounce = True,
                 )
 
             # User click on compare and model is PMV - ASHARE 55
