@@ -23,7 +23,6 @@ from utils.my_config_file import (
 from utils.website_text import app_name
 
 
-
 install()
 # from components.dropdowns import Ash55_air_speed_selection
 ic.configureOutput(includeContext=True)
@@ -71,13 +70,15 @@ app.layout = dmc.MantineProvider(
     children=html.Div(
         [
             my_navbar(),
-           
-            dcc.Location(id=ElementsIDs.URL.value, refresh=False), # Handles URL routing
-            dcc.Store(id=MyStores.input_data.value, storage_type="local"), # Stores application state
+            dcc.Location(
+                id=ElementsIDs.URL.value, refresh=False
+            ),  # Handles URL routing
+            dcc.Store(
+                id=MyStores.input_data.value, storage_type="local"
+            ),  # Stores application state
             html.Div(
-                id = "page-container",# Container for dynamic content
-                children = dmc.Container(
-                     
+                id="page-container",  # Container for dynamic content
+                children=dmc.Container(
                     dash.page_container,
                     p="xs",
                     size=Dimensions.default_container_width.value,
@@ -93,14 +94,12 @@ app.layout = dmc.MantineProvider(
 )
 
 
-
-
 @app.callback(
     Output(ElementsIDs.URL.value, "pathname"),
-    Input(ElementsIDs.MODEL_SELECTION.value, "value")
+    Input(ElementsIDs.MODEL_SELECTION.value, "value"),
 )
 def update_url(selected_model):
-    if selected_model == Models.PMV_ashrae.name: 
+    if selected_model == Models.PMV_ashrae.name:
         return "/pmv-ashrae"
     elif selected_model == Models.PMV_EN.name:
         return "/pmv-en"
@@ -109,11 +108,8 @@ def update_url(selected_model):
     else:
         return "/"  # Default URL
 
-@app.callback(
-    
-    Output("id", "href"),
-    Input(ElementsIDs.URL.value, "pathname")
-)
+
+@app.callback(Output("id", "href"), Input(ElementsIDs.URL.value, "pathname"))
 def update_nav_links(pathname):
     if pathname == "/pmv-ashrae":
         return "/pmv-ashrae", "#", "#"
@@ -123,8 +119,6 @@ def update_nav_links(pathname):
         return "#", "#", "/adaptive-ashrae"
     else:
         return "#", "#", "#"
-
-
 
 
 if __name__ == "__main__":
