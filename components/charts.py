@@ -6,7 +6,7 @@ import dash_mantine_components as dmc
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from pythermalcomfort.models import pmv, use_fans_heatwaves, set_tmp, two_nodes
+from pythermalcomfort.models import pmv, set_tmp, two_nodes
 from pythermalcomfort.utilities import v_relative, clo_dynamic
 from scipy import optimize
 
@@ -121,12 +121,18 @@ def SET_outputs_chart(inputs: dict = None):
     tdb_values = np.arange(10, 40, 0.5, dtype=float).tolist()
 
     # Prepare arrays for the outputs we want to plot
-    set_temp = []
-    skin_temp = []
-    core_temp = []
-    total_skin_evaporative_heat_loss = []
-    heat_loss_respiration = []
-    skin_wettedness = []
+    set_temp = []  # set_tmp()
+    skin_temp = []  # t_skin
+    core_temp = []  # t_core
+    clothing_temp = []  # t_cl
+    mean_body_temp = []  # t_body
+    total_skin_evaporative_heat_loss = []  # e_skin
+    sweat_evaporation_skin_heat_loss = []  # e_rsw
+    vapour_diffusion_skin_heat_loss = []  # e_diff
+    total_skin_senesible_heat_loss = []  # q_sensible
+    total_skin_heat_loss = []  # q_skin
+    heat_loss_respiration = []  # q_res
+    skin_wettedness = []  # w
 
     # Extract common input values
     tr = float(inputs[ElementsIDs.t_r_input.value])
@@ -174,12 +180,46 @@ def SET_outputs_chart(inputs: dict = None):
         total_skin_evaporative_heat_loss.append(
             float(results["e_skin"])
         )  # Convert np.float64 to float
+        sweat_evaporation_skin_heat_loss.append(
+            float(results["e_rsw"])
+        )  # Convert np.float64 to float
+        vapour_diffusion_skin_heat_loss.append(
+            float(results["e_skin"] - results["e_rsw"])
+        )  # Convert np.float64 to float
+        total_skin_senesible_heat_loss.append(
+            float(results["q_sensible"])
+        )  # Convert np.float64 to float
+        total_skin_heat_loss.append(
+            float(results["q_skin"])
+        )  # Convert np.float64 to float
         heat_loss_respiration.append(
             float(results["q_res"])
         )  # Convert np.float64 to float
         skin_wettedness.append(
             float(results["w"]) * 100
         )  # Convert to percentage and float
+
+        # calculate clothing temperature t_cl
+        r_clo = 0.155 * clo
+        f_a_cl = 1.0 + 0.15 * clo
+        h_cc = 3.0 * pow(1, 0.53)
+        h_fc = 8.600001 * pow((vr * 1), 0.53)
+        h_cc = max(h_cc, h_fc)
+        if met > 0.85:
+            h_c_met = 5.66 * (met - 0.85) ** 0.39
+            h_cc = max(h_cc, h_c_met)
+        h_r = 4.7
+        h_t = h_r + h_cc
+        r_a = 1.0 / (f_a_cl * h_t)
+        t_op = (h_r * tr + h_cc * tdb) / h_t
+        clothing_temp.append(
+            float((r_a * results["t_skin"] + r_clo * t_op) / (r_a + r_clo))
+        )
+        # calculate mean body temperature t_body
+        alfa = 0.1
+        mean_body_temp.append(
+            float(alfa * results["t_skin"] + (1 - alfa) * results["t_core"])
+        )
 
     # Create the figure and axis
     fig, ax1 = plt.subplots(figsize=(8, 6))
@@ -188,6 +228,8 @@ def SET_outputs_chart(inputs: dict = None):
     ax1.plot(tdb_values, set_temp, label="SET temperature", color="blue")
     ax1.plot(tdb_values, skin_temp, label="Skin temperature", color="cyan")
     ax1.plot(tdb_values, core_temp, label="Core temperature", color="green")
+    ax1.plot(tdb_values, clothing_temp, label="Clothing temperature", color="magenta")
+    ax1.plot(tdb_values, mean_body_temp, label="Mean body temperature", color="brown")
 
     # Set labels for the left y-axis
     ax1.set_xlabel("Dry-bulb air temperature [°C]")
@@ -203,6 +245,27 @@ def SET_outputs_chart(inputs: dict = None):
         total_skin_evaporative_heat_loss,
         label="Total skin evaporative heat loss",
         color="black",
+    )
+    ax2.plot(
+        tdb_values,
+        sweat_evaporation_skin_heat_loss,
+        label="Sweat evaporation skin heat loss",
+        color="red",
+    )
+    ax2.plot(
+        tdb_values,
+        vapour_diffusion_skin_heat_loss,
+        label="Vapour diffusion skin heat loss",
+        color="yellow",
+    )
+    ax2.plot(
+        tdb_values,
+        total_skin_senesible_heat_loss,
+        label="Total skin senesible heat loss",
+        color="purple",
+    )
+    ax2.plot(
+        tdb_values, total_skin_heat_loss, label="Total skin heat loss", color="pink"
     )
     ax2.plot(
         tdb_values, heat_loss_respiration, label="Heat loss respiration", color="grey"

@@ -176,7 +176,7 @@ def update_chart(
             image = t_rh_pmv(inputs=inputs, model="iso")
         elif selected_model == Models.PMV_ashrae.name:
             image = t_rh_pmv(inputs=inputs, model="ashrae")
-    if chart_selected == Charts.SET_outputs.value.name:
+    if chart_selected == Charts.set_outputs.value.name:
         image = SET_outputs_chart(inputs=inputs)
 
     note = ""
