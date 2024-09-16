@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from pythermalcomfort.models import pmv
 from pythermalcomfort.utilities import v_relative, clo_dynamic
+from pythermalcomfort.psychrometrics import psy_ta_rh
 from scipy import optimize
 
 from components.drop_down_inline import generate_dropdown_inline
@@ -32,6 +33,48 @@ def chart_selector(selected_model: str):
     return generate_dropdown_inline(
         drop_down_chart_dict, value=drop_down_chart_dict["default"], clearable=False
     )
+
+
+def t_hr_pmv(inputs: dict = None, model: str = "iso"):
+    results = []
+    pmv_limits = [-0.5, 0.5]
+    clo_d = clo_dynamic(
+        clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
+    )
+    vr = v_relative(
+        v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
+    )
+    for pmv_limit in pmv_limits:
+        for rh in np.arange(0, 110, 10):
+            psy_data = psy_ta_rh(inputs[ElementsIDs.t_db_input.value], rh)
+
+            def function(x):
+                return (
+                    pmv(
+                        x,
+                        tr=inputs[ElementsIDs.t_r_input.value],
+                        vr=vr,
+                        rh=rh,
+                        met=inputs[ElementsIDs.met_input.value],
+                        clo=clo_d,
+                        wme=0,
+                        standard=model,
+                        limit_inputs=False,
+                    )
+                    - pmv_limit
+                )
+
+            temp = optimize.brentq(function, 10, 40)
+            results.append(
+                {
+                    "rh": rh,
+                    "hr": psy_data["hr"] * 1000,
+                    "temp": temp,
+                    "pmv_limit": pmv_limit,
+                }
+            )
+    df = pd.DataFrame(results)
+    print(df)
 
 
 # fig example
@@ -71,9 +114,7 @@ def t_rh_pmv(inputs: dict = None, model: str = "iso"):
                     "pmv_limit": pmv_limit,
                 }
             )
-
     df = pd.DataFrame(results)
-
     f, axs = plt.subplots(1, 1, figsize=(6, 4), sharex=True)
     t1 = df[df["pmv_limit"] == pmv_limits[0]]
     t2 = df[df["pmv_limit"] == pmv_limits[1]]
