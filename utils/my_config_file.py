@@ -43,6 +43,8 @@ class ElementsIDs(Enum):
     modal_custom_ensemble_close = "id-modal-custom-ensemble-close"
     modal_custom_ensemble_submit = "id-modal-custom-ensemble-submit"
     modal_custom_ensemble_value = "id-modal-custom-ensemble-value"
+    modal_custom_ensemble_warning = "id-modal-custom-ensemble-warning"
+    functionality_selection = "id-functionality-selection"
     RESULTS_SECTION = "id-results-section"
     NAVBAR_ID_DOCUMENT = "id-nav-documentation"
     NAVBAR_ID_MORE_CBE_TOOLS = "id-nav-more-cbe-tools"
@@ -111,6 +113,21 @@ class Charts(Enum):
         name="Psychrometric (operative temperature)",
         id="id_psy_to_chart",
         note_chart="In this psychrometric chart the abscissa is the operative temperature and for each point dry-bulb temperature equals mean radiant temperature (DBT = MRT). The comfort zone represents the combination of conditions with the same DBT and MRT for which the PMV is between -0.5 and +0.5, according to the standard.",
+    )
+    wind_temp_chart: ChartsInfo = ChartsInfo(
+        name="Air speed vs. operative temperature",
+        id="id_as_psy_chart",
+        note_chart="This chart represents only two variables, air speed against operative temperature. The operative temperature for each point is determined by dry-bulb temperature equals mean radiant temperature (DBT = MRT). The calculation of PMV comfort zone is based on all the psychrometric variables, with PMV values between -0.5 and +0.5 according to the standard.",
+    )
+    thl_psychrometric: ChartsInfo = ChartsInfo(
+        name="Thermal heat losses vs. air temperature",
+        id="id_thl_psy_chart",
+        note_chart="This chart shows how the heat loss components, calculated using the PMV model, vary as a function of the input parameters you selected. You can toggle on and off the lines by clicking on the relative variable in the legend.",
+    )
+    set_outputs: ChartsInfo = ChartsInfo(
+        name="SET outputs chart",
+        id="id_set_outputs_chart",
+        note_chart="This chart shows how some variables, calculated using the SET model, vary as a function of the input parameters you selected. You can toggle on and off the lines by clicking on the relative variable in the legend.",
     )
 
 
@@ -264,6 +281,9 @@ class Models(Enum):
             Charts.t_rh.value,
             Charts.psychrometric.value,
             Charts.psychrometric_operative.value,
+            Charts.wind_temp_chart.value,
+            Charts.thl_psychrometric.value,
+            Charts.set_outputs.value,
         ],
         inputs=[
             ModelInputsInfo(
