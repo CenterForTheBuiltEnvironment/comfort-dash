@@ -94,31 +94,6 @@ app.layout = dmc.MantineProvider(
 )
 
 
-@app.callback(
-    Output(ElementsIDs.URL.value, "pathname"),
-    Input(ElementsIDs.MODEL_SELECTION.value, "value"),
-)
-def update_url(selected_model):
-    if selected_model == Models.PMV_ashrae.name:
-        return "/pmv-ashrae"
-    elif selected_model == Models.PMV_EN.name:
-        return "/pmv-en"
-    elif selected_model == Models.Adaptive_ASHRAE.name:
-        return "/adaptive-ashrae"
-    else:
-        return "/"  # Default URL
-
-
-@app.callback(Output("id", "href"), Input(ElementsIDs.URL.value, "pathname"))
-def update_nav_links(pathname):
-    if pathname == "/pmv-ashrae":
-        return "/pmv-ashrae", "#", "#"
-    elif pathname == "/pmv-en":
-        return "#", "/pmv-en", "#"
-    elif pathname == "/adaptive-ashrae":
-        return "#", "#", "/adaptive-ashrae"
-    else:
-        return "#", "#", "#"
 
 
 if __name__ == "__main__":
