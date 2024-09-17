@@ -116,7 +116,9 @@ def t_rh_pmv(inputs: dict = None, model: str = "iso"):
     )
 
 
-def SET_outputs_chart(inputs: dict = None, calculate_ce: bool = False, p_atmospheric: int = 101325):
+def SET_outputs_chart(
+    inputs: dict = None, calculate_ce: bool = False, p_atmospheric: int = 101325
+):
     # Dry-bulb air temperature (x-axis)
     tdb_values = np.arange(10, 40, 0.5, dtype=float).tolist()
 
@@ -302,8 +304,9 @@ def SET_outputs_chart(inputs: dict = None, calculate_ce: bool = False, p_atmosph
 
     return dmc.Image(
         src=f"data:image/png;base64,{img_base64}", alt="SET Outputs Chart", py=0
+    )
 
-      
+
 def pmot_ot_adaptive_ashrae(inputs: dict = None, model: str = "ashrae"):
     results = []
     air_temperature = inputs[ElementsIDs.t_db_input.value]  # Air Temperature

@@ -2,7 +2,12 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx
 
-from components.charts import t_rh_pmv, chart_selector, SET_outputs_chart, pmot_ot_adaptive_ashrae
+from components.charts import (
+    t_rh_pmv,
+    chart_selector,
+    SET_outputs_chart,
+    pmot_ot_adaptive_ashrae,
+)
 from components.dropdowns import (
     model_selection,
 )
