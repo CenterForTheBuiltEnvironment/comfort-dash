@@ -70,12 +70,8 @@ app.layout = dmc.MantineProvider(
     children=html.Div(
         [
             my_navbar(),
-            dcc.Location(
-                id=ElementsIDs.URL.value, refresh=False
-            ),  # Handles URL routing
-            dcc.Store(
-                id=MyStores.input_data.value, storage_type="local"
-            ),  # Stores application state
+            dcc.Location(id=ElementsIDs.URL.value),
+            dcc.Store(id=MyStores.input_data.value, storage_type="local"),
             html.Div(
                 id="page-container",  # Container for dynamic content
                 children=dmc.Container(

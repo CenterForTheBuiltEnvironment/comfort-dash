@@ -158,12 +158,31 @@ def t_rh_pmv(inputs: dict = None, model: str = "iso"):
         py=0,
     )
 
-#psychrometric air_temperature
-def t_hr_pmv(inputs: dict = None, model: str = "iso"):
-    results = []
-    pmv_limits = [-0.5, 0.5]  # PMV upper and lower limits
-    clo_d = clo_dynamic(
-        clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
+
+def SET_outputs_chart(inputs: dict = None, calculate_ce: bool = False, p_atmospheric: int = 101325):
+    # Dry-bulb air temperature (x-axis)
+    tdb_values = np.arange(10, 40, 0.5, dtype=float).tolist()
+
+    # Prepare arrays for the outputs we want to plot
+    set_temp = []  # set_tmp()
+    skin_temp = []  # t_skin
+    core_temp = []  # t_core
+    clothing_temp = []  # t_cl
+    mean_body_temp = []  # t_body
+    total_skin_evaporative_heat_loss = []  # e_skin
+    sweat_evaporation_skin_heat_loss = []  # e_rsw
+    vapour_diffusion_skin_heat_loss = []  # e_diff
+    total_skin_senesible_heat_loss = []  # q_sensible
+    total_skin_heat_loss = []  # q_skin
+    heat_loss_respiration = []  # q_res
+    skin_wettedness = []  # w
+
+    # Extract common input values
+    tr = float(inputs[ElementsIDs.t_r_input.value])
+    vr = float(
+        v_relative(  # Ensure vr is scalar
+            v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
+        )
     )
     vr = v_relative(
         v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
@@ -290,15 +309,10 @@ def t_hr_pmv(inputs: dict = None, model: str = "iso"):
 
     # Return the image component
     return dmc.Image(
-        src=f"data:image/png;base64, {my_base64_jpgData}",
-        alt="Psychrometric chart",
-        py=0,
-    )
+        src=f"data:image/png;base64,{img_base64}", alt="SET Outputs Chart", py=0
 
-
-
-#psychrometric operative_temperature  (MR CL还有问题)
-def t_ra_PMV(inputs: dict = None, model: str = "iso"):
+      
+def pmot_ot_adaptive_ashrae(inputs: dict = None, model: str = "ashrae"):
     results = []
     pmv_limits = [-0.5, 0.5]  # PMV上下限
     
