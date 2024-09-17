@@ -2,7 +2,7 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx
 
-from components.charts import t_rh_pmv, chart_selector, SET_outputs_chart
+from components.charts import t_rh_pmv, chart_selector, SET_outputs_chart, pmot_ot_adaptive_ashrae
 from components.dropdowns import (
     model_selection,
 )
@@ -178,6 +178,9 @@ def update_chart(
             image = t_rh_pmv(inputs=inputs, model="ashrae")
     if chart_selected == Charts.set_outputs.value.name:
         image = SET_outputs_chart(inputs=inputs)
+    if chart_selected == Charts.pmot_ot.value.name:
+        if selected_model == Models.Adaptive_ASHRAE.name:
+            image = pmot_ot_adaptive_ashrae(inputs=inputs, model="ashrae")
 
     note = ""
     chart: ChartsInfo

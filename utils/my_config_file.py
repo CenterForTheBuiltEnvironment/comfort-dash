@@ -129,6 +129,11 @@ class Charts(Enum):
         id="id_set_outputs_chart",
         note_chart="This chart shows how some variables, calculated using the SET model, vary as a function of the input parameters you selected. You can toggle on and off the lines by clicking on the relative variable in the legend.",
     )
+    pmot_ot: ChartsInfo = ChartsInfo(
+        name="Adaptive chart",
+        id="id_pmot_ot_chart",
+        note_chart="Method is applicable only for occupant-controlled naturally conditioned spaces that meet all of the following criteria:",
+    )
 
 
 class AdaptiveAshraeSpeeds(Enum):
@@ -414,6 +419,7 @@ class Models(Enum):
         charts=[
             # todo add the right charts
             Charts.t_rh.value,
+            Charts.pmot_ot.value,
         ],
         inputs=[
             ModelInputsInfo(
