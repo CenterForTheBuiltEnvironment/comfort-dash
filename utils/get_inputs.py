@@ -31,6 +31,15 @@ def extract_float(value):
             return None
     return None
 
+def extract_float(value: str):
+    try:
+        return float(value.split(":")[-1].strip().split()[0])
+    except (IndexError, ValueError) as e:
+       
+        print(f"Error extracting float from value: {value} - {e}")
+        return 0.0  
+
+
 
 def get_inputs(selected_model: str, form_content: dict, units: str):
     if selected_model is None:

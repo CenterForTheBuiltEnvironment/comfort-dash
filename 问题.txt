@@ -1,0 +1,26 @@
+t_db doesn't exist in current version
+
+two_node
+
+
+
+pythermalcomfort.psychrometrics.psy_ta_rh(tdb, rh, p_atm=101325)[source]
+Calculates psychrometric values of air based on dry bulb air temperature and relative humidity. For more accurate results we recommend the use of the Python package psychrolib.
+
+Parameters
+tdb (float, int, or array-like) – air temperature, [°C]
+
+rh (float, int, or array-like) – relative humidity, [%]
+
+p_atm (float, int, or array-like) – atmospheric pressure, [Pa]
+
+Returns
+p_vap (float, int, or array-like) – partial pressure of water vapor in moist air, [Pa]
+
+hr (float, int, or array-like) – humidity ratio, [kg water/kg dry air]
+
+t_wb (float, int, or array-like) – wet bulb temperature, [°C]
+
+t_dp (float, int, or array-like) – dew point temperature, [°C]
+
+h (float, int, or array-like) – enthalpy [J/kg dry air]

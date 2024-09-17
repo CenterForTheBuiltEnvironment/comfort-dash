@@ -98,7 +98,7 @@ if __name__ == "__main__":
     app.run_server(
         debug=Config.DEBUG.value,
         host="127.0.0.1",
-        port=os.environ.get("PORT_APP", 9090),
+        port=os.environ.get("PORT_APP", 7600),
         processes=1,
         threaded=True,
     )
