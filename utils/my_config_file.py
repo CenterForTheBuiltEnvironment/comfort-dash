@@ -37,7 +37,6 @@ class ElementsIDs(Enum):
     rh_input = "id-rh-input"
     met_input = "id-met-input"
     clo_input = "id-clo-input"
-
     t_db_input_input2 = "id-dbt-input-input2"
     t_r_input_input2 = "id-tr-input-input2"
     t_rm_input_input2 = "id-trm-input-input2"
@@ -45,7 +44,6 @@ class ElementsIDs(Enum):
     rh_input_input2 = "id-rh-input-input2"
     met_input_input2 = "id-met-input-input2"
     clo_input_input2 = "id-clo-input-input2"
-
     note_model = "id-model-note"
     modal_custom_ensemble = "id-modal-custom-ensemble"
     modal_custom_ensemble_open = "id-modal-custom-ensemble-open"
@@ -285,6 +283,7 @@ class ModelsInfo(BaseModel):
     pythermalcomfort_models: str = None
     note_model: str = None
     charts: List[ChartsInfo] = None
+    charts_compare: Optional[List[ChartsInfo]] = None
 
 
 class Models(Enum):
@@ -299,6 +298,11 @@ class Models(Enum):
             Charts.wind_temp_chart.value,
             Charts.thl_psychrometric.value,
             Charts.set_outputs.value,
+        ],
+        charts_compare=[
+            Charts.t_rh.value,
+            Charts.psychrometric.value,
+            Charts.psychrometric_operative.value,
         ],
         inputs=[
             ModelInputsInfo(

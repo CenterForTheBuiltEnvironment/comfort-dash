@@ -58,7 +58,6 @@ def display_results(inputs: dict):
         )
         results.append(dmc.Center(dmc.Text(f"Sensation: {comfort_category}")))
 
-        # User click on compare button and calculate the result
         if (
             inputs[ElementsIDs.functionality_selection.value]
             == Functionalities.Compare.value

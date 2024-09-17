@@ -20,7 +20,6 @@ from utils.my_config_file import (
     Charts,
     ChartsInfo,
     MyStores,
-    Functionalities,
 )
 
 dash.register_page(__name__, path=URLS.HOME.value)
@@ -146,11 +145,14 @@ def update_note_model(selected_model):
 @callback(
     Output(ElementsIDs.charts_dropdown.value, "children"),
     Input(ElementsIDs.MODEL_SELECTION.value, "value"),
+    Input(ElementsIDs.functionality_selection.value, "value"),
 )
-def update_note_model(selected_model):
+def update_note_model(selected_model, function_selection):
     if selected_model is None:
         return no_update
-    return chart_selector(selected_model=selected_model)
+    return chart_selector(
+        selected_model=selected_model, function_selection=function_selection
+    )
 
 
 @callback(
@@ -162,7 +164,6 @@ def update_chart(inputs: dict, function_selection: str):
     selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
     units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
     chart_selected = inputs[ElementsIDs.chart_selected.value]
-    function_selection = inputs[ElementsIDs.functionality_selection.value]
 
     image = html.Div(
         [

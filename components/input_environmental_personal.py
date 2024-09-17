@@ -312,7 +312,6 @@ def input_environmental_personal(
     all_inputs = set()
 
     for model in Models:
-        # print(model)
         for input_info in model.value.inputs:
             all_inputs.add(input_info.id)
         if (
@@ -321,9 +320,6 @@ def input_environmental_personal(
         ):
             for input_info in Models.PMV_ashrae.value.inputs2:
                 all_inputs.add(input_info.id)
-
-    # print(all_inputs)
-    # print(right_inputs)
 
     model_inputs = Models[selected_model].value.inputs
     model_inputs = convert_units(model_inputs, units)
@@ -359,10 +355,9 @@ def input_environmental_personal(
                     max=values.max,
                     step=values.step,
                     id=values.id,
-                    debounce = True,
+                    debounce=True,
                 )
 
-            # User click on compare and model is PMV - ASHARE 55
             if function_selection == Functionalities.Compare.value and model_inputs2:
                 comparison_values = model_inputs2[idx]
 
@@ -426,9 +421,8 @@ def input_environmental_personal(
             checked=units == UnitSystem.IP.value,
         )
     )
-
     inputs.append(unit_toggle)
-    # show custom ensemble button
+
     custom_ensemble_button = None
     if (
         selected_model in [Models.PMV_EN.name, Models.PMV_ashrae.name]
