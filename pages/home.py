@@ -1,6 +1,6 @@
 import dash
 import dash_mantine_components as dmc
-from dash import html, callback, Output, Input, no_update, State, ctx
+from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
 from components.charts import t_rh_pmv, chart_selector
 from components.dropdowns import (
@@ -21,6 +21,7 @@ from utils.my_config_file import (
     ChartsInfo,
     MyStores,
 )
+import plotly.graph_objects as go
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -164,8 +165,9 @@ def update_chart(inputs: dict, function_selection: str):
     selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
     units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
     chart_selected = inputs[ElementsIDs.chart_selected.value]
+    function_selection = inputs[ElementsIDs.functionality_selection.value]
 
-    image = html.Div(
+    placeholder = html.Div(
         [
             dmc.Title("Unfortunately this chart has not been implemented yet", order=4),
             dmc.Image(
@@ -173,6 +175,7 @@ def update_chart(inputs: dict, function_selection: str):
             ),
         ]
     )
+    image = go.Figure()
 
     if chart_selected == Charts.t_rh.value.name:
         if selected_model == Models.PMV_EN.name:
@@ -190,9 +193,18 @@ def update_chart(inputs: dict, function_selection: str):
         if chart.name == chart_selected:
             note = chart.note_chart
 
+    graph_component = (
+        placeholder
+        if not image.data
+        else dcc.Graph(
+            id=ElementsIDs.GRAPH_HOVER.value,
+            figure=image,  # Pass the Plotly figure object here
+        )
+    )
+
     return dmc.Stack(
         [
-            image,
+            graph_component,
             html.Div(
                 [
                     dmc.Text("Note: ", size="sm", fw=700, span=True),
