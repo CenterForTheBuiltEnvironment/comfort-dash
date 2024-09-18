@@ -60,7 +60,7 @@ def get_inputs(
 
     if units == UnitSystem.IP.value:
         combined_model_inputs = convert_units(
-            combined_model_inputs, UnitSystem.SI.value
+            combined_model_inputs, UnitSystem.IP.value
         )
 
     inputs = {}
