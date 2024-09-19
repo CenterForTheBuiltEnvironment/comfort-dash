@@ -529,6 +529,7 @@ def create_autocomplete(values: ModelInputsInfo):
     )
 
 
+# Todo determine if the value is over the maximum
 def update_options(input_value, options, selection_enum):
     if input_value is None or input_value == "":
         return [], ""

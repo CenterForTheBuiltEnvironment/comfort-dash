@@ -74,6 +74,7 @@ layout = dmc.Stack(
 )
 
 
+# Todo adding reflecting value to the url
 @callback(
     Output(MyStores.input_data.value, "data"),
     Input(ElementsIDs.inputs_form.value, "n_clicks"),
@@ -113,6 +114,7 @@ def update_store_inputs(
     return inputs
 
 
+# todo get the value from the url
 @callback(
     Output(ElementsIDs.INPUT_SECTION.value, "children"),
     Input(ElementsIDs.MODEL_SELECTION.value, "value"),
@@ -156,6 +158,7 @@ def update_note_model(selected_model, function_selection):
     )
 
 
+# todo add the track the mouse x, y axis
 @callback(
     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
     Input(MyStores.input_data.value, "data"),

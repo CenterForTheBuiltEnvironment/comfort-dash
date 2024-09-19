@@ -45,9 +45,10 @@ def extract_float(value):
 def get_inputs(
     selected_model: str, form_content: dict, units: str, functionality_selection: str
 ):
+
     if selected_model is None:
         return no_update
-
+    # todo import from form_content, determine if the value is None
     list_model_inputs = deepcopy(Models[selected_model].value.inputs)
     if functionality_selection == Functionalities.Compare.value and selected_model in [
         Models.PMV_ashrae.name

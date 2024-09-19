@@ -167,9 +167,11 @@ class UnitSystem(Enum):
     fahrenheit: str = "°F"
 
 
+# Todo transfer the Unit convert function to another file
 class UnitConverter:
     @staticmethod
     def celsius_to_fahrenheit(celsius):
+        # Todo add save 2 decimal place
         return round(celsius * 9 / 5 + 32)
 
     @staticmethod
