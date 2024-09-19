@@ -49,7 +49,6 @@ def get_inputs(
         return no_update
 
     list_model_inputs = deepcopy(Models[selected_model].value.inputs)
-
     if functionality_selection == Functionalities.Compare.value and selected_model in [
         Models.PMV_ashrae.name
     ]:
@@ -60,7 +59,7 @@ def get_inputs(
 
     if units == UnitSystem.IP.value:
         combined_model_inputs = convert_units(
-            combined_model_inputs, UnitSystem.IP.value
+            combined_model_inputs, UnitSystem.SI.value
         )
 
     inputs = {}
