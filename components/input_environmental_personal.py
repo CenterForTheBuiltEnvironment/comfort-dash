@@ -303,6 +303,7 @@ def modal_custom_ensemble():
     )
 
 
+# todo implement the drop-down box to the air speed in Adaptive - Ashrae 55 model
 def input_environmental_personal(
     selected_model: str = "PMV_ashrae",
     units: str = UnitSystem.SI.value,
