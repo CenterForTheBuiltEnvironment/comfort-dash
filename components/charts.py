@@ -136,7 +136,7 @@ def generate_adaptive_en_chart(inputs):
     )
     theta = np.linspace(0, 2 * np.pi, 100)
     circle_x = red_point[0] + 0.5 * np.cos(theta)
-    circle_y = red_point[1] + 0.7 * np.sin(theta)
+    circle_y = red_point[1] + 0.8 * np.sin(theta)
     # traces[4]
     traces.append(
         go.Scatter(
