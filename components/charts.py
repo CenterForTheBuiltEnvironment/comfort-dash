@@ -43,7 +43,7 @@ def chart_selector(selected_model: str, function_selection: str):
     )
 
 
-def generate_adaptive_en_chart():
+def generate_adaptive_en_chart(inputs):
     traces = []
 
     x_values = np.array([10, 30])
@@ -113,8 +113,8 @@ def generate_adaptive_en_chart():
             mode="lines",
         )
     )
-    x = 25
-    y = t_o(tdb=25, tr=25, v=0.1)
+    x = inputs[ElementsIDs.t_rm_input.value]
+    y = t_o(tdb=inputs[ElementsIDs.t_db_input.value], tr=inputs[ElementsIDs.t_r_input.value], v=inputs[ElementsIDs.v_input.value])
     red_point = [x, y]
     # traces[3]
     traces.append(
@@ -175,6 +175,7 @@ def generate_adaptive_en_chart():
         legend=dict(x=0.8, y=1),
         showlegend=False,
         plot_bgcolor="white",
+        margin=dict(l=40, r=40, t=40, b=40),
     )
     fig = go.Figure(data=traces, layout=layout)
     return fig
