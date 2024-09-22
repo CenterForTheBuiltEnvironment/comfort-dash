@@ -114,7 +114,11 @@ def generate_adaptive_en_chart(inputs):
         )
     )
     x = inputs[ElementsIDs.t_rm_input.value]
-    y = t_o(tdb=inputs[ElementsIDs.t_db_input.value], tr=inputs[ElementsIDs.t_r_input.value], v=inputs[ElementsIDs.v_input.value])
+    y = t_o(
+        tdb=inputs[ElementsIDs.t_db_input.value],
+        tr=inputs[ElementsIDs.t_r_input.value],
+        v=inputs[ElementsIDs.v_input.value],
+    )
     red_point = [x, y]
     # traces[3]
     traces.append(
@@ -172,7 +176,6 @@ def generate_adaptive_en_chart(inputs):
             linewidth=1.5,
             linecolor="black",
         ),
-        margin=dict(l=40, r=40, t=40, b=40),
         legend=dict(x=0.8, y=1),
         showlegend=False,
         plot_bgcolor="white",
@@ -330,7 +333,6 @@ def t_rh_pmv(
                 name="Compare Input",
             )
         )
-
 
     # Update layout
     fig.update_layout(
