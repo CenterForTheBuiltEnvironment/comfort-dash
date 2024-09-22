@@ -2,7 +2,7 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
-from components.charts import t_rh_pmv, chart_selector
+from components.charts import t_rh_pmv, chart_selector, generate_adaptive_en_chart
 from components.dropdowns import (
     model_selection,
 )
@@ -158,7 +158,6 @@ def update_note_model(selected_model, function_selection):
     )
 
 
-# todo add the track the mouse x, y axis
 @callback(
     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
     Input(MyStores.input_data.value, "data"),
@@ -189,6 +188,9 @@ def update_chart(inputs: dict, function_selection: str):
             image = t_rh_pmv(
                 inputs=inputs, model="ashrae", function_selection=function_selection
             )
+
+    if selected_model == Models.Adaptive_EN.name:
+            image = generate_adaptive_en_chart()
 
     note = ""
     chart: ChartsInfo

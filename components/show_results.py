@@ -1,6 +1,8 @@
 import dash_mantine_components as dmc
 from pythermalcomfort.models import pmv_ppd, adaptive_ashrae
 from pythermalcomfort.utilities import v_relative, clo_dynamic, mapping
+from pythermalcomfort.models import adaptive_en
+from pythermalcomfort.psychrometrics import t_o
 
 from utils.get_inputs import get_inputs
 from utils.my_config_file import (
@@ -10,6 +12,7 @@ from utils.my_config_file import (
     ElementsIDs,
     Functionalities,
     CompareInputColor,
+    ComfortLevel,
 )
 
 
@@ -145,6 +148,22 @@ def display_results(inputs: dict):
                 )
             )
         )
+
+    if selected_model == Models.Adaptive_EN.name:
+
+        results = gain_adaptive_en_hover_text(
+            tdb=inputs[ElementsIDs.t_db_input.value],
+            tr=inputs[ElementsIDs.t_r_input.value],
+            trm=inputs[ElementsIDs.t_rm_input.value],
+            v=inputs[ElementsIDs.v_input.value],
+        )
+
+        return dmc.Stack(
+            children=results,
+            gap=0,
+            align="center",
+        )
+
     return (
         dmc.SimpleGrid(
             cols=columns,
@@ -153,3 +172,64 @@ def display_results(inputs: dict):
             children=results,
         ),
     )
+
+
+def gain_adaptive_en_hover_text(tdb, tr, trm, v):
+    if tdb is None or tr is None or trm is None or v is None:
+        return "None"
+
+    result = adaptive_en(tdb=tdb, tr=tr, t_running_mean=trm, v=v)
+    y = t_o(tdb=tdb, tr=tr, v=v)
+    if result["tmp_cmf_cat_i_low"] <= y <= result["tmp_cmf_cat_i_up"]:
+        class3_bool = ComfortLevel.COMFORTABLE
+        class2_bool = ComfortLevel.COMFORTABLE
+        class1_bool = ComfortLevel.COMFORTABLE
+    elif result["tmp_cmf_cat_i_up"] < y <= result["tmp_cmf_cat_ii_up"]:
+        class3_bool = ComfortLevel.COMFORTABLE
+        class2_bool = ComfortLevel.COMFORTABLE
+        class1_bool = ComfortLevel.TOO_WARM
+    elif result["tmp_cmf_cat_ii_up"] < y <= result["tmp_cmf_cat_iii_up"]:
+        class3_bool = ComfortLevel.COMFORTABLE
+        class2_bool = ComfortLevel.TOO_WARM
+        class1_bool = ComfortLevel.TOO_WARM
+    elif result["tmp_cmf_cat_iii_up"] < y:
+        class3_bool = ComfortLevel.TOO_WARM
+        class2_bool = ComfortLevel.TOO_WARM
+        class1_bool = ComfortLevel.TOO_WARM
+    elif result["tmp_cmf_cat_i_low"] > y >= result["tmp_cmf_cat_ii_low"]:
+        class3_bool = ComfortLevel.COMFORTABLE
+        class2_bool = ComfortLevel.COMFORTABLE
+        class1_bool = ComfortLevel.TOO_COOL
+    elif result["tmp_cmf_cat_ii_low"] > y >= result["tmp_cmf_cat_iii_low"]:
+        class3_bool = ComfortLevel.COMFORTABLE
+        class2_bool = ComfortLevel.TOO_COOL
+        class1_bool = ComfortLevel.TOO_COOL
+    elif result["tmp_cmf_cat_iii_low"] > y:
+        class3_bool = ComfortLevel.TOO_COOL
+        class2_bool = ComfortLevel.TOO_COOL
+        class1_bool = ComfortLevel.TOO_COOL
+    else:
+        class3_bool = ComfortLevel.COMFORTABLE
+        class2_bool = ComfortLevel.COMFORTABLE
+        class1_bool = ComfortLevel.COMFORTABLE
+
+    results = []
+    results.append(
+        dmc.Text(
+            f"Class III acceptability limits = Operative temperature: {result['tmp_cmf_cat_iii_low']} to {result['tmp_cmf_cat_iii_up']} °C"
+        )
+    )
+    results.append(dmc.Text(f"{class3_bool.description}", fz="xs", c=class3_bool.color))
+    results.append(
+        dmc.Text(
+            f"Class II acceptability limits = Operative temperature: {result['tmp_cmf_cat_ii_low']} to {result['tmp_cmf_cat_ii_up']} °C"
+        )
+    )
+    results.append(dmc.Text(f"{class2_bool.description}", fz="xs", c=class2_bool.color))
+    results.append(
+        dmc.Text(
+            f"Class I acceptability limits = Operative temperature: {result['tmp_cmf_cat_i_low']} to {result['tmp_cmf_cat_i_up']} °C"
+        )
+    )
+    results.append(dmc.Text(f"{class1_bool.description}", fz="xs", c=class1_bool.color))
+    return results
