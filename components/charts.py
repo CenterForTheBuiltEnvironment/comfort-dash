@@ -172,6 +172,7 @@ def generate_adaptive_en_chart(inputs):
             linewidth=1.5,
             linecolor="black",
         ),
+        margin=dict(l=40, r=40, t=40, b=40),
         legend=dict(x=0.8, y=1),
         showlegend=False,
         plot_bgcolor="white",
