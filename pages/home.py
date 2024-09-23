@@ -1,6 +1,6 @@
 import dash
 import dash_mantine_components as dmc
-from dash import html, callback, Output, Input, no_update, State, ctx
+from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
 from components.charts import t_rh_pmv, chart_selector
 from components.dropdowns import (
@@ -21,6 +21,7 @@ from utils.my_config_file import (
     ChartsInfo,
     MyStores,
 )
+import plotly.graph_objects as go
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -73,6 +74,7 @@ layout = dmc.Stack(
 )
 
 
+# Todo adding reflecting value to the url
 @callback(
     Output(MyStores.input_data.value, "data"),
     Input(ElementsIDs.inputs_form.value, "n_clicks"),
@@ -95,7 +97,7 @@ def update_store_inputs(
     selected_model: str,
 ):
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    inputs = get_inputs(selected_model, form_content, units)
+    inputs = get_inputs(selected_model, form_content, units, functionality_selection)
 
     if ctx.triggered:
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
@@ -112,17 +114,19 @@ def update_store_inputs(
     return inputs
 
 
+# todo get the value from the url
 @callback(
     Output(ElementsIDs.INPUT_SECTION.value, "children"),
     Input(ElementsIDs.MODEL_SELECTION.value, "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    Input(ElementsIDs.functionality_selection.value, "value"),
 )
-def update_inputs(selected_model, units_selection):
+def update_inputs(selected_model, units_selection, function_selection):
     # todo here I should first check if some inputs are already stored in the store
     if selected_model is None:
         return no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    return input_environmental_personal(selected_model, units)
+    return input_environmental_personal(selected_model, units, function_selection)
 
 
 @callback(
@@ -144,25 +148,29 @@ def update_note_model(selected_model):
 @callback(
     Output(ElementsIDs.charts_dropdown.value, "children"),
     Input(ElementsIDs.MODEL_SELECTION.value, "value"),
+    Input(ElementsIDs.functionality_selection.value, "value"),
 )
-def update_note_model(selected_model):
+def update_note_model(selected_model, function_selection):
     if selected_model is None:
         return no_update
-    return chart_selector(selected_model=selected_model)
+    return chart_selector(
+        selected_model=selected_model, function_selection=function_selection
+    )
 
 
+# todo add the track the mouse x, y axis
 @callback(
     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
     Input(MyStores.input_data.value, "data"),
+    Input(ElementsIDs.functionality_selection.value, "value"),
 )
-def update_chart(
-    inputs: dict,
-):
+def update_chart(inputs: dict, function_selection: str):
     selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
     units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
     chart_selected = inputs[ElementsIDs.chart_selected.value]
+    function_selection = inputs[ElementsIDs.functionality_selection.value]
 
-    image = html.Div(
+    placeholder = html.Div(
         [
             dmc.Title("Unfortunately this chart has not been implemented yet", order=4),
             dmc.Image(
@@ -170,12 +178,17 @@ def update_chart(
             ),
         ]
     )
+    image = go.Figure()
 
     if chart_selected == Charts.t_rh.value.name:
         if selected_model == Models.PMV_EN.name:
-            image = t_rh_pmv(inputs=inputs, model="iso")
+            image = t_rh_pmv(
+                inputs=inputs, model="iso", function_selection=function_selection
+            )
         elif selected_model == Models.PMV_ashrae.name:
-            image = t_rh_pmv(inputs=inputs, model="ashrae")
+            image = t_rh_pmv(
+                inputs=inputs, model="ashrae", function_selection=function_selection
+            )
 
     note = ""
     chart: ChartsInfo
@@ -183,9 +196,18 @@ def update_chart(
         if chart.name == chart_selected:
             note = chart.note_chart
 
+    graph_component = (
+        placeholder
+        if not image.data
+        else dcc.Graph(
+            id=ElementsIDs.GRAPH_HOVER.value,
+            figure=image,  # Pass the Plotly figure object here
+        )
+    )
+
     return dmc.Stack(
         [
-            image,
+            graph_component,
             html.Div(
                 [
                     dmc.Text("Note: ", size="sm", fw=700, span=True),
@@ -201,5 +223,4 @@ def update_chart(
     Input(MyStores.input_data.value, "data"),
 )
 def update_outputs(inputs: dict):
-
     return display_results(inputs)

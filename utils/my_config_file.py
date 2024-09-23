@@ -1,6 +1,6 @@
 import platform
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -37,6 +37,13 @@ class ElementsIDs(Enum):
     rh_input = "id-rh-input"
     met_input = "id-met-input"
     clo_input = "id-clo-input"
+    t_db_input_input2 = "id-dbt-input-input2"
+    t_r_input_input2 = "id-tr-input-input2"
+    t_rm_input_input2 = "id-trm-input-input2"
+    v_input_input2 = "id-v-input-input2"
+    rh_input_input2 = "id-rh-input-input2"
+    met_input_input2 = "id-met-input-input2"
+    clo_input_input2 = "id-clo-input-input2"
     note_model = "id-model-note"
     modal_custom_ensemble = "id-modal-custom-ensemble"
     modal_custom_ensemble_open = "id-modal-custom-ensemble-open"
@@ -55,6 +62,7 @@ class ElementsIDs(Enum):
     ADAPTIVE_EN_SPEED_SELECTION = "id-adaptive-en-speed-selection"
     PMV_ASHRAE_SPEED_SELECTION = "id-pmv-ashrae-speed-method"
     UNIT_TOGGLE = "id-unit-toggle"  # FOR IP / SI Unit system switch
+    GRAPH_HOVER = "id-graph-hover"
 
 
 class Config(Enum):
@@ -66,6 +74,11 @@ class Functionalities(Enum):
     Default: str = "Default"
     Compare: str = "Compare"
     Ranges: str = "Ranges"
+
+
+class CompareInputColor(Enum):
+    InputColor1: str = "#ff0000"
+    InputColor2: str = "#0000ff"
 
 
 class URLS(Enum):
@@ -154,9 +167,11 @@ class UnitSystem(Enum):
     fahrenheit: str = "°F"
 
 
+# Todo transfer the Unit convert function to another file
 class UnitConverter:
     @staticmethod
     def celsius_to_fahrenheit(celsius):
+        # Todo add save 2 decimal place
         return round(celsius * 9 / 5 + 32)
 
     @staticmethod
@@ -267,9 +282,11 @@ class ModelsInfo(BaseModel):
     name: str
     description: str
     inputs: List[ModelInputsInfo]
+    inputs2: Optional[List[ModelInputsInfo]] = None
     pythermalcomfort_models: str = None
     note_model: str = None
     charts: List[ChartsInfo] = None
+    charts_compare: Optional[List[ChartsInfo]] = None
 
 
 class Models(Enum):
@@ -284,6 +301,11 @@ class Models(Enum):
             Charts.wind_temp_chart.value,
             Charts.thl_psychrometric.value,
             Charts.set_outputs.value,
+        ],
+        charts_compare=[
+            Charts.t_rh.value,
+            Charts.psychrometric.value,
+            Charts.psychrometric_operative.value,
         ],
         inputs=[
             ModelInputsInfo(
@@ -339,6 +361,62 @@ class Models(Enum):
                 value=0.61,
                 name="Clothing Level",
                 id=ElementsIDs.clo_input.value,
+            ),
+        ],
+        inputs2=[
+            ModelInputsInfo(
+                unit=UnitSystem.celsius.value,
+                min=10.0,
+                max=40.0,
+                step=0.5,
+                value=30.0,
+                name="Air Temperature",
+                id=ElementsIDs.t_db_input_input2.value,
+            ),
+            ModelInputsInfo(
+                unit=UnitSystem.celsius.value,
+                min=10.0,
+                max=40.0,
+                step=0.5,
+                value=30.0,
+                name="Mean Radiant Temperature",
+                id=ElementsIDs.t_r_input_input2.value,
+            ),
+            ModelInputsInfo(
+                unit=UnitSystem.m_s.value,
+                min=0.0,
+                max=2.0,
+                step=0.1,
+                value=0.1,
+                name="Air Speed",
+                id=ElementsIDs.v_input_input2.value,
+            ),
+            ModelInputsInfo(
+                unit="%",
+                min=0.0,
+                max=100.0,
+                step=1.0,
+                value=50.0,
+                name="Relative Humidity",
+                id=ElementsIDs.rh_input_input2.value,
+            ),
+            ModelInputsInfo(
+                unit="met",
+                min=1,
+                max=4.0,
+                step=0.1,
+                value=1.0,
+                name="Metabolic Rate",
+                id=ElementsIDs.met_input_input2.value,
+            ),
+            ModelInputsInfo(
+                unit="clo",
+                min=0.0,
+                max=1.5,
+                step=0.1,
+                value=0.61,
+                name="Clothing Level",
+                id=ElementsIDs.clo_input_input2.value,
             ),
         ],
     )

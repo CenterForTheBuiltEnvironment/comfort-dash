@@ -10,6 +10,7 @@ from utils.my_config_file import (
     UnitSystem,
     MetabolicRateSelection,
     ClothingSelection,
+    Functionalities,
 )
 from utils.website_text import (
     TextWarning,
@@ -302,8 +303,11 @@ def modal_custom_ensemble():
     )
 
 
+# todo implement the drop-down box to the air speed in Adaptive - Ashrae 55 model
 def input_environmental_personal(
-    selected_model: str = "PMV_ashrae", units: str = UnitSystem.SI.value
+    selected_model: str = "PMV_ashrae",
+    units: str = UnitSystem.SI.value,
+    function_selection: str = Functionalities.Default.value,
 ):
     inputs = []
     all_inputs = set()
@@ -311,28 +315,101 @@ def input_environmental_personal(
     for model in Models:
         for input_info in model.value.inputs:
             all_inputs.add(input_info.id)
+        if (
+            selected_model in [Models.PMV_ashrae.name]
+            and function_selection == Functionalities.Default.value
+        ):
+            for input_info in Models.PMV_ashrae.value.inputs2:
+                all_inputs.add(input_info.id)
 
     model_inputs = Models[selected_model].value.inputs
     model_inputs = convert_units(model_inputs, units)
 
-    values: ModelInputsInfo
-    for values in model_inputs:
+    def shared_label_and_description(values):
+        return dmc.Stack(
+            [
+                dmc.Text(f"{values.name} ({values.unit})", size="sm"),
+                dmc.Text(f"From {values.min} to {values.max}", size="xs", c="gray"),
+            ],
+            gap=0,
+        )
+
+    model_inputs2 = (
+        convert_units(Models[selected_model].value.inputs2, units)
+        if function_selection == Functionalities.Compare.value
+        and selected_model in [Models.PMV_ashrae.name]
+        else None
+    )
+
+    for idx, values in enumerate(model_inputs):
         input_id = values.id
         if input_id in all_inputs:
+            default_input = None
+            input_stack = None
+
             if input_id in {ElementsIDs.met_input.value, ElementsIDs.clo_input.value}:
-                inputs.append(create_autocomplete(values))
+                default_input = create_autocomplete(values)
             else:
-                inputs.append(
-                    dmc.NumberInput(
-                        label=f"{values.name} ({values.unit})",
-                        description=f"From {values.min} to {values.max}",
-                        value=values.value,
-                        min=values.min,
-                        max=values.max,
-                        step=values.step,
-                        id=values.id,
-                    )
+                default_input = dmc.NumberInput(
+                    value=values.value,
+                    min=values.min,
+                    max=values.max,
+                    step=values.step,
+                    id=values.id,
+                    debounce=True,
                 )
+
+            if function_selection == Functionalities.Compare.value and model_inputs2:
+                comparison_values = model_inputs2[idx]
+
+                if comparison_values.id in {
+                    ElementsIDs.met_input_input2.value,
+                    ElementsIDs.clo_input_input2.value,
+                }:
+                    comparision_input = create_autocomplete(comparison_values)
+                    input_stack = dmc.Stack(
+                        [
+                            shared_label_and_description(values),
+                            dmc.Grid(
+                                children=[
+                                    dmc.GridCol(default_input, span={"base": 6}),
+                                    dmc.GridCol(comparision_input, span={"base": 6}),
+                                ],
+                                gutter="xs",
+                            ),
+                        ],
+                        gap=0,
+                    )
+                else:
+                    right_input = dmc.NumberInput(
+                        value=comparison_values.value,
+                        min=comparison_values.min,
+                        max=comparison_values.max,
+                        step=comparison_values.step,
+                        id=comparison_values.id,
+                    )
+                    input_stack = dmc.Stack(
+                        [
+                            shared_label_and_description(values),
+                            dmc.Grid(
+                                children=[
+                                    dmc.GridCol(default_input, span={"base": 6}),
+                                    dmc.GridCol(right_input, span={"base": 6}),
+                                ],
+                                gutter="xs",
+                            ),
+                        ],
+                        gap=0,
+                    )
+            else:
+                input_stack = dmc.Stack(
+                    [
+                        shared_label_and_description(values),
+                        default_input,
+                    ],
+                    gap=0,
+                )
+            inputs.append(input_stack)
 
     for input_id in all_inputs:
         if input_id not in [input_info.id for input_info in model_inputs]:
@@ -345,11 +422,13 @@ def input_environmental_personal(
             checked=units == UnitSystem.IP.value,
         )
     )
-
     inputs.append(unit_toggle)
-    # show custom ensemble button
+
     custom_ensemble_button = None
-    if selected_model in [Models.PMV_EN.name, Models.PMV_ashrae.name]:
+    if (
+        selected_model in [Models.PMV_EN.name, Models.PMV_ashrae.name]
+        and function_selection == Functionalities.Default.value
+    ):
         custom_ensemble_button = dmc.Button(
             "Custom Ensemble",
             id=ElementsIDs.modal_custom_ensemble_open.value,
@@ -362,6 +441,9 @@ def input_environmental_personal(
                     html.Form(
                         dmc.Grid(
                             children=[
+                                dmc.GridCol(
+                                    dmc.Text("Inputs", fw=700),
+                                ),
                                 dmc.GridCol(
                                     dmc.Stack(inputs, gap="xs"), span={"base": 12}
                                 ),
@@ -440,14 +522,15 @@ def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened, selected_mo
 def create_autocomplete(values: ModelInputsInfo):
     return dmc.Autocomplete(
         id=values.id,
-        label=f"{values.name} ({values.unit})",
+        # label=f"{values.name} ({values.unit})",
         placeholder=f"Enter a value or select a {values.name}",
         data=[],
         value=str(values.value),
-        description=f"From {values.min} to {values.max}",
+        # description=f"From {values.min} to {values.max}",
     )
 
 
+# Todo determine if the value is over the maximum
 def update_options(input_value, options, selection_enum):
     if input_value is None or input_value == "":
         return [], ""
@@ -494,6 +577,26 @@ def update_metabolic_rate_options(input_value, _):
     Output(ElementsIDs.clo_input.value, "value"),
     Input(ElementsIDs.clo_input.value, "value"),
     State(ElementsIDs.clo_input.value, "data"),
+)
+def update_clothing_level_options(input_value, _):
+    return update_options(input_value, ClothingSelection, ClothingSelection)
+
+
+@callback(
+    Output(ElementsIDs.met_input_input2.value, "data"),
+    Output(ElementsIDs.met_input_input2.value, "value"),
+    Input(ElementsIDs.met_input_input2.value, "value"),
+    State(ElementsIDs.met_input_input2.value, "data"),
+)
+def update_metabolic_rate_options(input_value, _):
+    return update_options(input_value, MetabolicRateSelection, MetabolicRateSelection)
+
+
+@callback(
+    Output(ElementsIDs.clo_input_input2.value, "data"),
+    Output(ElementsIDs.clo_input_input2.value, "value"),
+    Input(ElementsIDs.clo_input_input2.value, "value"),
+    State(ElementsIDs.clo_input_input2.value, "data"),
 )
 def update_clothing_level_options(input_value, _):
     return update_options(input_value, ClothingSelection, ClothingSelection)

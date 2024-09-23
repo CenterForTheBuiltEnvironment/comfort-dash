@@ -8,15 +8,17 @@ from utils.my_config_file import (
     UnitSystem,
     UnitConverter,
     ElementsIDs,
+    Functionalities,
+    CompareInputColor,
 )
 
 
 def display_results(inputs: dict):
-
     selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
     units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
 
     results = []
+    # todo add unit detect if IP inputs and conver into SI calculation
     columns: int = 2
     if selected_model == Models.PMV_EN.name or selected_model == Models.PMV_ashrae.name:
         columns = 3
@@ -56,6 +58,53 @@ def display_results(inputs: dict):
             },
         )
         results.append(dmc.Center(dmc.Text(f"Sensation: {comfort_category}")))
+
+        # todo add unit detect if IP inputs and conver into SI calculation
+        if (
+            inputs[ElementsIDs.functionality_selection.value]
+            == Functionalities.Compare.value
+            and selected_model == Models.PMV_ashrae.name
+        ):
+            r_pmv_input2 = pmv_ppd(
+                tdb=inputs[ElementsIDs.t_db_input_input2.value],
+                tr=inputs[ElementsIDs.t_r_input_input2.value],
+                vr=v_relative(
+                    v=inputs[ElementsIDs.v_input_input2.value],
+                    met=inputs[ElementsIDs.met_input_input2.value],
+                ),
+                rh=inputs[ElementsIDs.rh_input_input2.value],
+                met=inputs[ElementsIDs.met_input_input2.value],
+                clo=clo_dynamic(
+                    clo=inputs[ElementsIDs.clo_input_input2.value],
+                    met=inputs[ElementsIDs.met_input_input2.value],
+                ),
+                wme=0,
+                limit_inputs=True,
+                standard=standard,
+            )
+            results.append(dmc.Center(dmc.Text(f"PMV: {r_pmv_input2['pmv']}")))
+            results.append(dmc.Center(dmc.Text(f"PPD: {r_pmv_input2['ppd']}")))
+            comfort_category = mapping(
+                r_pmv_input2["pmv"],
+                {
+                    -2.5: "Cold",
+                    -1.5: "Cool",
+                    -0.5: "Slightly Cool",
+                    0.5: "Neutral",
+                    1.5: "Slightly Warm",
+                    2.5: "Warm",
+                    10: "Hot",
+                },
+            )
+            results.append(dmc.Center(dmc.Text(f"Sensation: {comfort_category}")))
+
+            # Modify the color
+            for i in range(len(results)):
+                if i < 3:
+                    results[i].children.c = CompareInputColor.InputColor1.value
+                else:
+                    results[i].children.c = CompareInputColor.InputColor2.value
+
     elif selected_model == Models.Adaptive_ASHRAE.name:
         columns = 1
 
@@ -96,7 +145,6 @@ def display_results(inputs: dict):
                 )
             )
         )
-
     return (
         dmc.SimpleGrid(
             cols=columns,
