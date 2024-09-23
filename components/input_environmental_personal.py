@@ -303,7 +303,9 @@ def modal_custom_ensemble():
 
 
 def input_environmental_personal(
-    selected_model: str = "PMV_ashrae", units: str = UnitSystem.SI.value
+    selected_model: str = "PMV_ashrae",
+    units: str = UnitSystem.SI.value,
+    url_params: dict = None,
 ):
     inputs = []
     all_inputs = set()
@@ -317,26 +319,28 @@ def input_environmental_personal(
 
     values: ModelInputsInfo
     for values in model_inputs:
-        input_id = values.id
-        if input_id in all_inputs:
-            if input_id in {ElementsIDs.met_input.value, ElementsIDs.clo_input.value}:
-                inputs.append(create_autocomplete(values))
-            else:
-                inputs.append(
-                    dmc.NumberInput(
-                        label=f"{values.name} ({values.unit})",
-                        description=f"From {values.min} to {values.max}",
-                        value=values.value,
-                        min=values.min,
-                        max=values.max,
-                        step=values.step,
-                        id=values.id,
-                    )
-                )
+        # print(f"input_values: {values}")
+        if (
+            values.id == ElementsIDs.met_input.value
+            or values.id == ElementsIDs.clo_input.value
+        ):
+            inputs.append(create_autocomplete(values, url_params))
+        else:
+            # if the value is not in the URL params, use the default value
+            default_value = (
+                url_params.get(values.id, values.value) if url_params else values.value
+            )
 
-    for input_id in all_inputs:
-        if input_id not in [input_info.id for input_info in model_inputs]:
-            inputs.append(html.Div(style={"display": "none"}, id=input_id))
+            input_filed = dmc.NumberInput(
+                label=values.name + " (" + values.unit + ")",
+                description=f"From {values.min} to {values.max}",
+                value=default_value,
+                min=values.min,
+                max=values.max,
+                step=values.step,
+                id=values.id,
+            )
+            inputs.append(input_filed)
 
     unit_toggle = dmc.Center(
         dmc.Switch(
@@ -437,13 +441,16 @@ def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened, selected_mo
     return opened, dash.no_update, "none", dash.no_update
 
 
-def create_autocomplete(values: ModelInputsInfo):
+def create_autocomplete(values: ModelInputsInfo, url_params: dict):
+    default_value = (
+        url_params.get(values.id, values.value) if url_params else values.value
+    )
     return dmc.Autocomplete(
         id=values.id,
         label=f"{values.name} ({values.unit})",
         placeholder=f"Enter a value or select a {values.name}",
         data=[],
-        value=str(values.value),
+        value=str(default_value),
         description=f"From {values.min} to {values.max}",
     )
 
