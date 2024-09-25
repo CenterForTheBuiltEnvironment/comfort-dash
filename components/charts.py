@@ -43,7 +43,7 @@ def chart_selector(selected_model: str, function_selection: str):
     )
 
 
-def generate_adaptive_en_chart(inputs):
+def adaptive_en_chart(inputs):
     traces = []
 
     x_values = np.array([10, 30])

@@ -2,7 +2,7 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
-from components.charts import t_rh_pmv, chart_selector, generate_adaptive_en_chart
+from components.charts import t_rh_pmv, chart_selector, adaptive_en_chart
 from components.dropdowns import (
     model_selection,
 )
@@ -190,7 +190,7 @@ def update_chart(inputs: dict, function_selection: str):
             )
 
     if selected_model == Models.Adaptive_EN.name:
-        image = generate_adaptive_en_chart(inputs=inputs)
+        image = adaptive_en_chart(inputs=inputs)
 
     note = ""
     chart: ChartsInfo
