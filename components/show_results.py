@@ -49,7 +49,7 @@ def display_results(inputs: dict):
 
         # Standard Checker for PMV
         # todo: need to add standard for adaptive methods by ensure if the current red point out of area
-        if standard == Models.PMV_ashrae.name:
+        if selected_model == Models.PMV_ashrae.name:
             if -0.5 <= r_pmv["pmv"] <= 0.5:
                 compliance_text = "✔  Complies with ASHRAE Standard 55-2023"
                 compliance_color = "green"
