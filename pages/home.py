@@ -196,7 +196,7 @@ def update_chart(inputs: dict, function_selection: str):
             )
 
     if selected_model == Models.Adaptive_EN.name:
-        image = adaptive_en_chart(inputs=inputs)
+        image = adaptive_en_chart(inputs=inputs, units=units)
 
     note = ""
     chart: ChartsInfo

@@ -44,7 +44,7 @@ app = Dash(
     external_scripts=["https://cdn.plot.ly/plotly-basic-2.26.2.min.js"],
     prevent_initial_callbacks=True,
     use_pages=True,
-    serve_locally=False,
+    serve_locally=True,
 )
 app.config.suppress_callback_exceptions = True
 

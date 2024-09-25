@@ -72,21 +72,27 @@ def compare_get_inputs(inputs):
     return met_2, clo_2, tr_2, t_db_2, v_2, rh_2
 
 
-def adaptive_en_chart(inputs):
+def adaptive_en_chart(inputs, units):
     traces = []
 
-    x_values = np.array([10, 30])
+    if units == UnitSystem.IP.value:
+        x_values = np.array([50, 92.3])
+    else:
+        x_values = np.array([10, 30])
+
     results_min = adaptive_en(
         tdb=inputs[ElementsIDs.t_db_input.value],
         tr=inputs[ElementsIDs.t_r_input.value],
         t_running_mean=x_values[0],
         v=inputs[ElementsIDs.v_input.value],
+        units=units,
     )
     results_max = adaptive_en(
         tdb=inputs[ElementsIDs.t_db_input.value],
         tr=inputs[ElementsIDs.t_r_input.value],
         t_running_mean=x_values[1],
         v=inputs[ElementsIDs.v_input.value],
+        units=units,
     )
 
     y_values_cat_iii_up = [
@@ -169,28 +175,28 @@ def adaptive_en_chart(inputs):
                 color="red",
                 size=6,
             ),
-            # name='point',
+            name="current input",
             showlegend=False,
         )
     )
-    theta = np.linspace(0, 2 * np.pi, 100)
-    circle_x = red_point[0] + 0.5 * np.cos(theta)
-    circle_y = red_point[1] + 0.8 * np.sin(theta)
-    # traces[4]
-    traces.append(
-        go.Scatter(
-            x=circle_x,
-            y=circle_y,
-            mode="lines",
-            line=dict(color="red", width=2.5),
-            # name='circle',
-            showlegend=False,
-        )
-    )
+    # theta = np.linspace(0, 2 * np.pi, 100)
+    # circle_x = red_point[0] + 0.5 * np.cos(theta)
+    # circle_y = red_point[1] + 0.8 * np.sin(theta)
+    # # traces[4]
+    # traces.append(
+    #     go.Scatter(
+    #         x=circle_x,
+    #         y=circle_y,
+    #         mode="lines",
+    #         line=dict(color="red", width=2.5),
+    #         # name='circle',
+    #         showlegend=False,
+    #     )
+    # )
 
     layout = go.Layout(
         xaxis=dict(
-            title="Outdoor Running Mean Temperature [℃]",
+            title="Outdoor Running Mean Temperature [°C]",
             range=[10, 30],
             dtick=2,
             showgrid=True,
@@ -203,7 +209,7 @@ def adaptive_en_chart(inputs):
             linecolor="black",
         ),
         yaxis=dict(
-            title="Operative Temperature [℃]",
+            title="Operative Temperature [°C]",
             range=[14, 36],
             dtick=2,
             showgrid=True,
@@ -220,7 +226,19 @@ def adaptive_en_chart(inputs):
         plot_bgcolor="white",
         margin=dict(l=40, r=40, t=40, b=40),
     )
+
     fig = go.Figure(data=traces, layout=layout)
+
+    if units == UnitSystem.IP.value:
+        fig.update_layout(
+            xaxis=dict(
+                title="Outdoor Running Mean Temperature [°F]", range=[50, 92.3], dtick=5
+            ),
+        )
+        fig.update_layout(
+            yaxis=dict(title="Operative Temperature [°F]", range=[60, 104], dtick=5),
+        )
+
     return fig
 
 

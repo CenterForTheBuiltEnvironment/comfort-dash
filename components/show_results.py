@@ -207,6 +207,7 @@ def display_results(inputs: dict):
             tr=inputs[ElementsIDs.t_r_input.value],
             trm=inputs[ElementsIDs.t_rm_input.value],
             v=inputs[ElementsIDs.v_input.value],
+            units=units,
         )
 
     return dmc.Stack(
@@ -216,11 +217,11 @@ def display_results(inputs: dict):
     )
 
 
-def gain_adaptive_en_hover_text(tdb, tr, trm, v):
+def gain_adaptive_en_hover_text(tdb, tr, trm, v, units):
     if tdb is None or tr is None or trm is None or v is None:
         return "None"
 
-    result = adaptive_en(tdb=tdb, tr=tr, t_running_mean=trm, v=v)
+    result = adaptive_en(tdb=tdb, tr=tr, t_running_mean=trm, v=v, units=units)
     y = t_o(tdb=tdb, tr=tr, v=v)
     if result["tmp_cmf_cat_i_low"] <= y <= result["tmp_cmf_cat_i_up"]:
         class3_bool = ComfortLevel.COMFORTABLE
@@ -256,10 +257,11 @@ def gain_adaptive_en_hover_text(tdb, tr, trm, v):
         class1_bool = ComfortLevel.COMFORTABLE
 
     results = []
+    temp_unit = "°F" if units == UnitSystem.IP.value else "°C"
     results.append(
         dmc.Center(
             dmc.Text(
-                f"Class III acceptability limits = Operative temperature: {result['tmp_cmf_cat_iii_low']} to {result['tmp_cmf_cat_iii_up']} °C"
+                f"Class III acceptability limits = Operative temperature: {result['tmp_cmf_cat_iii_low']} to {result['tmp_cmf_cat_iii_up']} {temp_unit}"
             )
         )
     )
@@ -269,7 +271,7 @@ def gain_adaptive_en_hover_text(tdb, tr, trm, v):
     results.append(
         dmc.Center(
             dmc.Text(
-                f"Class II acceptability limits = Operative temperature: {result['tmp_cmf_cat_ii_low']} to {result['tmp_cmf_cat_ii_up']} °C"
+                f"Class II acceptability limits = Operative temperature: {result['tmp_cmf_cat_ii_low']} to {result['tmp_cmf_cat_ii_up']} {temp_unit}"
             )
         )
     )
@@ -279,7 +281,7 @@ def gain_adaptive_en_hover_text(tdb, tr, trm, v):
     results.append(
         dmc.Center(
             dmc.Text(
-                f"Class I acceptability limits = Operative temperature: {result['tmp_cmf_cat_i_low']} to {result['tmp_cmf_cat_i_up']} °C"
+                f"Class I acceptability limits = Operative temperature: {result['tmp_cmf_cat_i_low']} to {result['tmp_cmf_cat_i_up']} {temp_unit}"
             )
         )
     )
