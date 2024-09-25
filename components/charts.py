@@ -14,6 +14,8 @@ from components.drop_down_inline import generate_dropdown_inline
 from utils.my_config_file import ElementsIDs, Models, Functionalities
 from utils.website_text import TextHome
 import matplotlib
+from pythermalcomfort.models import adaptive_en
+from pythermalcomfort.psychrometrics import t_o
 
 matplotlib.use("Agg")
 
@@ -22,7 +24,6 @@ from dash import dcc
 
 
 def chart_selector(selected_model: str, function_selection: str):
-
     list_charts = deepcopy(Models[selected_model].value.charts)
     if function_selection == Functionalities.Compare.value:
         if selected_model == Models.PMV_ashrae.name:
@@ -40,6 +41,158 @@ def chart_selector(selected_model: str, function_selection: str):
     return generate_dropdown_inline(
         drop_down_chart_dict, value=drop_down_chart_dict["default"], clearable=False
     )
+
+
+def adaptive_en_chart(inputs):
+    traces = []
+
+    x_values = np.array([10, 30])
+    results_min = adaptive_en(
+        tdb=inputs[ElementsIDs.t_db_input.value],
+        tr=inputs[ElementsIDs.t_r_input.value],
+        t_running_mean=x_values[0],
+        v=inputs[ElementsIDs.v_input.value],
+    )
+    results_max = adaptive_en(
+        tdb=inputs[ElementsIDs.t_db_input.value],
+        tr=inputs[ElementsIDs.t_r_input.value],
+        t_running_mean=x_values[1],
+        v=inputs[ElementsIDs.v_input.value],
+    )
+
+    y_values_cat_iii_up = [
+        results_min["tmp_cmf_cat_iii_up"],
+        results_max["tmp_cmf_cat_iii_up"],
+    ]
+    y_values_cat_iii_low = [
+        results_min["tmp_cmf_cat_iii_low"],
+        results_max["tmp_cmf_cat_iii_low"],
+    ]
+
+    y_values_cat_ii_up = [
+        results_min["tmp_cmf_cat_ii_up"],
+        results_max["tmp_cmf_cat_ii_up"],
+    ]
+    y_values_cat_ii_low = [
+        results_min["tmp_cmf_cat_ii_low"],
+        results_max["tmp_cmf_cat_ii_low"],
+    ]
+
+    y_values_cat_i_up = [
+        results_min["tmp_cmf_cat_i_up"],
+        results_max["tmp_cmf_cat_i_up"],
+    ]
+    y_values_cat_i_low = [
+        results_min["tmp_cmf_cat_i_low"],
+        results_max["tmp_cmf_cat_i_low"],
+    ]
+
+    # traces[0]
+    traces.append(
+        go.Scatter(
+            x=np.concatenate([x_values, x_values[::-1]]),
+            y=np.concatenate([y_values_cat_iii_up, y_values_cat_iii_low[::-1]]),
+            fill="toself",
+            fillcolor="rgba(144, 238, 144, 0.3)",
+            line=dict(color="rgba(144, 238, 144, 0)", shape="linear"),
+            name="Category III",
+            mode="lines",
+        )
+    )
+    # traces[1]
+    traces.append(
+        go.Scatter(
+            x=np.concatenate([x_values, x_values[::-1]]),
+            y=np.concatenate([y_values_cat_ii_up, y_values_cat_ii_low[::-1]]),
+            fill="toself",
+            fillcolor="rgba(34, 139, 34, 0.5)",
+            line=dict(color="rgba(34, 139, 34, 0)", shape="linear"),
+            name="Category II",
+            mode="lines",
+        )
+    )
+    # traces[2]
+    traces.append(
+        go.Scatter(
+            x=np.concatenate([x_values, x_values[::-1]]),
+            y=np.concatenate([y_values_cat_i_up, y_values_cat_i_low[::-1]]),
+            fill="toself",
+            fillcolor="rgba(0, 100, 0, 0.7)",
+            line=dict(color="rgba(0, 100, 0, 0)", shape="linear"),
+            name="Category I",
+            mode="lines",
+        )
+    )
+    x = inputs[ElementsIDs.t_rm_input.value]
+    y = t_o(
+        tdb=inputs[ElementsIDs.t_db_input.value],
+        tr=inputs[ElementsIDs.t_r_input.value],
+        v=inputs[ElementsIDs.v_input.value],
+    )
+    red_point = [x, y]
+    # traces[3]
+    traces.append(
+        go.Scatter(
+            x=[red_point[0]],
+            y=[red_point[1]],
+            mode="markers",
+            marker=dict(
+                color="red",
+                size=6,
+            ),
+            # name='point',
+            showlegend=False,
+        )
+    )
+    theta = np.linspace(0, 2 * np.pi, 100)
+    circle_x = red_point[0] + 0.5 * np.cos(theta)
+    circle_y = red_point[1] + 0.8 * np.sin(theta)
+    # traces[4]
+    traces.append(
+        go.Scatter(
+            x=circle_x,
+            y=circle_y,
+            mode="lines",
+            line=dict(color="red", width=2.5),
+            # name='circle',
+            showlegend=False,
+        )
+    )
+
+    layout = go.Layout(
+        xaxis=dict(
+            title="Outdoor Running Mean Temperature [℃]",
+            range=[10, 30],
+            dtick=2,
+            showgrid=True,
+            gridcolor="lightgray",
+            gridwidth=1.5,
+            ticks="outside",
+            ticklen=5,
+            showline=True,
+            linewidth=1.5,
+            linecolor="black",
+        ),
+        yaxis=dict(
+            title="Operative Temperature [℃]",
+            range=[14, 36],
+            dtick=2,
+            showgrid=True,
+            gridcolor="lightgray",
+            gridwidth=1.5,
+            ticks="outside",
+            ticklen=5,
+            showline=True,
+            linewidth=1.5,
+            linecolor="black",
+        ),
+        legend=dict(x=0.8, y=1),
+        showlegend=False,
+        plot_bgcolor="white",
+        margin=dict(l=40, r=40, t=40, b=40),
+    )
+    fig = go.Figure(data=traces, layout=layout)
+    return fig
 
 
 def t_rh_pmv(
@@ -190,25 +343,6 @@ def t_rh_pmv(
                 name="Compare Input",
             )
         )
-
-    # todo add mouse x,y axis parameter to here
-
-    annotation_text = (
-        f"t<sub>db</sub>   {inputs[ElementsIDs.t_db_input.value]:.1f} °C<br>"
-    )
-
-    fig.add_annotation(
-        x=32,
-        y=96,
-        xref="x",
-        yref="y",
-        text=annotation_text,
-        showarrow=False,
-        align="left",
-        bgcolor="rgba(0,0,0,0)",
-        bordercolor="rgba(0,0,0,0)",
-        font=dict(size=14),
-    )
 
     # Update layout
     fig.update_layout(
