@@ -193,7 +193,7 @@ class UnitConverter:
     @staticmethod
     def celsius_to_fahrenheit(celsius):
         # Todo add save 2 decimal place
-        return round(celsius * 9 / 5 + 32)
+        return round(celsius * 9 / 5 + 32, 2)
 
     @staticmethod
     def fahrenheit_to_celsius(fahrenheit):

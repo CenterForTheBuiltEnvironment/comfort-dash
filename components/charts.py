@@ -11,7 +11,7 @@ from pythermalcomfort.utilities import v_relative, clo_dynamic
 from scipy import optimize
 
 from components.drop_down_inline import generate_dropdown_inline
-from utils.my_config_file import ElementsIDs, Models, Functionalities
+from utils.my_config_file import ElementsIDs, Models, Functionalities, UnitSystem, UnitConverter
 from utils.website_text import TextHome
 import matplotlib
 from pythermalcomfort.models import adaptive_en
@@ -24,10 +24,11 @@ from dash import dcc
 
 
 def chart_selector(selected_model: str, function_selection: str):
-    list_charts = deepcopy(Models[selected_model].value.charts)
+
+    list_charts = list(Models[selected_model].value.charts)
     if function_selection == Functionalities.Compare.value:
         if selected_model == Models.PMV_ashrae.name:
-            list_charts = deepcopy(Models[selected_model].value.charts_compare)
+            list_charts = list(Models[selected_model].value.charts_compare)
 
     list_charts = [chart.name for chart in list_charts]
     drop_down_chart_dict = {
@@ -42,6 +43,25 @@ def chart_selector(selected_model: str, function_selection: str):
         drop_down_chart_dict, value=drop_down_chart_dict["default"], clearable=False
     )
 
+def get_inputs(inputs):
+    tr = inputs[ElementsIDs.t_r_input.value]
+    t_db = inputs[ElementsIDs.t_db_input.value]
+    met = inputs[ElementsIDs.met_input.value]
+    clo = inputs[ElementsIDs.clo_input.value]
+    v = inputs[ElementsIDs.v_input.value]
+    rh = inputs[ElementsIDs.rh_input.value]
+
+    return met, clo, tr, t_db, v, rh
+
+def compare_get_inputs(inputs):
+    met_2 = inputs[ElementsIDs.met_input_input2.value]
+    clo_2 = inputs[ElementsIDs.clo_input_input2.value]
+    tr_2 = inputs[ElementsIDs.t_r_input_input2.value]
+    t_db_2 = inputs[ElementsIDs.t_db_input_input2.value]
+    v_2 = inputs[ElementsIDs.v_input_input2.value]
+    rh_2 = inputs[ElementsIDs.rh_input_input2.value]
+
+    return met_2,clo_2, tr_2, t_db_2, v_2, rh_2 
 
 def adaptive_en_chart(inputs):
     traces = []
@@ -193,36 +213,18 @@ def adaptive_en_chart(inputs):
     )
     fig = go.Figure(data=traces, layout=layout)
     return fig
-
-
 def t_rh_pmv(
     inputs: dict = None,
     model: str = "iso",
     function_selection: str = Functionalities.Default,
+    units: str = "SI",
 ):
     results = []
     pmv_limits = [-0.5, 0.5]
-    # todo determine if the value is IP unit , transfer to SI
-    clo_d = clo_dynamic(
-        clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
-    )
-    vr = v_relative(
-        v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
-    )
 
-    if function_selection == Functionalities.Compare.value:
-        try:
-            clo_d_compare = clo_dynamic(
-                clo=inputs.get(ElementsIDs.clo_input_input2.value),
-                met=inputs.get(ElementsIDs.met_input_input2.value),
-            )
-            vr_compare = v_relative(
-                v=inputs.get(ElementsIDs.v_input_input2.value),
-                met=inputs.get(ElementsIDs.met_input_input2.value),
-            )
-        except KeyError as e:
-            print(f"KeyError: {e}. Skipping comparison plotting.")
-            clo_d_compare, vr_compare = None, None
+    met, clo, tr, t_db, v, rh = get_inputs(inputs)
+    clo_d = clo_dynamic(clo,met)
+    vr = v_relative(v, met)
 
     def calculate_pmv_results(tr, vr, met, clo):
         results = []
@@ -240,12 +242,13 @@ def t_rh_pmv(
                             clo=clo,
                             wme=0,
                             standard=model,
+                            units=units,
                             limit_inputs=False,
                         )
                         - pmv_limit
                     )
 
-                temp = optimize.brentq(function, 10, 100)
+                temp = optimize.brentq(function, 10, 120)
                 results.append(
                     {
                         "rh": rh,
@@ -256,9 +259,9 @@ def t_rh_pmv(
         return pd.DataFrame(results)
 
     df = calculate_pmv_results(
-        tr=inputs[ElementsIDs.t_r_input.value],
+        tr=tr,
         vr=vr,
-        met=inputs[ElementsIDs.met_input.value],
+        met=met,
         clo=clo_d,
     )
 
@@ -293,8 +296,8 @@ def t_rh_pmv(
     # Add scatter point for the current input
     fig.add_trace(
         go.Scatter(
-            x=[inputs[ElementsIDs.t_db_input.value]],
-            y=[inputs[ElementsIDs.rh_input.value]],
+            x=[t_db],
+            y=[rh],
             mode="markers",
             marker=dict(color="red", size=8),
             name="Current Input",
@@ -303,13 +306,16 @@ def t_rh_pmv(
 
     if (
         function_selection == Functionalities.Compare.value
-        and clo_d_compare is not None
     ):
+        met_2,clo_2, tr_2, t_db_2, v_2, rh_2 = compare_get_inputs(inputs)
+        clo_d_compare = clo_dynamic(clo_2,met_2)
+        vr_compare = v_relative(v_2,met_2)
+
         df_compare = calculate_pmv_results(
-            tr=inputs[ElementsIDs.t_r_input_input2.value],
-            vr=vr_compare,
-            met=inputs[ElementsIDs.met_input_input2.value],
-            clo=clo_d_compare,
+            tr_2,
+            vr_compare,
+            met_2,
+            clo_d_compare,
         )
         t1_compare = df_compare[df_compare["pmv_limit"] == pmv_limits[0]]
         t2_compare = df_compare[df_compare["pmv_limit"] == pmv_limits[1]]
@@ -336,8 +342,8 @@ def t_rh_pmv(
         )
         fig.add_trace(
             go.Scatter(
-                x=[inputs[ElementsIDs.t_db_input_input2.value]],
-                y=[inputs[ElementsIDs.rh_input_input2.value]],
+                x=[t_db_2],
+                y=[rh_2],
                 mode="markers",
                 marker=dict(color="blue", size=8),
                 name="Compare Input",
@@ -346,12 +352,18 @@ def t_rh_pmv(
 
     # Update layout
     fig.update_layout(
-        yaxis=dict(title="RH (%)", range=[0, 100], dtick=10),
-        xaxis=dict(title="Temperature (°C)", range=[10, 40], dtick=2),
+        yaxis=dict(title="Relative Humidity [%]", range=[0, 100], dtick=10),
+        xaxis=dict(title="Dry-bulb Temperature (°C)", range=[10, 36], dtick=2),
         showlegend=False,
         plot_bgcolor="white",
         margin=dict(l=40, r=40, t=40, b=40),
     )
+
+    if units == UnitSystem.IP.value:
+        fig.update_layout(
+            xaxis=dict(title="Dry-bulb Temperature [°F]", range=[50,100], dtick=5),
+        )
+
 
     # Add grid lines and make the spines invisible
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
