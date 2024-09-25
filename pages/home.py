@@ -182,11 +182,17 @@ def update_chart(inputs: dict, function_selection: str):
     if chart_selected == Charts.t_rh.value.name:
         if selected_model == Models.PMV_EN.name:
             image = t_rh_pmv(
-                inputs=inputs, model="iso", function_selection=function_selection
+                inputs=inputs,
+                model="iso",
+                function_selection=function_selection,
+                units=units,
             )
         elif selected_model == Models.PMV_ashrae.name:
             image = t_rh_pmv(
-                inputs=inputs, model="ashrae", function_selection=function_selection
+                inputs=inputs,
+                model="ashrae",
+                function_selection=function_selection,
+                units=units,
             )
 
     if selected_model == Models.Adaptive_EN.name:

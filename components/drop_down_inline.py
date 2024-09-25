@@ -19,7 +19,6 @@ def generate_dropdown_inline(
     )
     if only_dropdown:
         return dropdown
-
     return dbc.Row(
         [
             dbc.Col(

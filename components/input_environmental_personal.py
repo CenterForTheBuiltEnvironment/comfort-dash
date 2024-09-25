@@ -352,7 +352,7 @@ def input_environmental_personal(
             if input_id in {ElementsIDs.met_input.value, ElementsIDs.clo_input.value}:
                 default_input = create_autocomplete(values)
             elif (
-                selected_model == Models.Adaptive_EN.name
+                (selected_model == Models.Adaptive_EN.name or input_id == ElementsIDs.v_input.value)
                 and input_id == ElementsIDs.v_input.value
             ):
                 default_input = create_select_component(values)
