@@ -47,8 +47,18 @@ def generate_adaptive_en_chart(inputs):
     traces = []
 
     x_values = np.array([10, 30])
-    results_min = adaptive_en(tdb=inputs[ElementsIDs.t_db_input.value], tr=inputs[ElementsIDs.t_r_input.value], t_running_mean=x_values[0], v=inputs[ElementsIDs.v_input.value])
-    results_max = adaptive_en(tdb=inputs[ElementsIDs.t_db_input.value], tr=inputs[ElementsIDs.t_r_input.value], t_running_mean=x_values[1], v=inputs[ElementsIDs.v_input.value])
+    results_min = adaptive_en(
+        tdb=inputs[ElementsIDs.t_db_input.value],
+        tr=inputs[ElementsIDs.t_r_input.value],
+        t_running_mean=x_values[0],
+        v=inputs[ElementsIDs.v_input.value],
+    )
+    results_max = adaptive_en(
+        tdb=inputs[ElementsIDs.t_db_input.value],
+        tr=inputs[ElementsIDs.t_r_input.value],
+        t_running_mean=x_values[1],
+        v=inputs[ElementsIDs.v_input.value],
+    )
 
     y_values_cat_iii_up = [
         results_min["tmp_cmf_cat_iii_up"],

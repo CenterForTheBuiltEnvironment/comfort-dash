@@ -2,6 +2,7 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, State
 
+from components.dropdowns import options
 from utils.my_config_file import (
     ModelInputsInfo,
     Models,
@@ -11,6 +12,7 @@ from utils.my_config_file import (
     MetabolicRateSelection,
     ClothingSelection,
     Functionalities,
+    AdaptiveENSpeeds,
 )
 from utils.website_text import (
     TextWarning,
@@ -349,6 +351,8 @@ def input_environmental_personal(
 
             if input_id in {ElementsIDs.met_input.value, ElementsIDs.clo_input.value}:
                 default_input = create_autocomplete(values)
+            elif input_id == ElementsIDs.v_input.value:
+                default_input = create_select_component(values)
             else:
                 default_input = dmc.NumberInput(
                     value=values.value,
@@ -530,8 +534,17 @@ def create_autocomplete(values: ModelInputsInfo):
     )
 
 
+def create_select_component(values: ModelInputsInfo):
+    return dmc.Select(
+        id=values.id,
+        placeholder=f"Please select a {values.name}",
+        data=[],
+        value=str(values.value),
+    )
+
+
 # Todo determine if the value is over the maximum
-def update_options(input_value, options, selection_enum):
+def update_options(input_value, selection_enum):
     if input_value is None or input_value == "":
         return [], ""
 
@@ -569,7 +582,7 @@ def update_options(input_value, options, selection_enum):
     State(ElementsIDs.met_input.value, "data"),
 )
 def update_metabolic_rate_options(input_value, _):
-    return update_options(input_value, MetabolicRateSelection, MetabolicRateSelection)
+    return update_options(input_value, MetabolicRateSelection)
 
 
 @callback(
@@ -579,7 +592,7 @@ def update_metabolic_rate_options(input_value, _):
     State(ElementsIDs.clo_input.value, "data"),
 )
 def update_clothing_level_options(input_value, _):
-    return update_options(input_value, ClothingSelection, ClothingSelection)
+    return update_options(input_value, ClothingSelection)
 
 
 @callback(
@@ -589,7 +602,7 @@ def update_clothing_level_options(input_value, _):
     State(ElementsIDs.met_input_input2.value, "data"),
 )
 def update_metabolic_rate_options(input_value, _):
-    return update_options(input_value, MetabolicRateSelection, MetabolicRateSelection)
+    return update_options(input_value, MetabolicRateSelection)
 
 
 @callback(
@@ -599,4 +612,14 @@ def update_metabolic_rate_options(input_value, _):
     State(ElementsIDs.clo_input_input2.value, "data"),
 )
 def update_clothing_level_options(input_value, _):
-    return update_options(input_value, ClothingSelection, ClothingSelection)
+    return update_options(input_value, ClothingSelection)
+
+
+@callback(
+    Output(ElementsIDs.v_input.value, "data"),
+    Output(ElementsIDs.v_input.value, "value"),
+    Input(ElementsIDs.v_input.value, "value"),
+    State(ElementsIDs.v_input.value, "data"),
+)
+def update_adaptive_en_air_speed_options(input_value, _):
+    return [speed.value for speed in AdaptiveENSpeeds], input_value

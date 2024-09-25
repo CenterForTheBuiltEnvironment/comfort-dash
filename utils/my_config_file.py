@@ -558,7 +558,6 @@ class Models(Enum):
         name="Adaptive - EN-16798",
         description="Adaptive - EN-16798",
         charts=[
-            # todo add the right charts
             Charts.adaptive_en.value,
         ],
         inputs=[
@@ -594,7 +593,7 @@ class Models(Enum):
                 min=0.0,
                 max=2.0,
                 step=0.1,
-                value=0.1,
+                value=0,
                 name="Air Speed",
                 id=ElementsIDs.v_input.value,
             ),
