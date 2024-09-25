@@ -1,7 +1,6 @@
 import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, State
-from components.drop_down_inline import generate_dropdown_inline
 
 from components.dropdowns import options
 from utils.my_config_file import (
@@ -349,12 +348,10 @@ def input_environmental_personal(
         if input_id in all_inputs:
             default_input = None
             input_stack = None
+
             if input_id in {ElementsIDs.met_input.value, ElementsIDs.clo_input.value}:
                 default_input = create_autocomplete(values)
-            elif (
-                selected_model == Models.Adaptive_EN.name
-                and input_id == ElementsIDs.v_input.value
-            ):
+            elif input_id == ElementsIDs.v_input.value:
                 default_input = create_select_component(values)
             else:
                 default_input = dmc.NumberInput(
@@ -538,14 +535,12 @@ def create_autocomplete(values: ModelInputsInfo):
 
 
 def create_select_component(values: ModelInputsInfo):
-    air_speed_box = {
-        "id": ElementsIDs.v_input.value,
-        "question": None,
-        "options": [speed.value for speed in AdaptiveENSpeeds],
-        "multi": False,
-        "default": values.value,
-    }
-    return generate_dropdown_inline(air_speed_box, clearable=False, only_dropdown=True)
+    return dmc.Select(
+        id=values.id,
+        placeholder=f"Please select a {values.name}",
+        data=[],
+        value=str(values.value),
+    )
 
 
 # Todo determine if the value is over the maximum
