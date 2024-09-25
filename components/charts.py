@@ -23,7 +23,7 @@ from utils.my_config_file import (
 from utils.website_text import TextHome
 import matplotlib
 from pythermalcomfort.models import adaptive_en
-from pythermalcomfort.psychrometrics import t_o
+from pythermalcomfort.psychrometrics import t_o, psy_ta_rh
 
 matplotlib.use("Agg")
 
@@ -73,9 +73,11 @@ def compare_get_inputs(inputs):
     return met_2, clo_2, tr_2, t_db_2, v_2, rh_2
 
 
-def adaptive_chart(inputs: dict = None,
-                   model: str = "iso",
-                   units: str = "SI", ):
+def adaptive_chart(
+    inputs: dict = None,
+    model: str = "iso",
+    units: str = "SI",
+):
     traces = []
 
     if units == UnitSystem.IP.value:
@@ -160,7 +162,11 @@ def adaptive_chart(inputs: dict = None,
 
     layout = go.Layout(
         xaxis=dict(
-            title="Outdoor Running Mean Temperature [°C]" if units == UnitSystem.SI.value else "Prevailing Mean Outdoor Temperature [°F]",
+            title=(
+                "Outdoor Running Mean Temperature [°C]"
+                if units == UnitSystem.SI.value
+                else "Prevailing Mean Outdoor Temperature [°F]"
+            ),
             range=[10, 30] if model == "iso" else [10, 33.5],
             dtick=2 if units == UnitSystem.SI.value else 5,
             showgrid=True,
@@ -173,7 +179,11 @@ def adaptive_chart(inputs: dict = None,
             linecolor="black",
         ),
         yaxis=dict(
-            title="Operative Temperature [°C]" if units == UnitSystem.SI.value else "Operative Temperature [°F]",
+            title=(
+                "Operative Temperature [°C]"
+                if units == UnitSystem.SI.value
+                else "Operative Temperature [°F]"
+            ),
             range=[14, 36] if units == UnitSystem.SI.value else [60, 104],
             dtick=2 if units == UnitSystem.SI.value else 5,
             showgrid=True,
@@ -196,8 +206,14 @@ def adaptive_chart(inputs: dict = None,
     if units == UnitSystem.IP.value:
         fig.update_layout(
             xaxis=dict(
-                range=[50, 92.3] if model == "iso" else [UnitConverter.celsius_to_fahrenheit(10),
-                                                         UnitConverter.celsius_to_fahrenheit(33.5)],
+                range=(
+                    [50, 92.3]
+                    if model == "iso"
+                    else [
+                        UnitConverter.celsius_to_fahrenheit(10),
+                        UnitConverter.celsius_to_fahrenheit(33.5),
+                    ]
+                ),
             ),
         )
 
@@ -205,10 +221,10 @@ def adaptive_chart(inputs: dict = None,
 
 
 def t_rh_pmv(
-        inputs: dict = None,
-        model: str = "iso",
-        function_selection: str = Functionalities.Default,
-        units: str = "SI",
+    inputs: dict = None,
+    model: str = "iso",
+    function_selection: str = Functionalities.Default,
+    units: str = "SI",
 ):
     results = []
     if model == "iso":
@@ -232,21 +248,22 @@ def t_rh_pmv(
         results = []
         for pmv_limit in pmv_limits:
             for rh in np.arange(0, 110, 10):
+
                 def function(x):
                     return (
-                            pmv(
-                                x,
-                                tr=tr,
-                                vr=vr,
-                                rh=rh,
-                                met=met,
-                                clo=clo,
-                                wme=0,
-                                standard=model,
-                                units=units,
-                                limit_inputs=False,
-                            )
-                            - pmv_limit
+                        pmv(
+                            x,
+                            tr=tr,
+                            vr=vr,
+                            rh=rh,
+                            met=met,
+                            clo=clo,
+                            wme=0,
+                            standard=model,
+                            units=units,
+                            limit_inputs=False,
+                        )
+                        - pmv_limit
                     )
 
                 try:
@@ -331,7 +348,7 @@ def t_rh_pmv(
                 mode="lines",
                 line=dict(color="rgba(30,70,100,0.5)"),
                 name=f"{model} Compare Lower Limit",
-                hoverinfo='skip'
+                hoverinfo="skip",
             )
         )
         fig.add_trace(
@@ -343,7 +360,7 @@ def t_rh_pmv(
                 fillcolor="rgba(30,70,100,0.5)",
                 line=dict(color="rgba(30,70,100,0.5)"),
                 name=f"{model} Compare Upper Limit",
-                hoverinfo='skip'
+                hoverinfo="skip",
             )
         )
         fig.add_trace(
@@ -353,7 +370,7 @@ def t_rh_pmv(
                 mode="markers",
                 marker=dict(color="blue", size=8),
                 name="Compare Input",
-                hoverinfo='skip'
+                hoverinfo="skip",
             )
         )
 
@@ -494,161 +511,180 @@ def SET_outputs_chart(
     # ))
 
     # Added SET temperature curve
-    fig.add_trace(go.Scatter(
-        x=tdb_values,
-        y=set_temp,
-        mode='lines',
-        name='SET temperature',
-        line=dict(color='blue'),
-        yaxis='y1'  # Use a  y-axis
-    ))
-
+    fig.add_trace(
+        go.Scatter(
+            x=tdb_values,
+            y=set_temp,
+            mode="lines",
+            name="SET temperature",
+            line=dict(color="blue"),
+            yaxis="y1",  # Use a  y-axis
+        )
+    )
 
     # Adding skin temperature curve
-    fig.add_trace(go.Scatter(
-        x=tdb_values,
-        y=skin_temp,
-        mode='lines',
-        name='Skin temperature',
-        line=dict(color='cyan')
-    ))
+    fig.add_trace(
+        go.Scatter(
+            x=tdb_values,
+            y=skin_temp,
+            mode="lines",
+            name="Skin temperature",
+            line=dict(color="cyan"),
+        )
+    )
 
     # Added core temperature curve
-    fig.add_trace(go.Scatter(
-        x=tdb_values,
-        y=core_temp,
-        mode='lines',
-        name='Core temperature',
-        line=dict(color='limegreen'),
-        yaxis='y1'  # Use a second y-axis
-    ))
+    fig.add_trace(
+        go.Scatter(
+            x=tdb_values,
+            y=core_temp,
+            mode="lines",
+            name="Core temperature",
+            line=dict(color="limegreen"),
+            yaxis="y1",  # Use a second y-axis
+        )
+    )
 
-    fig.add_trace(go.Scatter(
-        x=tdb_values,
-        y=clothing_temp,
-        mode='lines',
-        name='Clothing temperature',
-        line=dict(color='lightgreen'),
-        yaxis='y1'  # Use a second y-axis
-    ))
+    fig.add_trace(
+        go.Scatter(
+            x=tdb_values,
+            y=clothing_temp,
+            mode="lines",
+            name="Clothing temperature",
+            line=dict(color="lightgreen"),
+            yaxis="y1",  # Use a second y-axis
+        )
+    )
 
-    fig.add_trace(go.Scatter(
-        x=tdb_values,
-        y=mean_body_temp,
-        mode='lines',
-        name='Mean body temperature',
-        visible='legendonly',
-        line=dict(color='green'),
-        yaxis='y1'  # Use a second y-axis
-    ))
-#total skin evaporative heat loss
-    fig.add_trace(go.Scatter(
-        x=tdb_values,
-        y=total_skin_evaporative_heat_loss,
-        mode='lines',
-        name='Total skin evaporative heat loss',
-        visible='legendonly',
-        line=dict(color='lightgrey'),
-        yaxis='y2'  # Use a second y-axis
-    ))
-# sweat evaporation skin heat loss
-    fig.add_trace(go.Scatter(
-        x=tdb_values,
-        y=sweat_evaporation_skin_heat_loss,
-        mode='lines',
-        name='Sweat evaporation skin heat loss ',
-        visible='legendonly',
-        line=dict(color='orange'),
-        yaxis='y2'  # Use a second y-axis
-    ))
+    fig.add_trace(
+        go.Scatter(
+            x=tdb_values,
+            y=mean_body_temp,
+            mode="lines",
+            name="Mean body temperature",
+            visible="legendonly",
+            line=dict(color="green"),
+            yaxis="y1",  # Use a second y-axis
+        )
+    )
+    # total skin evaporative heat loss
+    fig.add_trace(
+        go.Scatter(
+            x=tdb_values,
+            y=total_skin_evaporative_heat_loss,
+            mode="lines",
+            name="Total skin evaporative heat loss",
+            visible="legendonly",
+            line=dict(color="lightgrey"),
+            yaxis="y2",  # Use a second y-axis
+        )
+    )
+    # sweat evaporation skin heat loss
+    fig.add_trace(
+        go.Scatter(
+            x=tdb_values,
+            y=sweat_evaporation_skin_heat_loss,
+            mode="lines",
+            name="Sweat evaporation skin heat loss ",
+            visible="legendonly",
+            line=dict(color="orange"),
+            yaxis="y2",  # Use a second y-axis
+        )
+    )
 
     # vapour diffusion skin heat loss
-    fig.add_trace(go.Scatter(
-        x=tdb_values,
-        y=vapour_diffusion_skin_heat_loss,
-        mode='lines',
-        name='Vapour diffusion skin heat loss ',
-        visible='legendonly',
-        line=dict(color='darkorange'),
-        yaxis='y2'  # Use a second y-axis
-    ))
+    fig.add_trace(
+        go.Scatter(
+            x=tdb_values,
+            y=vapour_diffusion_skin_heat_loss,
+            mode="lines",
+            name="Vapour diffusion skin heat loss ",
+            visible="legendonly",
+            line=dict(color="darkorange"),
+            yaxis="y2",  # Use a second y-axis
+        )
+    )
 
     # total skin sensible heat loss
-    fig.add_trace(go.Scatter(
-        x=tdb_values,
-        y=total_skin_heat_loss,
-        mode='lines',
-        name='Total skin sensible heat loss ',
-        visible='legendonly',
-        line=dict(color='darkgrey'),
-        yaxis='y2'  # Use a second y-axis
-    ))
-
+    fig.add_trace(
+        go.Scatter(
+            x=tdb_values,
+            y=total_skin_heat_loss,
+            mode="lines",
+            name="Total skin sensible heat loss ",
+            visible="legendonly",
+            line=dict(color="darkgrey"),
+            yaxis="y2",  # Use a second y-axis
+        )
+    )
 
     # Added  total skin heat loss curve
-    fig.add_trace(go.Scatter(
-        x=tdb_values,
-        y=total_skin_heat_loss,
-        mode='lines',
-        name='Total skin heat loss',
-        line=dict(color='black'),
-        yaxis='y2'  # Use a second y-axis
-    ))
+    fig.add_trace(
+        go.Scatter(
+            x=tdb_values,
+            y=total_skin_heat_loss,
+            mode="lines",
+            name="Total skin heat loss",
+            line=dict(color="black"),
+            yaxis="y2",  # Use a second y-axis
+        )
+    )
 
     #  heat loss respiration curve
-    fig.add_trace(go.Scatter(
-        x=tdb_values,
-        y=heat_loss_respiration,
-        mode='lines',
-        name='Heat loss respiration',
-        line=dict(color='black', dash='dash'),
-        yaxis='y2'  # Use a second y-axis
-    ))
-
+    fig.add_trace(
+        go.Scatter(
+            x=tdb_values,
+            y=heat_loss_respiration,
+            mode="lines",
+            name="Heat loss respiration",
+            line=dict(color="black", dash="dash"),
+            yaxis="y2",  # Use a second y-axis
+        )
+    )
 
     # Added skin moisture curve
-    fig.add_trace(go.Scatter(
-        x=tdb_values,
-        y=skin_wettedness,
-        mode='lines',
-        name='Skin wettedness',
-        visible='legendonly',
-        line=dict(color='yellow'),
-        yaxis='y2'  # Use a second y-axis
-    ))
-
-
-
-
-
+    fig.add_trace(
+        go.Scatter(
+            x=tdb_values,
+            y=skin_wettedness,
+            mode="lines",
+            name="Skin wettedness",
+            visible="legendonly",
+            line=dict(color="yellow"),
+            yaxis="y2",  # Use a second y-axis
+        )
+    )
 
     # Set the layout of the chart and adjust the legend position
     fig.update_layout(
         # title='Temperature and Heat Loss',
-        xaxis=dict(title='Dry-bulb Air Temperature [°C]', showgrid = False, range=[10, 40],dtick=2 ),
-        yaxis=dict(title='Temperature [°C]', showgrid = False, range=[18, 38],dtick=2 ),
-        yaxis2=dict(
-            title='Heat Loss [W] / Skin Wettedness [%]',
+        xaxis=dict(
+            title="Dry-bulb Air Temperature [°C]",
             showgrid=False,
-            overlaying='y',
-            side='right',
+            range=[10, 40],
+            dtick=2,
+        ),
+        yaxis=dict(title="Temperature [°C]", showgrid=False, range=[18, 38], dtick=2),
+        yaxis2=dict(
+            title="Heat Loss [W] / Skin Wettedness [%]",
+            showgrid=False,
+            overlaying="y",
+            side="right",
             range=[0, 70],
             # title_standoff=50  # Increase the distance between the Y axis title and the chart
         ),
         legend=dict(
             x=0.5,  # Adjust the horizontal position of the legend
             y=-0.2,  # Move the legend below the chart
-            orientation='h',  # Display the legend horizontally
+            orientation="h",  # Display the legend horizontally
             traceorder="normal",
-            xanchor='center',
-            yanchor='top',
-
-
+            xanchor="center",
+            yanchor="top",
         ),
-        template='plotly_white',
+        template="plotly_white",
         autosize=False,
         width=700,  # 3:4
-        height=700  # 3:4
+        height=700,  # 3:4
     )
 
     # show
@@ -755,6 +791,8 @@ def speed_temp_pmv(inputs: dict = None, model: str = "iso"):
     )
     # Return the figure
     return fig
+
+
 def get_heat_losses(inputs: dict = None, model: str = "ashrae"):
     tr = inputs[ElementsIDs.t_r_input.value]
     met = inputs[ElementsIDs.met_input.value]
@@ -861,9 +899,9 @@ def get_heat_losses(inputs: dict = None, model: str = "ashrae"):
 
     return fig
 
+
 # for calculate pmv & ppd & 6 heat loss
 def pmv_pdd_6_heat_loss(ta, tr, vel, rh, met, clo, wme=0):
-
     pa = rh * 10 * math.exp(16.6536 - 4030.183 / (ta + 235))
     icl = 0.155 * clo
     m = met * 58.15
