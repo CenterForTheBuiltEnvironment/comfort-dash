@@ -11,7 +11,13 @@ from pythermalcomfort.utilities import v_relative, clo_dynamic
 from scipy import optimize
 
 from components.drop_down_inline import generate_dropdown_inline
-from utils.my_config_file import ElementsIDs, Models, Functionalities, UnitSystem, UnitConverter
+from utils.my_config_file import (
+    ElementsIDs,
+    Models,
+    Functionalities,
+    UnitSystem,
+    UnitConverter,
+)
 from utils.website_text import TextHome
 import matplotlib
 from pythermalcomfort.models import adaptive_en
@@ -43,6 +49,7 @@ def chart_selector(selected_model: str, function_selection: str):
         drop_down_chart_dict, value=drop_down_chart_dict["default"], clearable=False
     )
 
+
 def get_inputs(inputs):
     tr = inputs[ElementsIDs.t_r_input.value]
     t_db = inputs[ElementsIDs.t_db_input.value]
@@ -53,6 +60,7 @@ def get_inputs(inputs):
 
     return met, clo, tr, t_db, v, rh
 
+
 def compare_get_inputs(inputs):
     met_2 = inputs[ElementsIDs.met_input_input2.value]
     clo_2 = inputs[ElementsIDs.clo_input_input2.value]
@@ -61,7 +69,8 @@ def compare_get_inputs(inputs):
     v_2 = inputs[ElementsIDs.v_input_input2.value]
     rh_2 = inputs[ElementsIDs.rh_input_input2.value]
 
-    return met_2,clo_2, tr_2, t_db_2, v_2, rh_2 
+    return met_2, clo_2, tr_2, t_db_2, v_2, rh_2
+
 
 def adaptive_en_chart(inputs):
     traces = []
@@ -213,6 +222,8 @@ def adaptive_en_chart(inputs):
     )
     fig = go.Figure(data=traces, layout=layout)
     return fig
+
+
 def t_rh_pmv(
     inputs: dict = None,
     model: str = "iso",
@@ -223,7 +234,7 @@ def t_rh_pmv(
     pmv_limits = [-0.5, 0.5]
 
     met, clo, tr, t_db, v, rh = get_inputs(inputs)
-    clo_d = clo_dynamic(clo,met)
+    clo_d = clo_dynamic(clo, met)
     vr = v_relative(v, met)
 
     def calculate_pmv_results(tr, vr, met, clo):
@@ -304,12 +315,10 @@ def t_rh_pmv(
         )
     )
 
-    if (
-        function_selection == Functionalities.Compare.value
-    ):
-        met_2,clo_2, tr_2, t_db_2, v_2, rh_2 = compare_get_inputs(inputs)
-        clo_d_compare = clo_dynamic(clo_2,met_2)
-        vr_compare = v_relative(v_2,met_2)
+    if function_selection == Functionalities.Compare.value:
+        met_2, clo_2, tr_2, t_db_2, v_2, rh_2 = compare_get_inputs(inputs)
+        clo_d_compare = clo_dynamic(clo_2, met_2)
+        vr_compare = v_relative(v_2, met_2)
 
         df_compare = calculate_pmv_results(
             tr_2,
@@ -361,9 +370,8 @@ def t_rh_pmv(
 
     if units == UnitSystem.IP.value:
         fig.update_layout(
-            xaxis=dict(title="Dry-bulb Temperature [°F]", range=[50,100], dtick=5),
+            xaxis=dict(title="Dry-bulb Temperature [°F]", range=[50, 100], dtick=5),
         )
-
 
     # Add grid lines and make the spines invisible
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")

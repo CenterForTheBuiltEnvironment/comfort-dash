@@ -104,13 +104,7 @@ def display_results(inputs: dict):
             )
         elif selected_model == Models.PMV_EN.name:
             comfort_category = mapping(
-                r_pmv["pmv"],
-                {
-                    0.2: "I",
-                    0.5: "II",
-                    0.7: "III",
-                    float("inf"): "IV"
-                }
+                r_pmv["pmv"], {0.2: "I", 0.5: "II", 0.7: "III", float("inf"): "IV"}
             )
             results[1].children.append(
                 dmc.Center(dmc.Text(f"Category: {comfort_category}"))
@@ -160,7 +154,7 @@ def display_results(inputs: dict):
                 children=[
                     dmc.Center(dmc.Text(f"PMV: {r_pmv_input2['pmv']:.2f}")),
                     dmc.Center(dmc.Text(f"PPD: {r_pmv_input2['ppd']:.1f} %")),
-                    dmc.Center(dmc.Text(f"Sensation: {comfort_category}"))
+                    dmc.Center(dmc.Text(f"Sensation: {comfort_category}")),
                 ],
             )
             results.append(results2)
@@ -168,9 +162,15 @@ def display_results(inputs: dict):
             # Modify the colour
             for i in range(1, len(results)):
                 if i == 1 or i == 2:
-                    color = CompareInputColor.InputColor1.value if i == 1 else CompareInputColor.InputColor2.value
+                    color = (
+                        CompareInputColor.InputColor1.value
+                        if i == 1
+                        else CompareInputColor.InputColor2.value
+                    )
                     for child in results[i].children:
-                        if isinstance(child, dmc.Center) and isinstance(child.children, dmc.Text):
+                        if isinstance(child, dmc.Center) and isinstance(
+                            child.children, dmc.Text
+                        ):
                             child.children.style = {"color": color}
 
     elif selected_model == Models.Adaptive_ASHRAE.name:
@@ -183,7 +183,7 @@ def display_results(inputs: dict):
             v=inputs[ElementsIDs.v_input.value],
             units=units,
         )
-        
+
         temp_unit = "°F" if units == UnitSystem.IP.value else "°C"
         results.append(
             dmc.Center(
@@ -257,24 +257,33 @@ def gain_adaptive_en_hover_text(tdb, tr, trm, v):
 
     results = []
     results.append(
-         dmc.Center(dmc.Text(
+        dmc.Center(
+            dmc.Text(
                 f"Class III acceptability limits = Operative temperature: {result['tmp_cmf_cat_iii_low']} to {result['tmp_cmf_cat_iii_up']} °C"
             )
         )
     )
-    results.append(dmc.Center(dmc.Text(f"{class3_bool.description}", fz="xs", c=class3_bool.color)))
     results.append(
-        dmc.Center(dmc.Text(
+        dmc.Center(dmc.Text(f"{class3_bool.description}", fz="xs", c=class3_bool.color))
+    )
+    results.append(
+        dmc.Center(
+            dmc.Text(
                 f"Class II acceptability limits = Operative temperature: {result['tmp_cmf_cat_ii_low']} to {result['tmp_cmf_cat_ii_up']} °C"
             )
         )
     )
-    results.append(dmc.Center(dmc.Text(f"{class2_bool.description}", fz="xs", c=class2_bool.color)))
     results.append(
-        dmc.Center(dmc.Text(
+        dmc.Center(dmc.Text(f"{class2_bool.description}", fz="xs", c=class2_bool.color))
+    )
+    results.append(
+        dmc.Center(
+            dmc.Text(
                 f"Class I acceptability limits = Operative temperature: {result['tmp_cmf_cat_i_low']} to {result['tmp_cmf_cat_i_up']} °C"
             )
         )
     )
-    results.append(dmc.Center(dmc.Text(f"{class1_bool.description}", fz="xs", c=class1_bool.color)))
+    results.append(
+        dmc.Center(dmc.Text(f"{class1_bool.description}", fz="xs", c=class1_bool.color))
+    )
     return results
