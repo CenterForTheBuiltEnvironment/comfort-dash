@@ -593,7 +593,7 @@ class Models(Enum):
                 min=0.1,
                 max=2.0,
                 step=0.1,
-                value=0,
+                value=0.1,
                 name="Air Speed",
                 id=ElementsIDs.v_input.value,
             ),
