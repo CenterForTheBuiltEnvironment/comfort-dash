@@ -20,6 +20,7 @@ from utils.my_config_file import (
     Charts,
     ChartsInfo,
     MyStores,
+    Functionalities,
 )
 import plotly.graph_objects as go
 
@@ -195,7 +196,10 @@ def update_chart(inputs: dict, function_selection: str):
                 units=units,
             )
 
-    if selected_model == Models.Adaptive_EN.name:
+    if (
+        selected_model == Models.Adaptive_EN.name
+        and function_selection == Functionalities.Default.value
+    ):
         image = adaptive_en_chart(inputs=inputs, units=units)
 
     note = ""
