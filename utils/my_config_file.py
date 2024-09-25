@@ -112,9 +112,9 @@ class ChartsInfo(BaseModel):
 
 
 class ComfortLevel(Enum):
-    COMFORTABLE = ("comfortable", "Gray")
-    TOO_COOL = ("too cool", "Blue")
-    TOO_WARM = ("too warm", "Red")
+    COMFORTABLE = ("Comfortable", "Gray")
+    TOO_COOL = ("Too cool", "Blue")
+    TOO_WARM = ("Too warm", "Red")
 
     def __init__(self, description: str, color: str):
         self.description = description
