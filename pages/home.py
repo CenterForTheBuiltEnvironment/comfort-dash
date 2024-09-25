@@ -101,9 +101,9 @@ def update_store_inputs(
 
     if ctx.triggered:
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
-        if triggered_id == ElementsIDs.clo_input.value:
+        if triggered_id == ElementsIDs.clo_input.value and clo_value != "":
             inputs[ElementsIDs.clo_input.value] = float(clo_value)
-        if triggered_id == ElementsIDs.met_input.value:
+        if triggered_id == ElementsIDs.met_input.value and met_value != "":
             inputs[ElementsIDs.met_input.value] = float(met_value)
 
     inputs[ElementsIDs.UNIT_TOGGLE.value] = units
