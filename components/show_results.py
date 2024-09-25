@@ -21,7 +21,6 @@ def display_results(inputs: dict):
     units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
 
     results = []
-    # todo add unit detect if IP inputs and conver into SI calculation
     columns: int = 2
     if selected_model == Models.PMV_EN.name or selected_model == Models.PMV_ashrae.name:
         columns = 3
@@ -44,25 +43,72 @@ def display_results(inputs: dict):
             ),
             wme=0,
             limit_inputs=True,
+            units=units,
             standard=standard,
         )
-        results.append(dmc.Center(dmc.Text(f"PMV: {r_pmv['pmv']}")))
-        results.append(dmc.Center(dmc.Text(f"PPD: {r_pmv['ppd']}")))
-        comfort_category = mapping(
-            r_pmv["pmv"],
-            {
-                -2.5: "Cold",
-                -1.5: "Cool",
-                -0.5: "Slightly Cool",
-                0.5: "Neutral",
-                1.5: "Slightly Warm",
-                2.5: "Warm",
-                10: "Hot",
-            },
-        )
-        results.append(dmc.Center(dmc.Text(f"Sensation: {comfort_category}")))
 
-        # todo add unit detect if IP inputs and conver into SI calculation
+        # Standard Checker for PMV
+        # todo: need to add standard for adaptive methods by ensure if the current red point out of area
+        if selected_model == Models.PMV_ashrae.name:
+            if -0.5 <= r_pmv["pmv"] <= 0.5:
+                compliance_text = "✔  Complies with ASHRAE Standard 55-2023"
+                compliance_color = "green"
+            else:
+                compliance_text = "✘  Does not comply with ASHRAE Standard 55-2023"
+                compliance_color = "red"
+        else:  # EN
+            if -0.7 <= r_pmv["pmv"] <= 0.7:
+                compliance_text = "✔  Complies with EN-16798"
+                compliance_color = "green"
+            else:
+                compliance_text = "✘  Does not comply with EN-16798"
+                compliance_color = "red"
+
+        standard_checker = dmc.Text(
+            compliance_text,
+            c=compliance_color,
+            ta="center",
+            size="md",
+            style={"width": "100%"},
+        )
+
+        results = [
+            standard_checker,
+            dmc.SimpleGrid(
+                cols=columns,
+                spacing="xs",
+                verticalSpacing="xs",
+                children=[
+                    dmc.Center(dmc.Text(f"PMV: {r_pmv['pmv']:.2f}")),
+                    dmc.Center(dmc.Text(f"PPD: {r_pmv['ppd']:.1f} %")),
+                ],
+            ),
+        ]
+
+        if selected_model == Models.PMV_ashrae.name:
+            comfort_category = mapping(
+                r_pmv["pmv"],
+                {
+                    -2.5: "Cold",
+                    -1.5: "Cool",
+                    -0.5: "Slightly Cool",
+                    0.5: "Neutral",
+                    1.5: "Slightly Warm",
+                    2.5: "Warm",
+                    10: "Hot",
+                },
+            )
+            results[1].children.append(
+                dmc.Center(dmc.Text(f"Sensation: {comfort_category}"))
+            )
+        elif selected_model == Models.PMV_EN.name:
+            comfort_category = mapping(
+                r_pmv["pmv"], {0.2: "I", 0.5: "II", 0.7: "III", float("inf"): "IV"}
+            )
+            results[1].children.append(
+                dmc.Center(dmc.Text(f"Category: {comfort_category}"))
+            )
+
         if (
             inputs[ElementsIDs.functionality_selection.value]
             == Functionalities.Compare.value
@@ -83,10 +129,10 @@ def display_results(inputs: dict):
                 ),
                 wme=0,
                 limit_inputs=True,
+                units=units,
                 standard=standard,
             )
-            results.append(dmc.Center(dmc.Text(f"PMV: {r_pmv_input2['pmv']}")))
-            results.append(dmc.Center(dmc.Text(f"PPD: {r_pmv_input2['ppd']}")))
+
             comfort_category = mapping(
                 r_pmv_input2["pmv"],
                 {
@@ -99,14 +145,31 @@ def display_results(inputs: dict):
                     10: "Hot",
                 },
             )
-            results.append(dmc.Center(dmc.Text(f"Sensation: {comfort_category}")))
+            results2 = dmc.SimpleGrid(
+                cols=columns,
+                spacing="xs",
+                verticalSpacing="xs",
+                children=[
+                    dmc.Center(dmc.Text(f"PMV: {r_pmv_input2['pmv']:.2f}")),
+                    dmc.Center(dmc.Text(f"PPD: {r_pmv_input2['ppd']:.1f} %")),
+                    dmc.Center(dmc.Text(f"Sensation: {comfort_category}")),
+                ],
+            )
+            results.append(results2)
 
-            # Modify the color
-            for i in range(len(results)):
-                if i < 3:
-                    results[i].children.c = CompareInputColor.InputColor1.value
-                else:
-                    results[i].children.c = CompareInputColor.InputColor2.value
+            # Modify the colour
+            for i in range(1, len(results)):
+                if i == 1 or i == 2:
+                    color = (
+                        CompareInputColor.InputColor1.value
+                        if i == 1
+                        else CompareInputColor.InputColor2.value
+                    )
+                    for child in results[i].children:
+                        if isinstance(child, dmc.Center) and isinstance(
+                            child.children, dmc.Text
+                        ):
+                            child.children.style = {"color": color}
 
     elif selected_model == Models.Adaptive_ASHRAE.name:
         columns = 1
@@ -116,69 +179,47 @@ def display_results(inputs: dict):
             tr=inputs[ElementsIDs.t_r_input.value],
             t_running_mean=inputs[ElementsIDs.t_rm_input.value],
             v=inputs[ElementsIDs.v_input.value],
+            units=units,
         )
-        if units == UnitSystem.IP.value:
-            adaptive.tmp_cmf = round(
-                UnitConverter.celsius_to_fahrenheit(adaptive.tmp_cmf), 2
-            )
-            adaptive.tmp_cmf_80_low = round(
-                UnitConverter.celsius_to_fahrenheit(adaptive.tmp_cmf_80_low), 2
-            )
-            adaptive.tmp_cmf_80_up = round(
-                UnitConverter.celsius_to_fahrenheit(adaptive.tmp_cmf_80_up), 2
-            )
-            adaptive.tmp_cmf_90_low = round(
-                UnitConverter.celsius_to_fahrenheit(adaptive.tmp_cmf_90_low), 2
-            )
-            adaptive.tmp_cmf_90_up = round(
-                UnitConverter.celsius_to_fahrenheit(adaptive.tmp_cmf_90_up), 2
-            )
-        results.append(dmc.Center(dmc.Text(f"Comfort temperature: {adaptive.tmp_cmf}")))
+
+        temp_unit = "°F" if units == UnitSystem.IP.value else "°C"
         results.append(
             dmc.Center(
                 dmc.Text(
-                    f"Comfort range for 80% occupants: {adaptive.tmp_cmf_80_low} - {adaptive.tmp_cmf_80_up}"
+                    f"80% acceptability limits = Operative temperature: {round(adaptive.tmp_cmf_80_low,1)} to {round(adaptive.tmp_cmf_80_up,1)} {temp_unit}"
                 )
             )
         )
         results.append(
             dmc.Center(
                 dmc.Text(
-                    f"Comfort range for 90% occupants: {adaptive.tmp_cmf_90_low} - {adaptive.tmp_cmf_90_up}"
+                    f"80% acceptability limits = Operative temperature: {round(adaptive.tmp_cmf_90_low,1)} to {round(adaptive.tmp_cmf_90_up,1)} {temp_unit}"
                 )
             )
         )
 
-    if selected_model == Models.Adaptive_EN.name:
+    elif selected_model == Models.Adaptive_EN.name:
 
         results = gain_adaptive_en_hover_text(
             tdb=inputs[ElementsIDs.t_db_input.value],
             tr=inputs[ElementsIDs.t_r_input.value],
             trm=inputs[ElementsIDs.t_rm_input.value],
             v=inputs[ElementsIDs.v_input.value],
+            units=units,
         )
 
-        return dmc.Stack(
-            children=results,
-            gap=0,
-            align="center",
-        )
-
-    return (
-        dmc.SimpleGrid(
-            cols=columns,
-            spacing="xs",
-            verticalSpacing="xs",
-            children=results,
-        ),
+    return dmc.Stack(
+        children=results,
+        gap=0,
+        align="stretch",
     )
 
 
-def gain_adaptive_en_hover_text(tdb, tr, trm, v):
+def gain_adaptive_en_hover_text(tdb, tr, trm, v, units):
     if tdb is None or tr is None or trm is None or v is None:
         return "None"
 
-    result = adaptive_en(tdb=tdb, tr=tr, t_running_mean=trm, v=v)
+    result = adaptive_en(tdb=tdb, tr=tr, t_running_mean=trm, v=v, units=units)
     y = t_o(tdb=tdb, tr=tr, v=v)
     if result["tmp_cmf_cat_i_low"] <= y <= result["tmp_cmf_cat_i_up"]:
         class3_bool = ComfortLevel.COMFORTABLE
@@ -214,22 +255,35 @@ def gain_adaptive_en_hover_text(tdb, tr, trm, v):
         class1_bool = ComfortLevel.COMFORTABLE
 
     results = []
+    temp_unit = "°F" if units == UnitSystem.IP.value else "°C"
     results.append(
-        dmc.Text(
-            f"Class III acceptability limits = Operative temperature: {result['tmp_cmf_cat_iii_low']} to {result['tmp_cmf_cat_iii_up']} °C"
+        dmc.Center(
+            dmc.Text(
+                f"Class III acceptability limits = Operative temperature: {result['tmp_cmf_cat_iii_low']} to {result['tmp_cmf_cat_iii_up']} {temp_unit}"
+            )
         )
     )
-    results.append(dmc.Text(f"{class3_bool.description}", fz="xs", c=class3_bool.color))
     results.append(
-        dmc.Text(
-            f"Class II acceptability limits = Operative temperature: {result['tmp_cmf_cat_ii_low']} to {result['tmp_cmf_cat_ii_up']} °C"
+        dmc.Center(dmc.Text(f"{class3_bool.description}", fz="xs", c=class3_bool.color))
+    )
+    results.append(
+        dmc.Center(
+            dmc.Text(
+                f"Class II acceptability limits = Operative temperature: {result['tmp_cmf_cat_ii_low']} to {result['tmp_cmf_cat_ii_up']} {temp_unit}"
+            )
         )
     )
-    results.append(dmc.Text(f"{class2_bool.description}", fz="xs", c=class2_bool.color))
     results.append(
-        dmc.Text(
-            f"Class I acceptability limits = Operative temperature: {result['tmp_cmf_cat_i_low']} to {result['tmp_cmf_cat_i_up']} °C"
+        dmc.Center(dmc.Text(f"{class2_bool.description}", fz="xs", c=class2_bool.color))
+    )
+    results.append(
+        dmc.Center(
+            dmc.Text(
+                f"Class I acceptability limits = Operative temperature: {result['tmp_cmf_cat_i_low']} to {result['tmp_cmf_cat_i_up']} {temp_unit}"
+            )
         )
     )
-    results.append(dmc.Text(f"{class1_bool.description}", fz="xs", c=class1_bool.color))
+    results.append(
+        dmc.Center(dmc.Text(f"{class1_bool.description}", fz="xs", c=class1_bool.color))
+    )
     return results

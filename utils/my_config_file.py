@@ -188,12 +188,10 @@ class UnitSystem(Enum):
     fahrenheit: str = "°F"
 
 
-# Todo transfer the Unit convert function to another file
 class UnitConverter:
     @staticmethod
     def celsius_to_fahrenheit(celsius):
-        # Todo add save 2 decimal place
-        return round(celsius * 9 / 5 + 32)
+        return round(celsius * 9 / 5 + 32, 2)
 
     @staticmethod
     def fahrenheit_to_celsius(fahrenheit):
@@ -448,7 +446,7 @@ class Models(Enum):
         charts=[
             # todo add the right charts
             Charts.psychrometric.value,
-            Charts.psychrometric_operative.value,
+            Charts.t_rh.value,
         ],
         inputs=[
             ModelInputsInfo(
@@ -544,7 +542,7 @@ class Models(Enum):
             ),
             ModelInputsInfo(
                 unit=UnitSystem.m_s.value,
-                min=0.0,
+                min=0.1,
                 max=2.0,
                 step=0.1,
                 value=0.1,
@@ -590,7 +588,7 @@ class Models(Enum):
             ),
             ModelInputsInfo(
                 unit=UnitSystem.m_s.value,
-                min=0.0,
+                min=0.1,
                 max=2.0,
                 step=0.1,
                 value=0.1,
@@ -616,8 +614,6 @@ class HumiditySelection(Enum):
 
 
 class MetabolicRateSelection(Enum):
-    sleeping: str = "Sleeping: 0.7"
-    reclining: str = "Reclining: 0.8"
     seated_quiet: str = "Seated, quite: 1.0"
     reading_seated: str = "Reading, seated: 1.0"
     writing: str = "Writing: 1.0"

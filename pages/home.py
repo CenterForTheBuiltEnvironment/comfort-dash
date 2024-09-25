@@ -20,6 +20,7 @@ from utils.my_config_file import (
     Charts,
     ChartsInfo,
     MyStores,
+    Functionalities,
 )
 import plotly.graph_objects as go
 
@@ -101,9 +102,9 @@ def update_store_inputs(
 
     if ctx.triggered:
         triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
-        if triggered_id == ElementsIDs.clo_input.value:
+        if triggered_id == ElementsIDs.clo_input.value and clo_value != "":
             inputs[ElementsIDs.clo_input.value] = float(clo_value)
-        if triggered_id == ElementsIDs.met_input.value:
+        if triggered_id == ElementsIDs.met_input.value and met_value != "":
             inputs[ElementsIDs.met_input.value] = float(met_value)
 
     inputs[ElementsIDs.UNIT_TOGGLE.value] = units
@@ -180,17 +181,32 @@ def update_chart(inputs: dict, function_selection: str):
     image = go.Figure()
 
     if chart_selected == Charts.t_rh.value.name:
-        if selected_model == Models.PMV_EN.name:
+        if (
+            selected_model == Models.PMV_EN.name
+            and function_selection != Functionalities.Ranges.value
+        ):
             image = t_rh_pmv(
-                inputs=inputs, model="iso", function_selection=function_selection
+                inputs=inputs,
+                model="iso",
+                function_selection=function_selection,
+                units=units,
             )
-        elif selected_model == Models.PMV_ashrae.name:
+        elif (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection != Functionalities.Ranges.value
+        ):
             image = t_rh_pmv(
-                inputs=inputs, model="ashrae", function_selection=function_selection
+                inputs=inputs,
+                model="ashrae",
+                function_selection=function_selection,
+                units=units,
             )
 
-    if selected_model == Models.Adaptive_EN.name:
-        image = adaptive_en_chart(inputs=inputs)
+    if (
+        selected_model == Models.Adaptive_EN.name
+        and function_selection == Functionalities.Default.value
+    ):
+        image = adaptive_en_chart(inputs=inputs, units=units)
 
     note = ""
     chart: ChartsInfo
