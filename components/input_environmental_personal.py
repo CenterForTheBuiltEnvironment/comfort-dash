@@ -1,7 +1,7 @@
 import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, State
-from components.drop_down_inline import generate_dropdown_inline
+from components.drop_down_inline import generate_dropdown_selection
 
 from components.dropdowns import options
 from utils.my_config_file import (
@@ -545,7 +545,9 @@ def create_select_component(values: ModelInputsInfo):
         "multi": False,
         "default": values.value,
     }
-    return generate_dropdown_inline(air_speed_box, clearable=False, only_dropdown=True)
+    return generate_dropdown_selection(
+        air_speed_box, clearable=False, only_dropdown=True
+    )
 
 
 # Todo determine if the value is over the maximum
