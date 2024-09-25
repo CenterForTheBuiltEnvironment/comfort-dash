@@ -136,7 +136,7 @@ class Charts(Enum):
     adaptive_en: ChartsInfo = ChartsInfo(
         name="Adaptive EN",
         id="id_adaptive_en_chart",
-        note_chart="This chart shows how the PMV comfort zone changes according to the input parameters you selected. You can toggle on and off the lines by clicking on the relative variable in the legend.",
+        note_chart="Method is applicable only for buildings without mechanical cooling systems and where there is easy access to operable windows and occupants may freely adapt their clothing to the indoor and/or outdoor thermal conditions. The criteria for the spaces are the following: (a) There is no mechanical cooling or heating system in operation; (b) Metabolic rates ranging from 1.0 to 1.3 met; (c) Occupants are allowed to freely adapt their clothing insulation.",
     )
     psychrometric: ChartsInfo = ChartsInfo(
         name="Psychrometric (air temperature)",
