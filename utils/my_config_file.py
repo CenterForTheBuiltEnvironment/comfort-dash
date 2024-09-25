@@ -134,7 +134,7 @@ class Charts(Enum):
         note_chart="This chart represents only two variables, dry-bulb temperature and relative humidity. The PMV calculations are still based on all the psychrometric variables, but the visualization becomes easier to understand.",
     )
     adaptive_en: ChartsInfo = ChartsInfo(
-        name="Adaptive EN",
+        name="Adaptive - EN-16798",
         id="id_adaptive_en_chart",
         note_chart="Method is applicable only for buildings without mechanical cooling systems and where there is easy access to operable windows and occupants may freely adapt their clothing to the indoor and/or outdoor thermal conditions. The criteria for the spaces are the following: (a) There is no mechanical cooling or heating system in operation; (b) Metabolic rates ranging from 1.0 to 1.3 met; (c) Occupants are allowed to freely adapt their clothing insulation.",
     )
@@ -593,7 +593,7 @@ class Models(Enum):
                 min=0.0,
                 max=2.0,
                 step=0.1,
-                value=0,
+                value=0.1,
                 name="Air Speed",
                 id=ElementsIDs.v_input.value,
             ),
