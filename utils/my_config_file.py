@@ -544,7 +544,7 @@ class Models(Enum):
             ),
             ModelInputsInfo(
                 unit=UnitSystem.m_s.value,
-                min=0.0,
+                min=0.1,
                 max=2.0,
                 step=0.1,
                 value=0.1,
