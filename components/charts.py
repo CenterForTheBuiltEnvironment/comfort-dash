@@ -249,7 +249,18 @@ def t_rh_pmv(
     units: str = "SI",
 ):
     results = []
-    pmv_limits = [-0.5, 0.5]
+    if model == "iso":
+        pmv_limits = [-0.7, -0.5, -0.2, 0.2, 0.5, 0.7]
+        colors = [
+            "rgba(168,204,162,0.9)",
+            "rgba(114,174,106,0.9)",
+            "rgba(78,156,71,0.9)",
+            "rgba(114,174,106,0.9)",
+            "rgba(168,204,162,0.9)",
+        ]
+    else:  # ASHRAE
+        pmv_limits = [-0.5, 0.5]
+        colors = ["rgba(59, 189, 237, 0.7)"]
 
     met, clo, tr, t_db, v, rh = get_inputs(inputs)
     clo_d = clo_dynamic(clo, met)
@@ -259,7 +270,6 @@ def t_rh_pmv(
         results = []
         for pmv_limit in pmv_limits:
             for rh in np.arange(0, 110, 10):
-
                 def function(x):
                     return (
                         pmv(
@@ -277,14 +287,17 @@ def t_rh_pmv(
                         - pmv_limit
                     )
 
-                temp = optimize.brentq(function, 10, 120)
-                results.append(
-                    {
-                        "rh": rh,
-                        "temp": temp,
-                        "pmv_limit": pmv_limit,
-                    }
-                )
+                try:
+                    temp = optimize.brentq(function, 10, 120)
+                    results.append(
+                        {
+                            "rh": rh,
+                            "temp": temp,
+                            "pmv_limit": pmv_limit,
+                        }
+                    )
+                except ValueError:
+                    continue
         return pd.DataFrame(results)
 
     df = calculate_pmv_results(
@@ -294,33 +307,34 @@ def t_rh_pmv(
         clo=clo_d,
     )
 
-    # Create the Plotly figure
     fig = go.Figure()
 
-    # Add the filled area between PMV limits
-    t1 = df[df["pmv_limit"] == pmv_limits[0]]
-    t2 = df[df["pmv_limit"] == pmv_limits[1]]
-    fig.add_trace(
-        go.Scatter(
-            x=t1["temp"],
-            y=t1["rh"],
-            fill=None,
-            mode="lines",
-            line=dict(color="rgba(59, 189, 237, 0.7)"),
-            name=f"{model} Lower Limit",
+    for i in range(len(pmv_limits) - 1):
+        t1 = df[df["pmv_limit"] == pmv_limits[i]]
+        t2 = df[df["pmv_limit"] == pmv_limits[i + 1]]
+        fig.add_trace(
+            go.Scatter(
+                x=t1["temp"],
+                y=t1["rh"],
+                fill=None,
+                mode="lines",
+                line=dict(color=colors[i]),
+                name=f"{model} Lower Limit",
+                hoverinfo="skip",
+            )
         )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=t2["temp"],
-            y=t2["rh"],
-            fill="tonexty",
-            mode="lines",
-            fillcolor="rgba(59, 189, 237, 0.7)",
-            line=dict(color="rgba(59, 189, 237, 0.7)"),
-            name=f"{model} Upper Limit",
+        fig.add_trace(
+            go.Scatter(
+                x=t2["temp"],
+                y=t2["rh"],
+                fill="tonexty",
+                mode="lines",
+                fillcolor=colors[i],
+                line=dict(color=colors[i]),
+                name=f"{model} Upper Limit",
+                hoverinfo="skip",
+            )
         )
-    )
 
     # Add scatter point for the current input
     fig.add_trace(
@@ -330,10 +344,11 @@ def t_rh_pmv(
             mode="markers",
             marker=dict(color="red", size=8),
             name="Current Input",
+            # hoverinfo="skip",
         )
     )
 
-    if function_selection == Functionalities.Compare.value:
+    if model == "ashrae" and function_selection == Functionalities.Compare.value:
         met_2, clo_2, tr_2, t_db_2, v_2, rh_2 = compare_get_inputs(inputs)
         clo_d_compare = clo_dynamic(clo_2, met_2)
         vr_compare = v_relative(v_2, met_2)
@@ -354,6 +369,7 @@ def t_rh_pmv(
                 mode="lines",
                 line=dict(color="rgba(30,70,100,0.5)"),
                 name=f"{model} Compare Lower Limit",
+                hoverinfo='skip'
             )
         )
         fig.add_trace(
@@ -365,6 +381,7 @@ def t_rh_pmv(
                 fillcolor="rgba(30,70,100,0.5)",
                 line=dict(color="rgba(30,70,100,0.5)"),
                 name=f"{model} Compare Upper Limit",
+                hoverinfo='skip'
             )
         )
         fig.add_trace(
@@ -374,10 +391,10 @@ def t_rh_pmv(
                 mode="markers",
                 marker=dict(color="blue", size=8),
                 name="Compare Input",
+                hoverinfo='skip'
             )
         )
 
-    # Update layout
     fig.update_layout(
         yaxis=dict(title="Relative Humidity [%]", range=[0, 100], dtick=10),
         xaxis=dict(title="Dry-bulb Temperature (°C)", range=[10, 36], dtick=2),
@@ -391,7 +408,6 @@ def t_rh_pmv(
             xaxis=dict(title="Dry-bulb Temperature [°F]", range=[50, 100], dtick=5),
         )
 
-    # Add grid lines and make the spines invisible
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
 
@@ -423,7 +439,7 @@ def t_rh_pmv_category(
     for i in range(len(pmv_limits) - 1):
         lower_limit = pmv_limits[i]
         upper_limit = pmv_limits[i + 1]
-        color = colors[i]  # Corresponding color
+        color = colors[i]
 
         for rh in np.arange(0, 110, 10):
             # Find the upper and lower limits of temperature

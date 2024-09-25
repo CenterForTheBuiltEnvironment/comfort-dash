@@ -191,7 +191,7 @@ def update_chart(inputs: dict, function_selection: str):
             selected_model == Models.PMV_EN.name
             and function_selection != Functionalities.Ranges.value
         ):
-            image = t_rh_pmv_category(
+            image = t_rh_pmv(
                 inputs=inputs,
                 model="iso",
                 function_selection=function_selection,
