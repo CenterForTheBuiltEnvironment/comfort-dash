@@ -188,11 +188,9 @@ class UnitSystem(Enum):
     fahrenheit: str = "°F"
 
 
-# Todo transfer the Unit convert function to another file
 class UnitConverter:
     @staticmethod
     def celsius_to_fahrenheit(celsius):
-        # Todo add save 2 decimal place
         return round(celsius * 9 / 5 + 32, 2)
 
     @staticmethod
@@ -448,7 +446,7 @@ class Models(Enum):
         charts=[
             # todo add the right charts
             Charts.psychrometric.value,
-            Charts.psychrometric_operative.value,
+            Charts.t_rh.value,
         ],
         inputs=[
             ModelInputsInfo(

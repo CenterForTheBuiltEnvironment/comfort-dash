@@ -306,7 +306,6 @@ def modal_custom_ensemble():
     )
 
 
-# todo implement the drop-down box to the air speed in Adaptive - Ashrae 55 model
 def input_environmental_personal(
     selected_model: str = "PMV_ashrae",
     units: str = UnitSystem.SI.value,
@@ -550,7 +549,6 @@ def create_select_component(values: ModelInputsInfo):
     )
 
 
-# Todo determine if the value is over the maximum
 def update_options(input_value, selection_enum, min_value, max_value):
     if input_value is None or input_value == "":
         return [], ""

@@ -21,7 +21,6 @@ def display_results(inputs: dict):
     units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
 
     results = []
-    # todo add unit detect if IP inputs and conver into SI calculation
     columns: int = 2
     if selected_model == Models.PMV_EN.name or selected_model == Models.PMV_ashrae.name:
         columns = 3
@@ -110,7 +109,6 @@ def display_results(inputs: dict):
                 dmc.Center(dmc.Text(f"Category: {comfort_category}"))
             )
 
-        # todo add unit detect if IP inputs and conver into SI calculation
         if (
             inputs[ElementsIDs.functionality_selection.value]
             == Functionalities.Compare.value
