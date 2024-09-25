@@ -5,9 +5,8 @@ from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 from components.charts import (
     t_rh_pmv,
     chart_selector,
-    adaptive_en_chart,
     t_rh_pmv_category,
-    pmot_ot_adaptive_ashrae,
+    pmot_ot_adaptive_ashrae, adaptive_chart,
 )
 from components.dropdowns import (
     model_selection,
@@ -212,13 +211,13 @@ def update_chart(inputs: dict, function_selection: str):
         selected_model == Models.Adaptive_EN.name
         and function_selection == Functionalities.Default.value
     ):
-        image = adaptive_en_chart(inputs=inputs, units=units)
+        image = adaptive_chart(inputs=inputs, model="iso", units=units)
 
     if (
         selected_model == Models.Adaptive_ASHRAE.name
         and function_selection == Functionalities.Default.value
     ):
-        image = pmot_ot_adaptive_ashrae(inputs=inputs, model="ashrae", units=units)
+        image = adaptive_chart(inputs=inputs, model="ashrae", units=units)
 
     note = ""
     chart: ChartsInfo
