@@ -23,6 +23,8 @@ from utils.my_config_file import (
     Functionalities,
 )
 import plotly.graph_objects as go
+from urllib.parse import parse_qs, urlencode
+
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -64,6 +66,7 @@ layout = dmc.Stack(
                                 id=ElementsIDs.CHART_CONTAINER.value,
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
+                            dcc.Location(id=ElementsIDs.URL.value, refresh=False),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -78,6 +81,8 @@ layout = dmc.Stack(
 # Todo adding reflecting value to the url
 @callback(
     Output(MyStores.input_data.value, "data"),
+    Output(ElementsIDs.URL.value, "search", allow_duplicate=True),
+
     Input(ElementsIDs.inputs_form.value, "n_clicks"),
     Input(ElementsIDs.inputs_form.value, "children"),
     Input(ElementsIDs.clo_input.value, "value"),
@@ -86,6 +91,7 @@ layout = dmc.Stack(
     Input(ElementsIDs.chart_selected.value, "value"),
     Input(ElementsIDs.functionality_selection.value, "value"),
     State(ElementsIDs.MODEL_SELECTION.value, "value"),
+    prevent_initial_call=True,
 )
 def update_store_inputs(
     form_clicks: int,
@@ -112,7 +118,9 @@ def update_store_inputs(
     inputs[ElementsIDs.chart_selected.value] = chart_selected
     inputs[ElementsIDs.functionality_selection.value] = functionality_selection
 
-    return inputs
+    url_search = f"?{urlencode(inputs)}"
+
+    return inputs,url_search
 
 
 # todo get the value from the url
