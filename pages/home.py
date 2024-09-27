@@ -106,12 +106,12 @@ def update_store_inputs(
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
     inputs = get_inputs(selected_model, form_content, units, functionality_selection)
 
-    if ctx.triggered:
-        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
-        if triggered_id == ElementsIDs.clo_input.value and clo_value != "":
-            inputs[ElementsIDs.clo_input.value] = float(clo_value)
-        if triggered_id == ElementsIDs.met_input.value and met_value != "":
-            inputs[ElementsIDs.met_input.value] = float(met_value)
+    # if ctx.triggered:
+    #     triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    #     if triggered_id == ElementsIDs.clo_input.value and clo_value != "":
+    #         inputs[ElementsIDs.clo_input.value] = float(clo_value)
+    #     if triggered_id == ElementsIDs.met_input.value and met_value != "":
+    #         inputs[ElementsIDs.met_input.value] = float(met_value)
 
     inputs[ElementsIDs.UNIT_TOGGLE.value] = units
     inputs[ElementsIDs.MODEL_SELECTION.value] = selected_model
@@ -136,6 +136,27 @@ def update_inputs(selected_model, units_selection, function_selection):
         return no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
     return input_environmental_personal(selected_model, units, function_selection)
+
+
+#once function: update_inputs via URL, update the value of the model dropdown, unit toggle and functionality dropdown and chart dropdown, and inputs, it only use once when the page is loaded
+@callback(
+    Output(ElementsIDs.MODEL_SELECTION.value, "value"),
+    Output(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    Output(ElementsIDs.functionality_selection.value, "value"),
+    Output(ElementsIDs.chart_selected.value, "value"),
+    Output(ElementsIDs.inputs_form.value, "children"),
+    Input(ElementsIDs.URL.value, "search", allow_duplicate=True),
+    prevent_initial_call=True,
+)
+def update_inputs_from_url(url_search):
+    if url_search is None:
+        return no_update, no_update, no_update, no_update, no_update
+    inputs = parse_qs(url_search[1:])
+    selected_model = inputs.get(ElementsIDs.MODEL_SELECTION.value, [None])[0]
+    units = inputs.get(ElementsIDs.UNIT_TOGGLE.value, [None])[0]
+    function_selection = inputs.get(ElementsIDs.functionality_selection.value, [None])[0]
+    chart_selected = inputs.get(ElementsIDs.chart_selected.value, [None])[0]
+    return selected_model, units == UnitSystem.IP.value, function_selection, chart_selected, inputs
 
 
 @callback(
