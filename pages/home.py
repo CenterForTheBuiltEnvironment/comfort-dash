@@ -2,6 +2,7 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
+
 from components.charts import (
     t_rh_pmv,
     chart_selector,
@@ -10,6 +11,7 @@ from components.charts import (
     speed_temp_pmv,
     get_heat_losses,
 )
+
 from components.dropdowns import (
     model_selection,
 )
@@ -208,6 +210,40 @@ def update_chart(inputs: dict, function_selection: str):
                 function_selection=function_selection,
                 units=units,
             )
+    elif chart_selected == Charts.psychrometric.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = psy_ashrae_pmv(inputs=inputs, model="ashrae")
+
+    elif chart_selected == Charts.set_outputs.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = SET_outputs_chart(
+                inputs=inputs, calculate_ce=False, p_atmospheric=101325, units=units
+            )
+
+    elif chart_selected == Charts.wind_temp_chart.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = speed_temp_pmv(inputs=inputs, model="ashrae",units=units)
+    elif chart_selected == Charts.thl_psychrometric.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = get_heat_losses(inputs=inputs, model="ashrae",units=units)
+
+    if (
+            selected_model == Models.Adaptive_EN.name
+            and function_selection == Functionalities.Default.value
+    ):
+        image = adaptive_chart(inputs=inputs, model="iso", units=units)
 
     elif chart_selected == Charts.set_outputs.value.name:
         if (
@@ -232,17 +268,12 @@ def update_chart(inputs: dict, function_selection: str):
             image = get_heat_losses(inputs=inputs, model="ashrae")
 
     if (
-        selected_model == Models.Adaptive_EN.name
-        and function_selection == Functionalities.Default.value
+            selected_model == Models.Adaptive_ASHRAE.name
+            and function_selection == Functionalities.Default.value
     ):
         image = adaptive_chart(inputs=inputs, model="iso", units=units)
 
-    if (
-        selected_model == Models.Adaptive_ASHRAE.name
-        and function_selection == Functionalities.Default.value
-    ):
-        image = adaptive_chart(inputs=inputs, model="ashrae", units=units)
-
+    
     note = ""
     chart: ChartsInfo
     for chart in Models[selected_model].value.charts:
