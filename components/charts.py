@@ -1,5 +1,6 @@
 import base64
 import io
+import math
 from copy import deepcopy
 
 import dash_mantine_components as dmc
@@ -8,7 +9,7 @@ import numpy as np
 import pandas as pd
 import math
 from pythermalcomfort import set_tmp, two_nodes
-from pythermalcomfort.models import pmv,adaptive_en
+from pythermalcomfort.models import pmv,adaptive_en，adaptive_ashrae
 from pythermalcomfort.utilities import v_relative, clo_dynamic
 from scipy import optimize
 
@@ -22,7 +23,9 @@ from utils.my_config_file import (
 )
 from utils.website_text import TextHome
 import matplotlib
-from pythermalcomfort.psychrometrics import t_o,psy_ta_rh
+from pythermalcomfort.psychrometrics import t_o, psy_ta_rh
+
+
 
 matplotlib.use("Agg")
 
@@ -31,7 +34,6 @@ from dash import dcc
 
 
 def chart_selector(selected_model: str, function_selection: str):
-
     list_charts = list(Models[selected_model].value.charts)
     if function_selection == Functionalities.Compare.value:
         if selected_model == Models.PMV_ashrae.name:
@@ -73,22 +75,31 @@ def compare_get_inputs(inputs):
     return met_2, clo_2, tr_2, t_db_2, v_2, rh_2
 
 
-def adaptive_en_chart(inputs, units):
+def adaptive_chart(
+    inputs: dict = None,
+    model: str = "iso",
+    units: str = "SI",
+):
     traces = []
 
     if units == UnitSystem.IP.value:
-        x_values = np.array([50, 92.3])
+        x_values = np.array([50, 92.3]) if model == "iso" else np.array([50, 92.3])
     else:
-        x_values = np.array([10, 30])
+        x_values = np.array([10, 30]) if model == "iso" else np.array([10, 33.5])
 
-    results_min = adaptive_en(
+    if model == "iso":
+        adaptive_func = adaptive_en
+    else:
+        adaptive_func = adaptive_ashrae
+
+    results_min = adaptive_func(
         tdb=inputs[ElementsIDs.t_db_input.value],
         tr=inputs[ElementsIDs.t_r_input.value],
         t_running_mean=x_values[0],
         v=inputs[ElementsIDs.v_input.value],
         units=units,
     )
-    results_max = adaptive_en(
+    results_max = adaptive_func(
         tdb=inputs[ElementsIDs.t_db_input.value],
         tr=inputs[ElementsIDs.t_r_input.value],
         t_running_mean=x_values[1],
@@ -96,69 +107,40 @@ def adaptive_en_chart(inputs, units):
         units=units,
     )
 
-    y_values_cat_iii_up = [
-        results_min["tmp_cmf_cat_iii_up"],
-        results_max["tmp_cmf_cat_iii_up"],
-    ]
-    y_values_cat_iii_low = [
-        results_min["tmp_cmf_cat_iii_low"],
-        results_max["tmp_cmf_cat_iii_low"],
-    ]
+    if model == "iso":
+        categories = [
+            ("cat_iii", "Category III", "rgba(144, 238, 144, 0.3)"),
+            ("cat_ii", "Category II", "rgba(34, 139, 34, 0.5)"),
+            ("cat_i", "Category I", "rgba(0, 100, 0, 0.7)"),
+        ]
+    else:
+        categories = [
+            ("80", "80% Acceptability", "rgba(0, 100, 200, 0.2)"),
+            ("90", "90% Acceptability", "rgba(0, 100, 200, 0.4)"),
+        ]
 
-    y_values_cat_ii_up = [
-        results_min["tmp_cmf_cat_ii_up"],
-        results_max["tmp_cmf_cat_ii_up"],
-    ]
-    y_values_cat_ii_low = [
-        results_min["tmp_cmf_cat_ii_low"],
-        results_max["tmp_cmf_cat_ii_low"],
-    ]
+    for cat, name, color in categories:
+        y_values_up = [
+            results_min[f"tmp_cmf_{cat}_up"],
+            results_max[f"tmp_cmf_{cat}_up"],
+        ]
+        y_values_low = [
+            results_min[f"tmp_cmf_{cat}_low"],
+            results_max[f"tmp_cmf_{cat}_low"],
+        ]
 
-    y_values_cat_i_up = [
-        results_min["tmp_cmf_cat_i_up"],
-        results_max["tmp_cmf_cat_i_up"],
-    ]
-    y_values_cat_i_low = [
-        results_min["tmp_cmf_cat_i_low"],
-        results_max["tmp_cmf_cat_i_low"],
-    ]
+        traces.append(
+            go.Scatter(
+                x=np.concatenate([x_values, x_values[::-1]]),
+                y=np.concatenate([y_values_up, y_values_low[::-1]]),
+                fill="toself",
+                fillcolor=color,
+                line=dict(color="rgba(0,0,0,0)", shape="linear"),
+                name=name,
+                mode="lines",
+            )
+        )
 
-    # traces[0]
-    traces.append(
-        go.Scatter(
-            x=np.concatenate([x_values, x_values[::-1]]),
-            y=np.concatenate([y_values_cat_iii_up, y_values_cat_iii_low[::-1]]),
-            fill="toself",
-            fillcolor="rgba(144, 238, 144, 0.3)",
-            line=dict(color="rgba(144, 238, 144, 0)", shape="linear"),
-            name="Category III",
-            mode="lines",
-        )
-    )
-    # traces[1]
-    traces.append(
-        go.Scatter(
-            x=np.concatenate([x_values, x_values[::-1]]),
-            y=np.concatenate([y_values_cat_ii_up, y_values_cat_ii_low[::-1]]),
-            fill="toself",
-            fillcolor="rgba(34, 139, 34, 0.5)",
-            line=dict(color="rgba(34, 139, 34, 0)", shape="linear"),
-            name="Category II",
-            mode="lines",
-        )
-    )
-    # traces[2]
-    traces.append(
-        go.Scatter(
-            x=np.concatenate([x_values, x_values[::-1]]),
-            y=np.concatenate([y_values_cat_i_up, y_values_cat_i_low[::-1]]),
-            fill="toself",
-            fillcolor="rgba(0, 100, 0, 0.7)",
-            line=dict(color="rgba(0, 100, 0, 0)", shape="linear"),
-            name="Category I",
-            mode="lines",
-        )
-    )
     x = inputs[ElementsIDs.t_rm_input.value]
     y = t_o(
         tdb=inputs[ElementsIDs.t_db_input.value],
@@ -166,7 +148,6 @@ def adaptive_en_chart(inputs, units):
         v=inputs[ElementsIDs.v_input.value],
     )
     red_point = [x, y]
-    # traces[3]
     traces.append(
         go.Scatter(
             x=[red_point[0]],
@@ -180,26 +161,16 @@ def adaptive_en_chart(inputs, units):
             showlegend=False,
         )
     )
-    # theta = np.linspace(0, 2 * np.pi, 100)
-    # circle_x = red_point[0] + 0.5 * np.cos(theta)
-    # circle_y = red_point[1] + 0.8 * np.sin(theta)
-    # # traces[4]
-    # traces.append(
-    #     go.Scatter(
-    #         x=circle_x,
-    #         y=circle_y,
-    #         mode="lines",
-    #         line=dict(color="red", width=2.5),
-    #         # name='circle',
-    #         showlegend=False,
-    #     )
-    # )
 
     layout = go.Layout(
         xaxis=dict(
-            title="Outdoor Running Mean Temperature [°C]",
-            range=[10, 30],
-            dtick=2,
+            title=(
+                "Outdoor Running Mean Temperature [°C]"
+                if units == UnitSystem.SI.value
+                else "Prevailing Mean Outdoor Temperature [°F]"
+            ),
+            range=[10, 30] if model == "iso" else [10, 33.5],
+            dtick=2 if units == UnitSystem.SI.value else 5,
             showgrid=True,
             gridcolor="lightgray",
             gridwidth=1.5,
@@ -210,9 +181,13 @@ def adaptive_en_chart(inputs, units):
             linecolor="black",
         ),
         yaxis=dict(
-            title="Operative Temperature [°C]",
-            range=[14, 36],
-            dtick=2,
+            title=(
+                "Operative Temperature [°C]"
+                if units == UnitSystem.SI.value
+                else "Operative Temperature [°F]"
+            ),
+            range=[14, 36] if units == UnitSystem.SI.value else [60, 104],
+            dtick=2 if units == UnitSystem.SI.value else 5,
             showgrid=True,
             gridcolor="lightgray",
             gridwidth=1.5,
@@ -233,11 +208,15 @@ def adaptive_en_chart(inputs, units):
     if units == UnitSystem.IP.value:
         fig.update_layout(
             xaxis=dict(
-                title="Outdoor Running Mean Temperature [°F]", range=[50, 92.3], dtick=5
+                range=(
+                    [50, 92.3]
+                    if model == "iso"
+                    else [
+                        UnitConverter.celsius_to_fahrenheit(10),
+                        UnitConverter.celsius_to_fahrenheit(33.5),
+                    ]
+                ),
             ),
-        )
-        fig.update_layout(
-            yaxis=dict(title="Operative Temperature [°F]", range=[60, 104], dtick=5),
         )
 
     return fig
@@ -250,7 +229,18 @@ def t_rh_pmv(
     units: str = "SI",
 ):
     results = []
-    pmv_limits = [-0.5, 0.5]
+    if model == "iso":
+        pmv_limits = [-0.7, -0.5, -0.2, 0.2, 0.5, 0.7]
+        colors = [
+            "rgba(168,204,162,0.9)",
+            "rgba(114,174,106,0.9)",
+            "rgba(78,156,71,0.9)",
+            "rgba(114,174,106,0.9)",
+            "rgba(168,204,162,0.9)",
+        ]
+    else:  # ASHRAE
+        pmv_limits = [-0.5, 0.5]
+        colors = ["rgba(59, 189, 237, 0.7)"]
 
     met, clo, tr, t_db, v, rh = get_inputs(inputs)
     clo_d = clo_dynamic(clo, met)
@@ -278,14 +268,17 @@ def t_rh_pmv(
                         - pmv_limit
                     )
 
-                temp = optimize.brentq(function, 10, 120)
-                results.append(
-                    {
-                        "rh": rh,
-                        "temp": temp,
-                        "pmv_limit": pmv_limit,
-                    }
-                )
+                try:
+                    temp = optimize.brentq(function, 10, 120)
+                    results.append(
+                        {
+                            "rh": rh,
+                            "temp": temp,
+                            "pmv_limit": pmv_limit,
+                        }
+                    )
+                except ValueError:
+                    continue
         return pd.DataFrame(results)
 
     df = calculate_pmv_results(
@@ -295,33 +288,34 @@ def t_rh_pmv(
         clo=clo_d,
     )
 
-    # Create the Plotly figure
     fig = go.Figure()
 
-    # Add the filled area between PMV limits
-    t1 = df[df["pmv_limit"] == pmv_limits[0]]
-    t2 = df[df["pmv_limit"] == pmv_limits[1]]
-    fig.add_trace(
-        go.Scatter(
-            x=t1["temp"],
-            y=t1["rh"],
-            fill=None,
-            mode="lines",
-            line=dict(color="rgba(59, 189, 237, 0.7)"),
-            name=f"{model} Lower Limit",
+    for i in range(len(pmv_limits) - 1):
+        t1 = df[df["pmv_limit"] == pmv_limits[i]]
+        t2 = df[df["pmv_limit"] == pmv_limits[i + 1]]
+        fig.add_trace(
+            go.Scatter(
+                x=t1["temp"],
+                y=t1["rh"],
+                fill=None,
+                mode="lines",
+                line=dict(color=colors[i]),
+                name=f"{model} Lower Limit",
+                hoverinfo="skip",
+            )
         )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=t2["temp"],
-            y=t2["rh"],
-            fill="tonexty",
-            mode="lines",
-            fillcolor="rgba(59, 189, 237, 0.7)",
-            line=dict(color="rgba(59, 189, 237, 0.7)"),
-            name=f"{model} Upper Limit",
+        fig.add_trace(
+            go.Scatter(
+                x=t2["temp"],
+                y=t2["rh"],
+                fill="tonexty",
+                mode="lines",
+                fillcolor=colors[i],
+                line=dict(color=colors[i]),
+                name=f"{model} Upper Limit",
+                hoverinfo="skip",
+            )
         )
-    )
 
     # Add scatter point for the current input
     fig.add_trace(
@@ -331,10 +325,11 @@ def t_rh_pmv(
             mode="markers",
             marker=dict(color="red", size=8),
             name="Current Input",
+            # hoverinfo="skip",
         )
     )
 
-    if function_selection == Functionalities.Compare.value:
+    if model == "ashrae" and function_selection == Functionalities.Compare.value:
         met_2, clo_2, tr_2, t_db_2, v_2, rh_2 = compare_get_inputs(inputs)
         clo_d_compare = clo_dynamic(clo_2, met_2)
         vr_compare = v_relative(v_2, met_2)
@@ -355,6 +350,7 @@ def t_rh_pmv(
                 mode="lines",
                 line=dict(color="rgba(30,70,100,0.5)"),
                 name=f"{model} Compare Lower Limit",
+                hoverinfo="skip",
             )
         )
         fig.add_trace(
@@ -366,6 +362,7 @@ def t_rh_pmv(
                 fillcolor="rgba(30,70,100,0.5)",
                 line=dict(color="rgba(30,70,100,0.5)"),
                 name=f"{model} Compare Upper Limit",
+                hoverinfo="skip",
             )
         )
         fig.add_trace(
@@ -375,10 +372,10 @@ def t_rh_pmv(
                 mode="markers",
                 marker=dict(color="blue", size=8),
                 name="Compare Input",
+                hoverinfo="skip",
             )
         )
 
-    # Update layout
     fig.update_layout(
         yaxis=dict(title="Relative Humidity [%]", range=[0, 100], dtick=10),
         xaxis=dict(title="Dry-bulb Temperature (°C)", range=[10, 36], dtick=2),
@@ -392,11 +389,12 @@ def t_rh_pmv(
             xaxis=dict(title="Dry-bulb Temperature [°F]", range=[50, 100], dtick=5),
         )
 
-    # Add grid lines and make the spines invisible
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
 
     return fig
+
+
 def SET_outputs_chart(
     inputs: dict = None, calculate_ce: bool = False, p_atmospheric: int = 101325,units: str = "SI",
 ):
@@ -666,7 +664,7 @@ def SET_outputs_chart(
     fig.update_layout(
         # title='Temperature and Heat Loss',
         xaxis=dict(
-            title="Dry-bulb Air Temperature [°C]" if units == UnitSystem.SI.value else "Dry-bulb Temperature [°F]",
+          title="Dry-bulb Air Temperature [°C]" if units == UnitSystem.SI.value else "Dry-bulb Temperature [°F]",
             showgrid=False,
             range=[10, 40] if units == UnitSystem.SI.value else [50,104],
             dtick=2 if units == UnitSystem.SI.value else 5.4,
@@ -696,16 +694,10 @@ def SET_outputs_chart(
         width=700,  # 3:4
         height=700,  # 3:4
     )
-    # if units == UnitSystem.IP.value:
-    #     fig.update_layout(
-    #         xaxis=dict(title="Dry-bulb Temperature [°F]", range=[50, 104], dtick=5.4),
-    #         yaxis=dict(title="Temperature [°F]", showgrid=False, range=[60, 100], dtick=5)
-    #     )
-    # fig.update_xaxes(showgrid=False, gridwidth=1, gridcolor="lightgrey")
-    # fig.update_yaxes(showgrid=False, gridwidth=1, gridcolor="lightgrey")
 
     # show
     return fig
+
 
 
 def speed_temp_pmv(inputs: dict = None, model: str = "iso",units: str = "SI",):
@@ -717,7 +709,6 @@ def speed_temp_pmv(inputs: dict = None, model: str = "iso",units: str = "SI",):
     clo_d = clo_dynamic(
         clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
     )
-
 
     for pmv_limit in pmv_limits:
         for vr in np.arange(0.1, 1.3, 0.1):
@@ -738,6 +729,7 @@ def speed_temp_pmv(inputs: dict = None, model: str = "iso",units: str = "SI",):
                     - pmv_limit
                 )
 
+
             try:
                 temp = optimize.brentq(function, 10, 40)
                 results.append(
@@ -753,6 +745,7 @@ def speed_temp_pmv(inputs: dict = None, model: str = "iso",units: str = "SI",):
 
 
     df = pd.DataFrame(results)
+
 
     fig = go.Figure()
 
@@ -797,42 +790,9 @@ def speed_temp_pmv(inputs: dict = None, model: str = "iso",units: str = "SI",):
     )
 
     fig.update_layout(
-        xaxis_title="Operative Temperature [°C]" if units == UnitSystem.SI.value else "Operative Temperature [°F]",  # x title
-        yaxis_title="Relative Air Speed [m/s]" if units == UnitSystem.SI.value else "Relative Air Speed [fpm]",  # y title
-        template="plotly_white",
-        width=700,
-        height=700,
-        xaxis=dict(
-            range=[20, 34] if units == UnitSystem.SI.value else [68, 92],  # x range
-            tickmode="linear",
-            tick0=20 if units == UnitSystem.SI.value else 68,
-            dtick=2,
-            linecolor="lightgrey",
-            gridcolor="lightgray",
-            showgrid=True,
-            mirror=True,
-        ),
-        yaxis=dict(
-            range=[0.0, 1.2] if units == UnitSystem.SI.value else [0, 240],  # y range
-            tickmode="linear",
-            tick0=0.0,
-            dtick=0.1 if units == UnitSystem.SI.value else 20,
-            linecolor="lightgrey",
-            gridcolor="lightgray",
-            showgrid=True,
-            mirror=True,
-        ),
-    )
 
-    # if units == UnitSystem.IP.value:
-    #     fig.update_layout(
-    #         xaxis=dict(title="Operative Temperature [°F]", range=[68, 92], dtick=2),
-    #         yaxis=dict(title="Relative Air Speed [fpm]", range=[0, 240], dtick=20),
-    #     )
-    # fig.update_xaxes(showgrid=True, gridcolor="lightgrey")
-    # fig.update_yaxes(showgrid=True, gridcolor="lightgrey")
 
-    return fig
+
 def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
     def pmv_pdd_6_heat_loss(ta, tr, vel, rh, met, clo, wme=0):
         pa = rh * 10 * math.exp(16.6536 - 4030.183 / (ta + 235))
@@ -898,6 +858,7 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
             "hl6": hl6,
         }
 
+
     tr = inputs[ElementsIDs.t_r_input.value]
     met = inputs[ElementsIDs.met_input.value]
     vel = v_relative(
@@ -907,6 +868,7 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
         clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
     )
     rh = inputs[ElementsIDs.rh_input.value]
+
 
     results = {
         "h1": [],  # Water vapor diffusion through the skin
@@ -920,15 +882,11 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
         "h9": [],  # Total heat loss
         "h10": [],  # Metabolic rate
     }
-    if units == UnitSystem.SI.value:
-        ta_range = np.arange(10, 41)
-    else:
-        ta_range = np.arange(50, 105)
 
     for ta in ta_range:
         heat_losses = pmv_pdd_6_heat_loss(
-            ta=ta,
-            tr=tr, vel=vel, rh=rh, met=met, clo=clo_d, wme=0
+            ta=ta, tr=tr, vel=vel, rh=rh, met=met, clo=clo_d, wme=0
+
         )
         results["h1"].append(round(heat_losses["hl1"], 1))
         results["h2"].append(round(heat_losses["hl2"], 1))
@@ -964,8 +922,10 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
         ("h4", "Respiration sensible", "darkred", "legendonly"),
         ("h5", "Radiation from clothing surface", "darkorange", "legendonly"),
         ("h6", "Convection from clothing surface", "orange", "legendonly"),
+
         ("h7", "Total latent ", "grey", True),
         ("h8", "Total sensible ", "lightgrey", True),
+
         ("h9", "Total heat loss", "black", True),
         ("h10", "Metabolic rate", "purple", True),
     ]
@@ -985,6 +945,8 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
     fig.update_layout(
         # title="Temperature and Heat Loss",
         xaxis=dict(
+
+
             title="Dry-bulb Air Temperature [°C]" if units == UnitSystem.SI.value else "Dry-bulb Air Temperature [°F]",
             showgrid=True,
             showline=True,
@@ -1000,6 +962,7 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
             range=[-40, 120],
             dtick=20
         ),
+
         legend=dict(
             x=0.5,
             y=-0.2,
@@ -1010,10 +973,11 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
         ),
         template="plotly_white",
         autosize=False,
-        # tracegroupgap=50,
+
         width=700,
         height=700,
     )
+
 
 
     # if units == UnitSystem.IP.value:
@@ -1173,4 +1137,5 @@ def psy_ashrae_pmv(inputs: dict = None, model: str = "ashrae"):
 
     # 显示图形
     return fig
+
 
