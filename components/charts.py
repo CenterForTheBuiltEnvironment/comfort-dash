@@ -995,45 +995,6 @@ def get_heat_losses(inputs: dict = None, model: str = "ashrae", units: str = "SI
             )
             results["h10"].append(round(met * 58.15, 1))
 
-    #
-    #
-    # for ta in ta_range:
-    #     if units == UnitSystem.IP.value:
-    #         ta_si = UnitConverter.fahrenheit_to_celsius(ta)
-    #         tr_si = UnitConverter.fahrenheit_to_celsius(tr)
-    #         vel_si = UnitConverter.fps_to_mps(vel)
-    #     else:
-    #         ta_si = ta
-    #         tr_si = tr
-    #         vel_si = vel
-    #     heat_losses = pmv_pdd_6_heat_loss(
-    #         ta=ta_si, tr=tr_si, vel=vel_si, rh=rh, met=met, clo=clo_d, wme=0
-    #     )
-    #     results["h1"].append(round(heat_losses["hl1"], 1))
-    #     results["h2"].append(round(heat_losses["hl2"], 1))
-    #     results["h3"].append(round(heat_losses["hl3"], 1))
-    #     results["h4"].append(round(heat_losses["hl4"], 1))
-    #     results["h5"].append(round(heat_losses["hl5"], 1))  #
-    #     results["h6"].append(round(heat_losses["hl6"], 1))  #
-    #     results["h7"].append(
-    #         round(heat_losses["hl1"] + heat_losses["hl2"] + heat_losses["hl3"], 1)
-    #     )
-    #     results["h8"].append(
-    #         round(heat_losses["hl4"] + heat_losses["hl5"] + heat_losses["hl6"], 1)  #
-    #     )
-    #     results["h9"].append(
-    #         round(
-    #             heat_losses["hl1"]
-    #             + heat_losses["hl2"]
-    #             + heat_losses["hl3"]
-    #             + heat_losses["hl4"]
-    #             + heat_losses["hl5"]
-    #             + heat_losses["hl6"],
-    #             1,
-    #         )  #
-    #     )
-    # results["h10"].append(round(met * 58.15, 1))
-
     fig = go.Figure()
 
     trace_configs = [

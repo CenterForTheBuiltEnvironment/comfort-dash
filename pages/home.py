@@ -9,8 +9,7 @@ from components.charts import (
     adaptive_chart,
     SET_outputs_chart,
     speed_temp_pmv,
-    get_heat_losses,
-    psy_ashrae_pmv,
+    get_heat_losses,psy_ashrae_pmv,
 )
 
 from components.dropdowns import (
