@@ -610,7 +610,6 @@ def create_and_update_callback(element_id, selection_enum, input_type):
         State(ElementsIDs.MODEL_SELECTION.value, "value"),
     )
     def callback_function(input_value, _, selected_model):
-        time.sleep(0.5)
         return update_options(input_value, selection_enum, selected_model, input_type)
 
     return callback_function
