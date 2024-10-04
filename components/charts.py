@@ -29,7 +29,7 @@ import plotly.graph_objects as go
 from dash import dcc
 
 
-def chart_selector(selected_model: str, function_selection: str):
+def chart_selector(selected_model: str, function_selection: str, chart_selected: str):
 
     list_charts = list(Models[selected_model].value.charts)
     if function_selection == Functionalities.Compare.value:
@@ -37,12 +37,18 @@ def chart_selector(selected_model: str, function_selection: str):
             list_charts = list(Models[selected_model].value.charts_compare)
 
     list_charts = [chart.name for chart in list_charts]
+
+    if chart_selected is not None:
+        chart_selected_output = chart_selected
+    else:
+        chart_selected_output = list_charts[0]
+
     drop_down_chart_dict = {
         "id": ElementsIDs.chart_selected.value,
         "question": TextHome.chart_selection.value,
         "options": list_charts,
         "multi": False,
-        "default": list_charts[0],
+        "default": chart_selected_output,
     }
 
     return generate_dropdown_inline(

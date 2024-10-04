@@ -43,7 +43,11 @@ def extract_float(value):
 
 
 def get_inputs(
-    selected_model: str, form_content: dict, units: str, functionality_selection: str
+    selected_model: str,
+    form_content: dict,
+    units: str,
+    functionality_selection: str,
+    type: str,
 ):
 
     if selected_model is None:
@@ -61,14 +65,23 @@ def get_inputs(
 
     # updating the values of the model inputs with the values from the form
     for model_input in combined_model_inputs:
-        input_dict = find_dict_with_key_value(form_content, "id", model_input.id)
+        if type == "input":
+            input_dict = find_dict_with_key_value(form_content, "id", model_input.id)
 
-        if input_dict and "value" in input_dict:
-            original_value = input_dict["value"]
-            converted_value = extract_float(str(original_value))
+            if input_dict and "value" in input_dict:
+                original_value = input_dict["value"]
+                converted_value = extract_float(str(original_value))
 
-            if converted_value is not None:
-                model_input.value = converted_value
+                if converted_value is not None:
+                    model_input.value = converted_value
+        elif type == "url":
+            original_value = form_content.get(model_input.id)
+
+            if original_value is not None:
+                converted_value = extract_float(str(original_value))
+
+                if converted_value is not None:
+                    model_input.value = converted_value
 
     # converting the units if necessary
     if units == UnitSystem.IP.value:
