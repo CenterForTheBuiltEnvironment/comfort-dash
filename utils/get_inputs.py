@@ -43,7 +43,11 @@ def extract_float(value):
 
 
 def get_inputs(
-    selected_model: str, form_content: dict, units: str, functionality_selection: str, type: str
+    selected_model: str,
+    form_content: dict,
+    units: str,
+    functionality_selection: str,
+    type: str,
 ):
 
     if selected_model is None:
