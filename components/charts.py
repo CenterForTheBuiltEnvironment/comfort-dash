@@ -325,8 +325,6 @@ def calculate_chart_parameters(tem_dry_bulb, humidity_ratio):
     }
 
 
-# 生成 dry-bulb temperature & humidity ratio 图表
-# tdb - hr(不是rh)
 def generate_tdb_hr_chart(inputs: dict = None,
     model: str = "iso",
     units: str = "SI",
@@ -336,6 +334,8 @@ def generate_tdb_hr_chart(inputs: dict = None,
     p_tr = inputs[ElementsIDs.t_r_input.value]
     p_v = inputs[ElementsIDs.v_input.value]
     p_rh = inputs[ElementsIDs.rh_input.value]
+    p_met =inputs[ElementsIDs.met_input.value]
+    p_clo_d =inputs[ElementsIDs.clo_input.value]
     p_t_running_mean = inputs[ElementsIDs.t_r_input.value]
 
     traces = []
@@ -343,18 +343,16 @@ def generate_tdb_hr_chart(inputs: dict = None,
     ### 2、画绿色区域
     rh = np.arange(0, 101, 20)
     pmv_list = [-0.7, -0.5, -0.2, 0.2, 0.5, 0.7]
-    v_r = v_relative(v=0.1, met=1)
+    v_r = v_relative(v=p_v, met=p_met)
     tdb_dict = {}
     for j in range(len(pmv_list)):
         tdb_dict[j] = []
         for i in range(len(rh)):
-            solution = fsolve(
-                lambda x: calculate_tdb(t_db_x=x, t_r=25, v_r=v_r, r_h=rh[i], met=1, clo_d=0.6, pmv_y=pmv_list[j]), 22)
+            solution = fsolve(lambda x: calculate_tdb(t_db_x=x, t_r=p_tr, v_r=v_r, r_h=rh[i], met=p_met, clo_d=p_clo_d, pmv_y=pmv_list[j]), 22)
             tdb_solution = Decimal(solution[0]).quantize(Decimal('0.0'), rounding=ROUND_HALF_UP)  # 单位：℃
             tdb_dict[j].append(float(tdb_solution))
-    # print(tdb_dict)
+
     # 通过 tdb 和 rh 百分比值 计算hr的值
-    # psy_ta_rh(tdb=t, rh=100, p_atm=101325)["hr"]*1000
     iii_lower_upper_tdb = np.append(np.array(tdb_dict[0]), np.array(tdb_dict[5])[::-1])
     ii_lower_upper_tdb = np.append(np.array(tdb_dict[1]), np.array(tdb_dict[4])[::-1])
     i_lower_upper_tdb = np.append(np.array(tdb_dict[2]), np.array(tdb_dict[3])[::-1])
@@ -364,9 +362,9 @@ def generate_tdb_hr_chart(inputs: dict = None,
     ii_lower_upper_hr = []
     i_lower_upper_hr = []
     for i in range(len(rh_list)):
-        iii_lower_upper_hr.append(psy_ta_rh(tdb=iii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"] * 1000)
-        ii_lower_upper_hr.append(psy_ta_rh(tdb=ii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"] * 1000)
-        i_lower_upper_hr.append(psy_ta_rh(tdb=i_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"] * 1000)
+        iii_lower_upper_hr.append(psy_ta_rh(tdb=iii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
+        ii_lower_upper_hr.append(psy_ta_rh(tdb=ii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
+        i_lower_upper_hr.append(psy_ta_rh(tdb=i_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
 
     # traces[0]
     traces.append(go.Scatter(
@@ -380,7 +378,6 @@ def generate_tdb_hr_chart(inputs: dict = None,
         hoverinfo='none'
     ))
     # category II
-    # traces[1]
     traces.append(go.Scatter(
         x=ii_lower_upper_tdb,
         y=ii_lower_upper_hr,
@@ -392,7 +389,6 @@ def generate_tdb_hr_chart(inputs: dict = None,
         hoverinfo='none'
     ))
     # category I
-    # traces[2]
     traces.append(go.Scatter(
         x=i_lower_upper_tdb,
         y=i_lower_upper_hr,
@@ -404,51 +400,43 @@ def generate_tdb_hr_chart(inputs: dict = None,
         hoverinfo='none'
     ))
 
-    ### 3based on air temperature [℃] and relative humidity [%]
-    # 圆心
-    red_point = [0, 0]
-    red_point[0] = p_tdb
-    red_point[1] = psy_ta_rh(p_tdb, p_rh, p_atm=101325)["hr"] * 1000  # kg/kg ==> g/kg
-    # traces[3]
+    ### 3、添加红点和圆环
+    # Red point
+    red_point_x = p_tdb
+    red_point_y = psy_ta_rh(tdb=p_tdb, rh=p_rh, p_atm=101325)["hr"] * 1000  # kg/kg => g/kg
     traces.append(go.Scatter(
-        x=[red_point[0]],
-        y=[red_point[1]],
+        x=[red_point_x],
+        y=[red_point_y],
         mode='markers',
         marker=dict(
             color='red',
             size=4,
         ),
-        # name='point',
         showlegend=False,
     ))
-    # 椭圆
+    # Circle around the red point
     theta = np.linspace(0, 2 * np.pi, 100)
-    circle_x = red_point[0] + 0.6 * np.cos(theta)
-    circle_y = red_point[1] + 1.0 * np.sin(theta)
-    # traces[4]
+    circle_x = red_point_x + 0.6 * np.cos(theta)
+    circle_y = red_point_y + 1.0 * np.sin(theta)
     traces.append(go.Scatter(
         x=circle_x,
         y=circle_y,
         mode='lines',
         line=dict(color='red', width=1.5),
-        # name='circle',
         showlegend=False,
     ))
 
     ### 1、划曲线
     rh_list = np.arange(0, 101, 10)
     tdb = np.linspace(10, 36, 500)
-    # traces[5-15]
-    # based on rh%
     for rh in rh_list:
-        # humidity ratio list
         hr_list = np.array([psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb])  # kg/kg => g/kg
         trace = go.Scatter(
             x=tdb,
             y=hr_list,
             mode='lines',
             line=dict(color='black', width=1),
-            hoverinfo='x+y',  # 还可以自定义文本text
+            hoverinfo='x+y',
             name=f'{rh}% RH',
             showlegend=False
         )
@@ -480,9 +468,7 @@ def generate_tdb_hr_chart(inputs: dict = None,
     )
 
     fig = go.Figure(data=traces, layout=layout)
-
     return fig
-
 
 
 
