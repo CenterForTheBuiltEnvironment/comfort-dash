@@ -85,7 +85,10 @@ layout = dmc.Stack(
 @callback(
     Output(MyStores.input_data.value, "data"),
     Output(ElementsIDs.URL.value, "search", allow_duplicate=True),
+    Input(ElementsIDs.inputs_form.value, "n_clicks"),
     Input(ElementsIDs.inputs_form.value, "children"),
+    Input(ElementsIDs.clo_input.value, "value"),
+    Input(ElementsIDs.met_input.value, "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
     Input(ElementsIDs.chart_selected.value, "value"),
     Input(ElementsIDs.functionality_selection.value, "value"),
@@ -93,7 +96,10 @@ layout = dmc.Stack(
     prevent_initial_call=True,
 )
 def update_store_inputs(
+    form_clicks: int,
     form_content: dict,
+    clo_value: float,
+    met_value: float,
     units_selection: str,
     chart_selected: str,
     functionality_selection: str,
@@ -126,7 +132,7 @@ def update_inputs(selected_model, units_selection, function_selection):
     return input_environmental_personal(selected_model, units, function_selection),selected_model, units_selection, function_selection
 
 
-#once function: update_inputs via URL, update the value of the model dropdown, unit toggle and functionality dropdown and chart dropdown, and inputs, it only use once when the page is loaded
+# once function: update_inputs via URL, update the value of the model dropdown, unit toggle and functionality dropdown and chart dropdown, and inputs, it only use once when the page is loaded
 @callback(
     Output(ElementsIDs.MODEL_SELECTION.value, "value"),
     Output(ElementsIDs.INPUT_SECTION.value, "children",allow_duplicate=True),
