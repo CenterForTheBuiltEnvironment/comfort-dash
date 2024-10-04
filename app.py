@@ -47,7 +47,6 @@ app = Dash(
     serve_locally=True,
 )
 app.config.suppress_callback_exceptions = True
-
 app.layout = dmc.MantineProvider(
     defaultColorScheme="light",
     theme={

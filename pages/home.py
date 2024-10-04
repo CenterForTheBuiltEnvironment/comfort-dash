@@ -94,17 +94,19 @@ layout = dmc.Stack(
     prevent_initial_call=True,
 )
 def update_store_inputs(
-        form_clicks: int,
-        form_content: dict,
-        clo_value: float,
-        met_value: float,
-        units_selection: str,
-        chart_selected: str,
-        functionality_selection: str,
-        selected_model: str,
+    form_clicks: int,
+    form_content: dict,
+    clo_value: float,
+    met_value: float,
+    units_selection: str,
+    chart_selected: str,
+    functionality_selection: str,
+    selected_model: str,
 ):
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    inputs = get_inputs(selected_model, form_content, units, functionality_selection, type = "input")
+    inputs = get_inputs(
+        selected_model, form_content, units, functionality_selection, type="input"
+    )
 
     inputs[ElementsIDs.UNIT_TOGGLE.value] = units
     inputs[ElementsIDs.MODEL_SELECTION.value] = selected_model
@@ -158,7 +160,9 @@ def update_page_from_url(url_search, url_initialized):
     units = url_params.get(ElementsIDs.UNIT_TOGGLE.value)
     function_selection = url_params.get(ElementsIDs.functionality_selection.value)
     chart_selected = url_params.get(ElementsIDs.chart_selected.value)
-    inputs = get_inputs(selected_model, url_params, units, function_selection, type = "url")
+    inputs = get_inputs(
+        selected_model, url_params, units, function_selection, type="url"
+    )
 
     return (
         selected_model,
@@ -225,8 +229,8 @@ def update_chart(inputs: dict, function_selection: str):
 
     if chart_selected == Charts.t_rh.value.name:
         if (
-                selected_model == Models.PMV_EN.name
-                and function_selection != Functionalities.Ranges.value
+            selected_model == Models.PMV_EN.name
+            and function_selection != Functionalities.Ranges.value
         ):
             image = t_rh_pmv(
                 inputs=inputs,
@@ -235,8 +239,8 @@ def update_chart(inputs: dict, function_selection: str):
                 units=units,
             )
         elif (
-                selected_model == Models.PMV_ashrae.name
-                and function_selection != Functionalities.Ranges.value
+            selected_model == Models.PMV_ashrae.name
+            and function_selection != Functionalities.Ranges.value
         ):
             image = t_rh_pmv(
                 inputs=inputs,
@@ -246,8 +250,8 @@ def update_chart(inputs: dict, function_selection: str):
             )
 
     if (
-            selected_model == Models.Adaptive_EN.name
-            and function_selection == Functionalities.Default.value
+        selected_model == Models.Adaptive_EN.name
+        and function_selection == Functionalities.Default.value
     ):
         image = adaptive_en_chart(inputs=inputs, units=units)
 
