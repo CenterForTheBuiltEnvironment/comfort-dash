@@ -7,6 +7,7 @@ from components.charts import (
     t_rh_pmv,
     chart_selector,
     adaptive_chart,
+    generate_tdb_hr_chart,
     SET_outputs_chart,
     speed_temp_pmv,
     get_heat_losses,psy_ashrae_pmv,
@@ -216,6 +217,11 @@ def update_chart(inputs: dict, function_selection: str):
             and function_selection == Functionalities.Default.value
         ):
             image = psy_ashrae_pmv(inputs=inputs, model="ashrae")
+
+        elif (selected_model == Models.PMV_EN.name
+              and function_selection == Functionalities.Default.value
+        ):
+            image = generate_tdb_hr_chart(inputs=inputs, model="iso", units=units)
 
     elif chart_selected == Charts.set_outputs.value.name:
         if (
