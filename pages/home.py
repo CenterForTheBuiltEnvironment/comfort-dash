@@ -25,7 +25,6 @@ from utils.my_config_file import (
 import plotly.graph_objects as go
 from urllib.parse import parse_qs, urlencode
 
-
 dash.register_page(__name__, path=URLS.HOME.value)
 
 layout = dmc.Stack(
@@ -95,14 +94,14 @@ layout = dmc.Stack(
     prevent_initial_call=True,
 )
 def update_store_inputs(
-    form_clicks: int,
-    form_content: dict,
-    clo_value: float,
-    met_value: float,
-    units_selection: str,
-    chart_selected: str,
-    functionality_selection: str,
-    selected_model: str,
+        form_clicks: int,
+        form_content: dict,
+        clo_value: float,
+        met_value: float,
+        units_selection: str,
+        chart_selected: str,
+        functionality_selection: str,
+        selected_model: str,
 ):
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
     inputs = get_inputs(selected_model, form_content, units, functionality_selection)
@@ -226,8 +225,8 @@ def update_chart(inputs: dict, function_selection: str):
 
     if chart_selected == Charts.t_rh.value.name:
         if (
-            selected_model == Models.PMV_EN.name
-            and function_selection != Functionalities.Ranges.value
+                selected_model == Models.PMV_EN.name
+                and function_selection != Functionalities.Ranges.value
         ):
             image = t_rh_pmv(
                 inputs=inputs,
@@ -236,8 +235,8 @@ def update_chart(inputs: dict, function_selection: str):
                 units=units,
             )
         elif (
-            selected_model == Models.PMV_ashrae.name
-            and function_selection != Functionalities.Ranges.value
+                selected_model == Models.PMV_ashrae.name
+                and function_selection != Functionalities.Ranges.value
         ):
             image = t_rh_pmv(
                 inputs=inputs,
@@ -247,8 +246,8 @@ def update_chart(inputs: dict, function_selection: str):
             )
 
     if (
-        selected_model == Models.Adaptive_EN.name
-        and function_selection == Functionalities.Default.value
+            selected_model == Models.Adaptive_EN.name
+            and function_selection == Functionalities.Default.value
     ):
         image = adaptive_en_chart(inputs=inputs, units=units)
 

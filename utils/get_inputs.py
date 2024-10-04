@@ -61,10 +61,19 @@ def get_inputs(
 
     # updating the values of the model inputs with the values from the form
     for model_input in combined_model_inputs:
-        input_dict = find_dict_with_key_value(form_content, "id", model_input.id)
+        # input_dict = find_dict_with_key_value(form_content, "id", model_input.id)
+        # print("form_content", form_content)
+        # print("input_dict", input_dict)
 
-        if input_dict and "value" in input_dict:
-            original_value = input_dict["value"]
+        # if input_dict and "value" in input_dict:
+        #     original_value = input_dict["value"]
+        #     converted_value = extract_float(str(original_value))
+        #
+        #     if converted_value is not None:
+        #         model_input.value = converted_value
+        original_value = form_content.get(model_input.id)
+
+        if original_value is not None:
             converted_value = extract_float(str(original_value))
 
             if converted_value is not None:
