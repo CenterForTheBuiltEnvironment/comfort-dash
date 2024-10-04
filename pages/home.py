@@ -104,7 +104,7 @@ def update_store_inputs(
         selected_model: str,
 ):
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    inputs = get_inputs(selected_model, form_content, units, functionality_selection)
+    inputs = get_inputs(selected_model, form_content, units, functionality_selection, type = "input")
 
     inputs[ElementsIDs.UNIT_TOGGLE.value] = units
     inputs[ElementsIDs.MODEL_SELECTION.value] = selected_model
@@ -158,7 +158,7 @@ def update_page_from_url(url_search, url_initialized):
     units = url_params.get(ElementsIDs.UNIT_TOGGLE.value)
     function_selection = url_params.get(ElementsIDs.functionality_selection.value)
     chart_selected = url_params.get(ElementsIDs.chart_selected.value)
-    inputs = get_inputs(selected_model, url_params, units, function_selection)
+    inputs = get_inputs(selected_model, url_params, units, function_selection, type = "url")
 
     return (
         selected_model,
