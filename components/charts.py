@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import math
 from pythermalcomfort import set_tmp, two_nodes
-from pythermalcomfort.models import pmv,adaptive_en，adaptive_ashrae
+from pythermalcomfort.models import pmv, adaptive_en, adaptive_ashrae
 from pythermalcomfort.utilities import v_relative, clo_dynamic
 from scipy import optimize
 
@@ -24,7 +24,6 @@ from utils.my_config_file import (
 from utils.website_text import TextHome
 import matplotlib
 from pythermalcomfort.psychrometrics import t_o, psy_ta_rh
-
 
 
 matplotlib.use("Agg")
@@ -396,7 +395,10 @@ def t_rh_pmv(
 
 
 def SET_outputs_chart(
-    inputs: dict = None, calculate_ce: bool = False, p_atmospheric: int = 101325,units: str = "SI",
+    inputs: dict = None,
+    calculate_ce: bool = False,
+    p_atmospheric: int = 101325,
+    units: str = "SI",
 ):
     # Dry-bulb air temperature (x-axis)
     if units == UnitSystem.SI.value:
@@ -664,15 +666,25 @@ def SET_outputs_chart(
     fig.update_layout(
         # title='Temperature and Heat Loss',
         xaxis=dict(
-          title="Dry-bulb Air Temperature [°C]" if units == UnitSystem.SI.value else "Dry-bulb Temperature [°F]",
+            title=(
+                "Dry-bulb Air Temperature [°C]"
+                if units == UnitSystem.SI.value
+                else "Dry-bulb Temperature [°F]"
+            ),
             showgrid=False,
-            range=[10, 40] if units == UnitSystem.SI.value else [50,104],
+            range=[10, 40] if units == UnitSystem.SI.value else [50, 104],
             dtick=2 if units == UnitSystem.SI.value else 5.4,
         ),
-        yaxis=dict(title="Temperature [°C]" if units == UnitSystem.SI.value else "Temperature [°F]",
-                   showgrid=False,
-                   range=[18, 38] if units == UnitSystem.SI.value else[60,100],
-                   dtick=2 if units == UnitSystem.SI.value else 5),
+        yaxis=dict(
+            title=(
+                "Temperature [°C]"
+                if units == UnitSystem.SI.value
+                else "Temperature [°F]"
+            ),
+            showgrid=False,
+            range=[18, 38] if units == UnitSystem.SI.value else [60, 100],
+            dtick=2 if units == UnitSystem.SI.value else 5,
+        ),
         yaxis2=dict(
             title="Heat Loss [W] / Skin Wettedness [%]",
             showgrid=False,
@@ -699,8 +711,11 @@ def SET_outputs_chart(
     return fig
 
 
-
-def speed_temp_pmv(inputs: dict = None, model: str = "iso",units: str = "SI",):
+def speed_temp_pmv(
+    inputs: dict = None,
+    model: str = "iso",
+    units: str = "SI",
+):
     results = []
     met, clo, tr, t_db, v, rh = get_inputs(inputs)
     clo_d = clo_dynamic(clo, met)
@@ -729,7 +744,6 @@ def speed_temp_pmv(inputs: dict = None, model: str = "iso",units: str = "SI",):
                     - pmv_limit
                 )
 
-
             try:
                 temp = optimize.brentq(function, 10, 40)
                 results.append(
@@ -743,9 +757,7 @@ def speed_temp_pmv(inputs: dict = None, model: str = "iso",units: str = "SI",):
             except ValueError:
                 continue
 
-
     df = pd.DataFrame(results)
-
 
     fig = go.Figure()
 
@@ -790,12 +802,48 @@ def speed_temp_pmv(inputs: dict = None, model: str = "iso",units: str = "SI",):
     )
 
     fig.update_layout(
+        xaxis_title=(
+            "Operative Temperature [°C]"
+            if units == UnitSystem.SI.value
+            else "Operative Temperature [°F]"
+        ),
+        # x title
+        yaxis_title=(
+            "Relative Air Speed [m/s]"
+            if units == UnitSystem.SI.value
+            else "Relative Air Speed [fpm]"
+        ),
+        # y title
+        template="plotly_white",
+        width=700,
+        height=700,
+        xaxis=dict(
+            range=[20, 34] if units == UnitSystem.SI.value else [68, 92],  # x range
+            tickmode="linear",
+            tick0=20 if units == UnitSystem.SI.value else 68,
+            dtick=2,
+            linecolor="lightgrey",
+            gridcolor="lightgray",
+            showgrid=True,
+            mirror=True,
+        ),
+        yaxis=dict(
+            range=[0.0, 1.2] if units == UnitSystem.SI.value else [0, 240],  # y range
+            tickmode="linear",
+            tick0=0.0,
+            dtick=0.1 if units == UnitSystem.SI.value else 20,
+            linecolor="lightgrey",
+            gridcolor="lightgray",
+            showgrid=True,
+            mirror=True,
+        ),
+    )
+    return fig
 
 
-
-def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
+def get_heat_losses(inputs: dict = None, model: str = "ashrae", units: str = "SI"):
     def pmv_pdd_6_heat_loss(ta, tr, vel, rh, met, clo, wme=0):
-        pa = rh * 10 * math.exp(16.6536 - 4030.183 / (ta + 235))
+        pa = rh * 10 * np.exp(16.6536 - 4030.183 / (ta + 235))
         icl = 0.155 * clo
         m = met * 58.15
         w = wme * 58.15
@@ -806,27 +854,30 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
         else:
             fcl = 1.05 + 0.645 * icl
 
-        hcf = 12.1 * math.sqrt(vel)
+        hcf = 12.1 * np.sqrt(vel)
+        hc = hcf
         taa = ta + 273
         tra = tr + 273
-
         t_cla = taa + (35.5 - ta) / (3.5 * icl + 0.1)
 
         p1 = icl * fcl
         p2 = p1 * 3.96
         p3 = p1 * 100
         p4 = p1 * taa
-        p5 = 308.7 - 0.028 * mw + p2 * math.pow(tra / 100, 4)
+        p5 = 308.7 - 0.028 * mw + (p2 * (tra / 100.0) ** 4)
         xn = t_cla / 100
         xf = t_cla / 50
         eps = 0.00015
 
         n = 0
-        while abs(xn - xf) > eps:
+        while np.abs(xn - xf) > eps:
             xf = (xf + xn) / 2
-            hcn = 2.38 * math.pow(abs(100.0 * xf - taa), 0.25)
-            hc = hcf if hcf > hcn else hcn
-            xn = (p5 + p4 * hc - p2 * math.pow(xf, 4)) / (100 + p3 * hc)
+            hcn = 2.38 * np.abs(100.0 * xf - taa) ** 0.25
+            if hcf > hcn:
+                hc = hcf
+            else:
+                hc = hcn
+            xn = (p5 + p4 * hc - p2 * xf**4) / (100 + p3 * hc)
             n += 1
             if n > 150:
                 raise ValueError("Max iterations exceeded")
@@ -837,7 +888,7 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
         hl2 = 0.42 * (mw - 58.15) if mw > 58.15 else 0
         hl3 = 1.7 * 0.00001 * m * (5867 - pa)
         hl4 = 0.0014 * m * (34 - ta)
-        hl5 = 3.96 * fcl * (math.pow(xn, 4) - math.pow(tra / 100, 4))
+        hl5 = 3.96 * fcl * (xn**4 - (tra / 100.0) ** 4)
         hl6 = fcl * hc * (tcl - ta)
 
         ts = 0.303 * math.exp(-0.036 * m) + 0.028
@@ -858,7 +909,6 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
             "hl6": hl6,
         }
 
-
     tr = inputs[ElementsIDs.t_r_input.value]
     met = inputs[ElementsIDs.met_input.value]
     vel = v_relative(
@@ -868,8 +918,6 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
         clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
     )
     rh = inputs[ElementsIDs.rh_input.value]
-
-
     results = {
         "h1": [],  # Water vapor diffusion through the skin
         "h2": [],  # Evaporation of sweat
@@ -883,35 +931,108 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
         "h10": [],  # Metabolic rate
     }
 
-    for ta in ta_range:
-        heat_losses = pmv_pdd_6_heat_loss(
-            ta=ta, tr=tr, vel=vel, rh=rh, met=met, clo=clo_d, wme=0
-
-        )
-        results["h1"].append(round(heat_losses["hl1"], 1))
-        results["h2"].append(round(heat_losses["hl2"], 1))
-        results["h3"].append(round(heat_losses["hl3"], 1))
-        results["h4"].append(round(heat_losses["hl4"], 1))
-        results["h5"].append(round(heat_losses["hl5"], 1))
-        results["h6"].append(round(heat_losses["hl6"], 1))
-        results["h7"].append(
-            round(heat_losses["hl1"] + heat_losses["hl2"] + heat_losses["hl3"], 1)
-        )
-        results["h8"].append(
-            round(heat_losses["hl4"] + heat_losses["hl5"] + heat_losses["hl6"], 1)
-        )
-        results["h9"].append(
-            round(
-                heat_losses["hl1"]
-                + heat_losses["hl2"]
-                + heat_losses["hl3"]
-                + heat_losses["hl4"]
-                + heat_losses["hl5"]
-                + heat_losses["hl6"],
-                1,
+    if units == UnitSystem.IP.value:
+        ta_range = np.arange(50, 105)
+        for ta in ta_range:
+            ta_si = UnitConverter.fahrenheit_to_celsius(ta)
+            tr_si = UnitConverter.fahrenheit_to_celsius(tr)
+            vel_si = UnitConverter.fps_to_mps(vel)
+            heat_losses = pmv_pdd_6_heat_loss(
+                ta=ta_si, tr=tr_si, vel=vel_si, rh=rh, met=met, clo=clo_d, wme=0
             )
-        )
-        results["h10"].append(round(met * 58.15, 1))
+            results["h1"].append(round(heat_losses["hl1"], 1))
+            results["h2"].append(round(heat_losses["hl2"], 1))
+            results["h3"].append(round(heat_losses["hl3"], 1))
+            results["h4"].append(round(heat_losses["hl4"], 1))
+            results["h5"].append(round(heat_losses["hl5"], 1))
+            results["h6"].append(round(heat_losses["hl6"], 1))
+            results["h7"].append(
+                round(heat_losses["hl1"] + heat_losses["hl2"] + heat_losses["hl3"], 1)
+            )
+            results["h8"].append(
+                round(heat_losses["hl4"] + heat_losses["hl5"] + heat_losses["hl6"], 1)
+            )
+            results["h9"].append(
+                round(
+                    heat_losses["hl1"]
+                    + heat_losses["hl2"]
+                    + heat_losses["hl3"]
+                    + heat_losses["hl4"]
+                    + heat_losses["hl5"]
+                    + heat_losses["hl6"],
+                    1,
+                )
+            )
+            results["h10"].append(round(met * 58.15, 1))
+    else:
+        ta_range = np.arange(10, 41)
+        for ta in ta_range:
+            heat_losses = pmv_pdd_6_heat_loss(
+                ta=ta, tr=tr, vel=vel, rh=rh, met=met, clo=clo_d, wme=0
+            )
+            results["h1"].append(round(heat_losses["hl1"], 1))
+            results["h2"].append(round(heat_losses["hl2"], 1))
+            results["h3"].append(round(heat_losses["hl3"], 1))
+            results["h4"].append(round(heat_losses["hl4"], 1))
+            results["h5"].append(round(heat_losses["hl5"], 1))
+            results["h6"].append(round(heat_losses["hl6"], 1))
+            results["h7"].append(
+                round(heat_losses["hl1"] + heat_losses["hl2"] + heat_losses["hl3"], 1)
+            )
+            results["h8"].append(
+                round(heat_losses["hl4"] + heat_losses["hl5"] + heat_losses["hl6"], 1)
+            )
+            results["h9"].append(
+                round(
+                    heat_losses["hl1"]
+                    + heat_losses["hl2"]
+                    + heat_losses["hl3"]
+                    + heat_losses["hl4"]
+                    + heat_losses["hl5"]
+                    + heat_losses["hl6"],
+                    1,
+                )
+            )
+            results["h10"].append(round(met * 58.15, 1))
+
+    #
+    #
+    # for ta in ta_range:
+    #     if units == UnitSystem.IP.value:
+    #         ta_si = UnitConverter.fahrenheit_to_celsius(ta)
+    #         tr_si = UnitConverter.fahrenheit_to_celsius(tr)
+    #         vel_si = UnitConverter.fps_to_mps(vel)
+    #     else:
+    #         ta_si = ta
+    #         tr_si = tr
+    #         vel_si = vel
+    #     heat_losses = pmv_pdd_6_heat_loss(
+    #         ta=ta_si, tr=tr_si, vel=vel_si, rh=rh, met=met, clo=clo_d, wme=0
+    #     )
+    #     results["h1"].append(round(heat_losses["hl1"], 1))
+    #     results["h2"].append(round(heat_losses["hl2"], 1))
+    #     results["h3"].append(round(heat_losses["hl3"], 1))
+    #     results["h4"].append(round(heat_losses["hl4"], 1))
+    #     results["h5"].append(round(heat_losses["hl5"], 1))  #
+    #     results["h6"].append(round(heat_losses["hl6"], 1))  #
+    #     results["h7"].append(
+    #         round(heat_losses["hl1"] + heat_losses["hl2"] + heat_losses["hl3"], 1)
+    #     )
+    #     results["h8"].append(
+    #         round(heat_losses["hl4"] + heat_losses["hl5"] + heat_losses["hl6"], 1)  #
+    #     )
+    #     results["h9"].append(
+    #         round(
+    #             heat_losses["hl1"]
+    #             + heat_losses["hl2"]
+    #             + heat_losses["hl3"]
+    #             + heat_losses["hl4"]
+    #             + heat_losses["hl5"]
+    #             + heat_losses["hl6"],
+    #             1,
+    #         )  #
+    #     )
+    # results["h10"].append(round(met * 58.15, 1))
 
     fig = go.Figure()
 
@@ -922,10 +1043,8 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
         ("h4", "Respiration sensible", "darkred", "legendonly"),
         ("h5", "Radiation from clothing surface", "darkorange", "legendonly"),
         ("h6", "Convection from clothing surface", "orange", "legendonly"),
-
         ("h7", "Total latent ", "grey", True),
         ("h8", "Total sensible ", "lightgrey", True),
-
         ("h9", "Total heat loss", "black", True),
         ("h10", "Metabolic rate", "purple", True),
     ]
@@ -945,9 +1064,11 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
     fig.update_layout(
         # title="Temperature and Heat Loss",
         xaxis=dict(
-
-
-            title="Dry-bulb Air Temperature [°C]" if units == UnitSystem.SI.value else "Dry-bulb Air Temperature [°F]",
+            title=(
+                "Dry-bulb Air Temperature [°C]"
+                if units == UnitSystem.SI.value
+                else "Dry-bulb Air Temperature [°F]"
+            ),
             showgrid=True,
             showline=True,
             mirror=True,
@@ -960,9 +1081,8 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
             showline=True,
             mirror=True,
             range=[-40, 120],
-            dtick=20
+            dtick=20,
         ),
-
         legend=dict(
             x=0.5,
             y=-0.2,
@@ -973,24 +1093,14 @@ def get_heat_losses(inputs: dict = None, model: str = "iso", units: str = "SI"):
         ),
         template="plotly_white",
         autosize=False,
-
         width=700,
         height=700,
     )
 
-
-
-    # if units == UnitSystem.IP.value:
-    #     fig.update_layout(
-    #         xaxis=dict(title="Dry-bulb Temperature [°F]", range=[50, 104], dtick=5.4),
-    #     )
-    # fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor="lightgrey")
-    # fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor="lightgrey")
-
-
-
     return fig
-#计算不对
+
+
+# 计算不对
 def psy_ashrae_pmv(inputs: dict = None, model: str = "ashrae"):
     results = []
     pmv_limits = [-0.5, 0.5]
@@ -1006,6 +1116,7 @@ def psy_ashrae_pmv(inputs: dict = None, model: str = "ashrae"):
     for pmv_limit in pmv_limits:
         for rh in np.arange(10, 110, 10):
             psy_data_rh = psy_ta_rh(current_tdb, rh)
+
             def function(x):
                 return (
                     pmv(
@@ -1021,6 +1132,7 @@ def psy_ashrae_pmv(inputs: dict = None, model: str = "ashrae"):
                     )
                     - pmv_limit
                 )
+
             temp = optimize.brentq(function, 10, 40)
             results.append(
                 {
@@ -1032,19 +1144,21 @@ def psy_ashrae_pmv(inputs: dict = None, model: str = "ashrae"):
             )
 
     df = pd.DataFrame(results)
-    fig=go.Figure()
+    fig = go.Figure()
     traces = []
     # 添加温度和hr值的虚线（灰色线）
     for rh in np.arange(10, 110, 10):
         temp_range = np.arange(10, 40, 1)
         hr_values = [psy_ta_rh(t, rh)["hr"] * 1000 for t in temp_range]
-        fig.add_trace(go.Scatter(
-            x=temp_range,
-            y=hr_values,
-            mode='lines',
-            line=dict(color='grey'),
-            showlegend=False
-        ))
+        fig.add_trace(
+            go.Scatter(
+                x=temp_range,
+                y=hr_values,
+                mode="lines",
+                line=dict(color="grey"),
+                showlegend=False,
+            )
+        )
 
     # lower_upper_tdb = np.append(np.array(pmv_limits[0]), np.array(pmv_limits[1]))
     # rh_list = np.append(np.arange(0, 101, 10), np.arange(100, -1, -10))
@@ -1093,8 +1207,6 @@ def psy_ashrae_pmv(inputs: dict = None, model: str = "ashrae"):
     # ))
     #
 
-
-
     # t1 = df[df["pmv_limit"] == pmv_limits[0]]
     # t2 = df[df["pmv_limit"] == pmv_limits[1]]
     # fig.add_trace(go.Scatter(
@@ -1115,27 +1227,24 @@ def psy_ashrae_pmv(inputs: dict = None, model: str = "ashrae"):
     #     showlegend=False
     # ))
 
-    #current point
+    # current point
     fig.add_trace(
         go.Scatter(
-            x=[current_tdb], y=[psy_data["hr"] * 1000],
-            mode='markers',
-            marker=dict(size=12, color='red', line=dict(width=2, color='black')),
-            name='Current'
+            x=[current_tdb],
+            y=[psy_data["hr"] * 1000],
+            mode="markers",
+            marker=dict(size=12, color="red", line=dict(width=2, color="black")),
+            name="Current",
         )
     )
-
-
 
     # 设置图形的标题和轴标签
     fig.update_layout(
         title="PMV-Based Psychrometric Chart",
         xaxis_title="Temperature [°C]",
         yaxis_title="Humidity Ratio [g/kg]",
-        template="plotly_white"
+        template="plotly_white",
     )
 
     # 显示图形
     return fig
-
-

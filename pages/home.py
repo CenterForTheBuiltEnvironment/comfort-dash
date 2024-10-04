@@ -10,6 +10,7 @@ from components.charts import (
     SET_outputs_chart,
     speed_temp_pmv,
     get_heat_losses,
+    psy_ashrae_pmv,
 )
 
 from components.dropdowns import (
@@ -231,17 +232,17 @@ def update_chart(inputs: dict, function_selection: str):
             selected_model == Models.PMV_ashrae.name
             and function_selection == Functionalities.Default.value
         ):
-            image = speed_temp_pmv(inputs=inputs, model="ashrae",units=units)
+            image = speed_temp_pmv(inputs=inputs, model="ashrae", units=units)
     elif chart_selected == Charts.thl_psychrometric.value.name:
         if (
             selected_model == Models.PMV_ashrae.name
             and function_selection == Functionalities.Default.value
         ):
-            image = get_heat_losses(inputs=inputs, model="ashrae",units=units)
+            image = get_heat_losses(inputs=inputs, model="ashrae", units=units)
 
     if (
-            selected_model == Models.Adaptive_EN.name
-            and function_selection == Functionalities.Default.value
+        selected_model == Models.Adaptive_EN.name
+        and function_selection == Functionalities.Default.value
     ):
         image = adaptive_chart(inputs=inputs, model="iso", units=units)
 
@@ -268,12 +269,11 @@ def update_chart(inputs: dict, function_selection: str):
             image = get_heat_losses(inputs=inputs, model="ashrae")
 
     if (
-            selected_model == Models.Adaptive_ASHRAE.name
-            and function_selection == Functionalities.Default.value
+        selected_model == Models.Adaptive_ASHRAE.name
+        and function_selection == Functionalities.Default.value
     ):
         image = adaptive_chart(inputs=inputs, model="iso", units=units)
 
-    
     note = ""
     chart: ChartsInfo
     for chart in Models[selected_model].value.charts:
