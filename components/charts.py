@@ -408,10 +408,10 @@ def SET_outputs_chart(
     units: str = "SI",
 ):
     # Dry-bulb air temperature (x-axis)
-    if units == UnitSystem.SI.value:
-        tdb_values = np.arange(10, 40, 0.5, dtype=float).tolist()
-    else:
-        tdb_values = np.arange(50, 104, 0.9, dtype=float).tolist()
+    # if units == UnitSystem.SI.value:
+    #     tdb_values = np.arange(10, 40, 0.5, dtype=float).tolist()
+    # else:
+    #     tdb_values = np.arange(50, 104, 0.9, dtype=float).tolist()
 
     # Prepare arrays for the outputs we want to plot
     set_temp = []  # set_tmp()
@@ -441,88 +441,245 @@ def SET_outputs_chart(
             clo=inputs[ElementsIDs.clo_input.value], met=met
         )
     )
+    if units == UnitSystem.SI.value:
+        tdb_values = np.arange(10, 40, 0.5, dtype=float).tolist()
+        for tdb in tdb_values:
+            set = set_tmp(
+                tdb=tdb,
+                tr=tr,
+                v=vr,
+                rh=rh,
+                met=met,
+                clo=clo,
+                wme=0,
+                limit_inputs=False,
+            )
+            set_temp.append(float(set))  # Convert np.float64 to float
+
+        # Iterate through each temperature value and call `two_nodes`
+        for tdb in tdb_values:
+            results = two_nodes(
+                tdb=tdb,
+                tr=tr,
+                v=vr,
+                rh=rh,
+                met=met,
+                clo=clo,
+                wme=0,
+            )
+            # Collect relevant data for each variable, converting to float
+            skin_temp.append(float(results["t_skin"]))  # Convert np.float64 to float
+            core_temp.append(float(results["t_core"]))  # Convert np.float64 to float
+            total_skin_evaporative_heat_loss.append(
+                float(results["e_skin"])
+            )  # Convert np.float64 to float
+            sweat_evaporation_skin_heat_loss.append(
+                float(results["e_rsw"])
+            )  # Convert np.float64 to float
+            vapour_diffusion_skin_heat_loss.append(
+                float(results["e_skin"] - results["e_rsw"])
+            )  # Convert np.float64 to float
+            total_skin_senesible_heat_loss.append(
+                float(results["q_sensible"])
+            )  # Convert np.float64 to float
+            total_skin_heat_loss.append(
+                float(results["q_skin"])
+            )  # Convert np.float64 to float
+            heat_loss_respiration.append(
+                float(results["q_res"])
+            )  # Convert np.float64 to float
+            skin_wettedness.append(
+                float(results["w"]) * 100
+            )  # Convert to percentage and float
+
+            # calculate clothing temperature t_cl
+            pressure_in_atmospheres = float(p_atmospheric / 101325)
+            r_clo = 0.155 * clo
+            f_a_cl = 1.0 + 0.15 * clo
+            h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53)
+            h_fc = 8.600001 * pow((vr * pressure_in_atmospheres), 0.53)
+            h_cc = max(h_cc, h_fc)
+            if not calculate_ce and met > 0.85:
+                h_c_met = 5.66 * (met - 0.85) ** 0.39
+                h_cc = max(h_cc, h_c_met)
+            h_r = 4.7
+            h_t = h_r + h_cc
+            r_a = 1.0 / (f_a_cl * h_t)
+            t_op = (h_r * tr + h_cc * tdb) / h_t
+            clothing_temp.append(
+                float((r_a * results["t_skin"] + r_clo * t_op) / (r_a + r_clo))
+            )
+            # calculate mean body temperature t_body
+            alfa = 0.1
+            mean_body_temp.append(
+                float(alfa * results["t_skin"] + (1 - alfa) * results["t_core"])
+            )
+
+    else:
+        tdb_values = np.arange(50, 104, 0.9, dtype=float).tolist()
+        for tdb in tdb_values:
+            tdb_si = UnitConverter.fahrenheit_to_celsius(tdb)
+            tr_si = UnitConverter.fahrenheit_to_celsius(tr)
+            vr_si = UnitConverter.fps_to_mps(vr)
+            set = set_tmp(
+                tdb=tdb_si,
+                tr=tr_si,
+                v=vr_si,
+                rh=rh,
+                met=met,
+                clo=clo,
+                wme=0,
+                limit_inputs=False,
+            )
+            set_temp.append(
+                UnitConverter.celsius_to_fahrenheit(float(set))
+            )  # Convert np.float64 to float
+
+        # Iterate through each temperature value and call `two_nodes`
+        for tdb in tdb_values:
+            tdb_si = UnitConverter.fahrenheit_to_celsius(tdb)
+            tr_si = UnitConverter.fahrenheit_to_celsius(tr)
+            vr_si = UnitConverter.fps_to_mps(vr)
+            results = two_nodes(
+                tdb=tdb_si,
+                tr=tr_si,
+                v=vr_si,
+                rh=rh,
+                met=met,
+                clo=clo,
+                wme=0,
+            )
+            # Collect relevant data for each variable, converting to float
+            skin_temp.append(
+                UnitConverter.celsius_to_fahrenheit(float(results["t_skin"]))
+            )  # Convert np.float64 to float
+            core_temp.append(
+                UnitConverter.celsius_to_fahrenheit(float(results["t_core"]))
+            )  # Convert np.float64 to float
+            total_skin_evaporative_heat_loss.append(
+                float(results["e_skin"])
+            )  # Convert np.float64 to float
+            sweat_evaporation_skin_heat_loss.append(
+                float(results["e_rsw"])
+            )  # Convert np.float64 to float
+            vapour_diffusion_skin_heat_loss.append(
+                float(results["e_skin"] - results["e_rsw"])
+            )  # Convert np.float64 to float
+            total_skin_senesible_heat_loss.append(
+                float(results["q_sensible"])
+            )  # Convert np.float64 to float#
+            total_skin_heat_loss.append(
+                float(results["q_skin"])
+            )  # Convert np.float64 to float#
+            heat_loss_respiration.append(
+                float(results["q_res"])
+            )  # Convert np.float64 to float
+            skin_wettedness.append(
+                float(results["w"]) * 100
+            )  # Convert to percentage and float
+
+            # calculate clothing temperature t_cl
+            pressure_in_atmospheres = float(p_atmospheric / 101325)
+
+            r_clo = 0.155 * clo
+            f_a_cl = 1.0 + 0.15 * clo
+            h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53)
+            h_fc = 8.600001 * pow((vr * pressure_in_atmospheres), 0.53)
+            h_cc = max(h_cc, h_fc)
+            if not calculate_ce and met > 0.85:
+                h_c_met = 5.66 * (met - 0.85) ** 0.39
+                h_cc = max(h_cc, h_c_met)
+            h_r = 4.7
+            h_t = h_r + h_cc
+            r_a = 1.0 / (f_a_cl * h_t)
+            t_op = (h_r * tr + h_cc * tdb) / h_t
+            # calculate mean body temperature t_body
+            alfa = 0.1
+            mean_body_temp.append(
+                UnitConverter.celsius_to_fahrenheit(
+                    float(alfa * results["t_skin"] + (1 - alfa) * results["t_core"])
+                )
+            )
+            clothing_temp.append(
+                UnitConverter.celsius_to_fahrenheit(
+                    float((r_a * results["t_skin"] + r_clo * t_op) / (r_a + r_clo))
+                )
+            )
 
     # Iterate through each temperature value and call set_tmp
-    for tdb in tdb_values:
-        set = set_tmp(
-            tdb=tdb,
-            tr=tr,
-            v=vr,
-            rh=rh,
-            met=met,
-            clo=clo,
-            wme=0,
-            limit_inputs=False,
-        )
-        set_temp.append(float(set))  # Convert np.float64 to float
-
-    # Iterate through each temperature value and call `two_nodes`
-    for tdb in tdb_values:
-        results = two_nodes(
-            tdb=tdb,
-            tr=tr,
-            v=vr,
-            rh=rh,
-            met=met,
-            clo=clo,
-            wme=0,
-        )
-        # Collect relevant data for each variable, converting to float
-        skin_temp.append(float(results["t_skin"]))  # Convert np.float64 to float
-        core_temp.append(float(results["t_core"]))  # Convert np.float64 to float
-        total_skin_evaporative_heat_loss.append(
-            float(results["e_skin"])
-        )  # Convert np.float64 to float
-        sweat_evaporation_skin_heat_loss.append(
-            float(results["e_rsw"])
-        )  # Convert np.float64 to float
-        vapour_diffusion_skin_heat_loss.append(
-            float(results["e_skin"] - results["e_rsw"])
-        )  # Convert np.float64 to float
-        total_skin_senesible_heat_loss.append(
-            float(results["q_sensible"])
-        )  # Convert np.float64 to float
-        total_skin_heat_loss.append(
-            float(results["q_skin"])
-        )  # Convert np.float64 to float
-        heat_loss_respiration.append(
-            float(results["q_res"])
-        )  # Convert np.float64 to float
-        skin_wettedness.append(
-            float(results["w"]) * 100
-        )  # Convert to percentage and float
-
-        # calculate clothing temperature t_cl
-        pressure_in_atmospheres = float(p_atmospheric / 101325)
-        r_clo = 0.155 * clo
-        f_a_cl = 1.0 + 0.15 * clo
-        h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53)
-        h_fc = 8.600001 * pow((vr * pressure_in_atmospheres), 0.53)
-        h_cc = max(h_cc, h_fc)
-        if not calculate_ce and met > 0.85:
-            h_c_met = 5.66 * (met - 0.85) ** 0.39
-            h_cc = max(h_cc, h_c_met)
-        h_r = 4.7
-        h_t = h_r + h_cc
-        r_a = 1.0 / (f_a_cl * h_t)
-        t_op = (h_r * tr + h_cc * tdb) / h_t
-        clothing_temp.append(
-            float((r_a * results["t_skin"] + r_clo * t_op) / (r_a + r_clo))
-        )
-        # calculate mean body temperature t_body
-        alfa = 0.1
-        mean_body_temp.append(
-            float(alfa * results["t_skin"] + (1 - alfa) * results["t_core"])
-        )
+    # for tdb in tdb_values:
+    #     set = set_tmp(
+    #         tdb=tdb,
+    #         tr=tr,
+    #         v=vr,
+    #         rh=rh,
+    #         met=met,
+    #         clo=clo,
+    #         wme=0,
+    #         limit_inputs=False,
+    #     )
+    #     set_temp.append(float(set))  # Convert np.float64 to float
+    #
+    # # Iterate through each temperature value and call `two_nodes`
+    # for tdb in tdb_values:
+    #     results = two_nodes(
+    #         tdb=tdb,
+    #         tr=tr,
+    #         v=vr,
+    #         rh=rh,
+    #         met=met,
+    #         clo=clo,
+    #         wme=0,
+    #     )
+    #     # Collect relevant data for each variable, converting to float
+    #     skin_temp.append(float(results["t_skin"]))  # Convert np.float64 to float
+    #     core_temp.append(float(results["t_core"]))  # Convert np.float64 to float
+    #     total_skin_evaporative_heat_loss.append(
+    #         float(results["e_skin"])
+    #     )  # Convert np.float64 to float
+    #     sweat_evaporation_skin_heat_loss.append(
+    #         float(results["e_rsw"])
+    #     )  # Convert np.float64 to float
+    #     vapour_diffusion_skin_heat_loss.append(
+    #         float(results["e_skin"] - results["e_rsw"])
+    #     )  # Convert np.float64 to float
+    #     total_skin_senesible_heat_loss.append(
+    #         float(results["q_sensible"])
+    #     )  # Convert np.float64 to float
+    #     total_skin_heat_loss.append(
+    #         float(results["q_skin"])
+    #     )  # Convert np.float64 to float
+    #     heat_loss_respiration.append(
+    #         float(results["q_res"])
+    #     )  # Convert np.float64 to float
+    #     skin_wettedness.append(
+    #         float(results["w"]) * 100
+    #     )  # Convert to percentage and float
+    #
+    #     # calculate clothing temperature t_cl
+    #     pressure_in_atmospheres = float(p_atmospheric / 101325)
+    #     r_clo = 0.155 * clo
+    #     f_a_cl = 1.0 + 0.15 * clo
+    #     h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53)
+    #     h_fc = 8.600001 * pow((vr * pressure_in_atmospheres), 0.53)
+    #     h_cc = max(h_cc, h_fc)
+    #     if not calculate_ce and met > 0.85:
+    #         h_c_met = 5.66 * (met - 0.85) ** 0.39
+    #         h_cc = max(h_cc, h_c_met)
+    #     h_r = 4.7
+    #     h_t = h_r + h_cc
+    #     r_a = 1.0 / (f_a_cl * h_t)
+    #     t_op = (h_r * tr + h_cc * tdb) / h_t
+    #     clothing_temp.append(
+    #         float((r_a * results["t_skin"] + r_clo * t_op) / (r_a + r_clo))
+    #     )
+    #     # calculate mean body temperature t_body
+    #     alfa = 0.1
+    #     mean_body_temp.append(
+    #         float(alfa * results["t_skin"] + (1 - alfa) * results["t_core"])
+    #     )
     # df = pd.DataFrame(results)
     fig = go.Figure()
-    # fig.add_trace(go.Scatter(
-    #     x=tdb_values,
-    #     y=set_temp,
-    #     mode='lines',
-    #     name='SET temperature',
-    #     line=dict(color='blue')
-    # ))
 
     # Added SET temperature curve
     fig.add_trace(
@@ -555,7 +712,7 @@ def SET_outputs_chart(
             mode="lines",
             name="Core temperature",
             line=dict(color="limegreen"),
-            yaxis="y1",  # Use a second y-axis
+            yaxis="y1",
         )
     )
 
@@ -623,7 +780,7 @@ def SET_outputs_chart(
     fig.add_trace(
         go.Scatter(
             x=tdb_values,
-            y=total_skin_heat_loss,
+            y=total_skin_senesible_heat_loss,
             mode="lines",
             name="Total skin sensible heat loss ",
             visible="legendonly",
@@ -676,17 +833,17 @@ def SET_outputs_chart(
             title=(
                 "Dry-bulb Air Temperature [°C]"
                 if units == UnitSystem.SI.value
-                else "Dry-bulb Temperature [°F]"
+                else "Dry-bulb Air Temperature [°F]"
             ),
             showgrid=False,
             range=[10, 40] if units == UnitSystem.SI.value else [50, 104],
-            dtick=2 if units == UnitSystem.SI.value else 5.4,
+            dtick=2 if units == UnitSystem.SI.value else 5,
         ),
         yaxis=dict(
             title=(
-                "Temperature [°C]"
+                "Dry-bulb Air Temperature [°C]"
                 if units == UnitSystem.SI.value
-                else "Temperature [°F]"
+                else "Dry-bulb Air Temperature [°F]"
             ),
             showgrid=False,
             range=[18, 38] if units == UnitSystem.SI.value else [60, 100],
