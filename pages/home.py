@@ -157,6 +157,8 @@ def update_page_from_url(url_search, url_initialized):
     url_params = {k: v[0] if len(v) == 1 else v for k, v in url_params.items()}
 
     selected_model = url_params.get(ElementsIDs.MODEL_SELECTION.value)
+    if selected_model is None:
+        return no_update, no_update, no_update, no_update, no_update, no_update
     units = url_params.get(ElementsIDs.UNIT_TOGGLE.value)
     function_selection = url_params.get(ElementsIDs.functionality_selection.value)
     chart_selected = url_params.get(ElementsIDs.chart_selected.value)
