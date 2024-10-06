@@ -270,7 +270,7 @@ def _pmv_ppd_optimized(tdb, tr, vr, rh, met, clo, wme=0):
             hc = hcf
         else:
             hc = hcn
-        xn = (p5 + p4 * hc - p2 * xf ** 4) / (100 + p3 * hc)
+        xn = (p5 + p4 * hc - p2 * xf**4) / (100 + p3 * hc)
         n += 1
         if n > 150:
             raise StopIteration("Max iterations exceeded")
@@ -289,7 +289,7 @@ def _pmv_ppd_optimized(tdb, tr, vr, rh, met, clo, wme=0):
     # dry respiration heat loss
     hl4 = 0.0014 * m * (34 - tdb)
     # heat loss by radiation
-    hl5 = 3.96 * f_cl * (xn ** 4 - (tra / 100.0) ** 4)
+    hl5 = 3.96 * f_cl * (xn**4 - (tra / 100.0) ** 4)
     # heat loss by convection
     hl6 = f_cl * hc * (tcl - tdb)
 
@@ -301,7 +301,10 @@ def _pmv_ppd_optimized(tdb, tr, vr, rh, met, clo, wme=0):
 
 # calculate tdb, tdb为x输入，pmv为y输出
 def calculate_tdb(t_db_x, t_r, v_r, r_h, met, clo_d, pmv_y):
-    return _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d) - pmv_y
+    return (
+        _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d)
+        - pmv_y
+    )
 
 
 # calculate relative humidity by dry bulb temperature, humidity ratio
@@ -316,7 +319,12 @@ def calculate_chart_parameters(tem_dry_bulb, humidity_ratio):
     param humidity_ratio: g/kg
     """
     # 1为猜想解, hr因为单位为kg/kg，需要 / 1000
-    solution = fsolve(lambda x: calculate_relative_humidity(rh=x, tdb=tem_dry_bulb, hr=humidity_ratio / 1000), 1)
+    solution = fsolve(
+        lambda x: calculate_relative_humidity(
+            rh=x, tdb=tem_dry_bulb, hr=humidity_ratio / 1000
+        ),
+        1,
+    )
     relative_humidity = solution[0]  # 单位：%
     wet_bulb_temp = t_wb(tem_dry_bulb, relative_humidity)  # ℃
     dew_point_temp = t_dp(tem_dry_bulb, relative_humidity)  # ℃
@@ -327,11 +335,12 @@ def calculate_chart_parameters(tem_dry_bulb, humidity_ratio):
         "wa": humidity_ratio,
         "twb": wet_bulb_temp,
         "tdp": dew_point_temp,
-        "h": h
+        "h": h,
     }
 
 
-def generate_tdb_hr_chart(inputs: dict = None,
+def generate_tdb_hr_chart(
+    inputs: dict = None,
     model: str = "iso",
     units: str = "SI",
 ):
@@ -340,8 +349,8 @@ def generate_tdb_hr_chart(inputs: dict = None,
     p_tr = inputs[ElementsIDs.t_r_input.value]
     p_v = inputs[ElementsIDs.v_input.value]
     p_rh = inputs[ElementsIDs.rh_input.value]
-    p_met =inputs[ElementsIDs.met_input.value]
-    p_clo_d =inputs[ElementsIDs.clo_input.value]
+    p_met = inputs[ElementsIDs.met_input.value]
+    p_clo_d = inputs[ElementsIDs.clo_input.value]
     p_t_running_mean = inputs[ElementsIDs.t_r_input.value]
 
     traces = []
@@ -354,8 +363,21 @@ def generate_tdb_hr_chart(inputs: dict = None,
     for j in range(len(pmv_list)):
         tdb_dict[j] = []
         for i in range(len(rh)):
-            solution = fsolve(lambda x: calculate_tdb(t_db_x=x, t_r=p_tr, v_r=v_r, r_h=rh[i], met=p_met, clo_d=p_clo_d, pmv_y=pmv_list[j]), 22)
-            tdb_solution = Decimal(solution[0]).quantize(Decimal('0.0'), rounding=ROUND_HALF_UP)  # 单位：℃
+            solution = fsolve(
+                lambda x: calculate_tdb(
+                    t_db_x=x,
+                    t_r=p_tr,
+                    v_r=v_r,
+                    r_h=rh[i],
+                    met=p_met,
+                    clo_d=p_clo_d,
+                    pmv_y=pmv_list[j],
+                ),
+                22,
+            )
+            tdb_solution = Decimal(solution[0]).quantize(
+                Decimal("0.0"), rounding=ROUND_HALF_UP
+            )  # 单位：℃
             tdb_dict[j].append(float(tdb_solution))
 
     # 通过 tdb 和 rh 百分比值 计算hr的值
@@ -368,117 +390,136 @@ def generate_tdb_hr_chart(inputs: dict = None,
     ii_lower_upper_hr = []
     i_lower_upper_hr = []
     for i in range(len(rh_list)):
-        iii_lower_upper_hr.append(psy_ta_rh(tdb=iii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
-        ii_lower_upper_hr.append(psy_ta_rh(tdb=ii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
-        i_lower_upper_hr.append(psy_ta_rh(tdb=i_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
+        iii_lower_upper_hr.append(
+            psy_ta_rh(tdb=iii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]
+            * 1000
+        )
+        ii_lower_upper_hr.append(
+            psy_ta_rh(tdb=ii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]
+            * 1000
+        )
+        i_lower_upper_hr.append(
+            psy_ta_rh(tdb=i_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]
+            * 1000
+        )
 
     # traces[0]
-    traces.append(go.Scatter(
-        x=iii_lower_upper_tdb,
-        y=iii_lower_upper_hr,
-        mode='lines',
-        line=dict(color='rgba(0,0,0,0)'),
-        fill='toself',
-        fillcolor='rgba(0,255,0,0.2)',
-        showlegend=False,
-        hoverinfo='none'
-    ))
+    traces.append(
+        go.Scatter(
+            x=iii_lower_upper_tdb,
+            y=iii_lower_upper_hr,
+            mode="lines",
+            line=dict(color="rgba(0,0,0,0)"),
+            fill="toself",
+            fillcolor="rgba(0,255,0,0.2)",
+            showlegend=False,
+            hoverinfo="none",
+        )
+    )
     # category II
-    traces.append(go.Scatter(
-        x=ii_lower_upper_tdb,
-        y=ii_lower_upper_hr,
-        mode='lines',
-        line=dict(color='rgba(0,0,0,0)'),
-        fill='toself',
-        fillcolor='rgba(0,255,0,0.3)',
-        showlegend=False,
-        hoverinfo='none'
-    ))
+    traces.append(
+        go.Scatter(
+            x=ii_lower_upper_tdb,
+            y=ii_lower_upper_hr,
+            mode="lines",
+            line=dict(color="rgba(0,0,0,0)"),
+            fill="toself",
+            fillcolor="rgba(0,255,0,0.3)",
+            showlegend=False,
+            hoverinfo="none",
+        )
+    )
     # category I
-    traces.append(go.Scatter(
-        x=i_lower_upper_tdb,
-        y=i_lower_upper_hr,
-        mode='lines',
-        line=dict(color='rgba(0,0,0,0)'),
-        fill='toself',
-        fillcolor='rgba(0,255,0,0.4)',
-        showlegend=False,
-        hoverinfo='none'
-    ))
+    traces.append(
+        go.Scatter(
+            x=i_lower_upper_tdb,
+            y=i_lower_upper_hr,
+            mode="lines",
+            line=dict(color="rgba(0,0,0,0)"),
+            fill="toself",
+            fillcolor="rgba(0,255,0,0.4)",
+            showlegend=False,
+            hoverinfo="none",
+        )
+    )
 
     ### 3、添加红点和圆环
     # Red point
     red_point_x = p_tdb
-    red_point_y = psy_ta_rh(tdb=p_tdb, rh=p_rh, p_atm=101325)["hr"] * 1000  # kg/kg => g/kg
-    traces.append(go.Scatter(
-        x=[red_point_x],
-        y=[red_point_y],
-        mode='markers',
-        marker=dict(
-            color='red',
-            size=4,
-        ),
-        showlegend=False,
-    ))
+    red_point_y = (
+        psy_ta_rh(tdb=p_tdb, rh=p_rh, p_atm=101325)["hr"] * 1000
+    )  # kg/kg => g/kg
+    traces.append(
+        go.Scatter(
+            x=[red_point_x],
+            y=[red_point_y],
+            mode="markers",
+            marker=dict(
+                color="red",
+                size=4,
+            ),
+            showlegend=False,
+        )
+    )
     # Circle around the red point
     theta = np.linspace(0, 2 * np.pi, 100)
     circle_x = red_point_x + 0.6 * np.cos(theta)
     circle_y = red_point_y + 1.0 * np.sin(theta)
-    traces.append(go.Scatter(
-        x=circle_x,
-        y=circle_y,
-        mode='lines',
-        line=dict(color='red', width=1.5),
-        showlegend=False,
-    ))
+    traces.append(
+        go.Scatter(
+            x=circle_x,
+            y=circle_y,
+            mode="lines",
+            line=dict(color="red", width=1.5),
+            showlegend=False,
+        )
+    )
 
     ### 1、划曲线
     rh_list = np.arange(0, 101, 10)
     tdb = np.linspace(10, 36, 500)
     for rh in rh_list:
-        hr_list = np.array([psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb])  # kg/kg => g/kg
+        hr_list = np.array(
+            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb]
+        )  # kg/kg => g/kg
         trace = go.Scatter(
             x=tdb,
             y=hr_list,
-            mode='lines',
-            line=dict(color='black', width=1),
-            hoverinfo='x+y',
-            name=f'{rh}% RH',
-            showlegend=False
+            mode="lines",
+            line=dict(color="black", width=1),
+            hoverinfo="x+y",
+            name=f"{rh}% RH",
+            showlegend=False,
         )
         traces.append(trace)
 
     ### 4、设置图表的title和轴标签
     layout = go.Layout(
-        title='Psychrometric (air temperature)',
+        title="Psychrometric (air temperature)",
         xaxis=dict(
-            title='Dry-bulb Temperature [°C]',
+            title="Dry-bulb Temperature [°C]",
             range=[10, 36],
             dtick=2,
             showgrid=True,
             showline=True,
             linewidth=1.5,
-            linecolor='black',
+            linecolor="black",
         ),
         yaxis=dict(
-            title='Humidity Ratio [g_w/kg_da]',
+            title="Humidity Ratio [g_w/kg_da]",
             range=[0, 30],
             dtick=5,
             showgrid=True,
             showline=True,
             linewidth=1.5,
-            linecolor='black',
+            linecolor="black",
         ),
         showlegend=True,
-        plot_bgcolor='white'
+        plot_bgcolor="white",
     )
 
     fig = go.Figure(data=traces, layout=layout)
     return fig
-
-
-
-
 
 
 def t_rh_pmv(
@@ -1013,7 +1054,6 @@ def SET_outputs_chart(
             title=(
                 "Dry-bulb Air Temperature [°C]"
                 if units == UnitSystem.SI.value
-
                 else "Dry-bulb Air Temperature [°F]"
             ),
             showgrid=False,
@@ -1030,7 +1070,6 @@ def SET_outputs_chart(
             range=[18, 38] if units == UnitSystem.SI.value else [60, 100],
             dtick=2 if units == UnitSystem.SI.value else 5,
         ),
-
         yaxis2=dict(
             title="Heat Loss [W] / Skin Wettedness [%]",
             showgrid=False,
@@ -1057,8 +1096,8 @@ def SET_outputs_chart(
     return fig
 
 
-
 # 单位切换成ip后的计算有问题
+
 
 def speed_temp_pmv(
     inputs: dict = None,
@@ -1131,7 +1170,7 @@ def speed_temp_pmv(
             y=df[df["pmv_limit"] == pmv_limits[1]]["vr"],
             mode="lines",
             fill="tonextx",
-            fillcolor="rgba(123, 208, 242, 0.5)",
+            fillcolor="rgba(59, 189, 237, 0.7)",
             name=f"PMV {pmv_limits[1]}",
             showlegend=False,
             line=dict(color="rgba(0,0,0,0)"),
@@ -1344,7 +1383,6 @@ def get_heat_losses(inputs: dict = None, model: str = "ashrae", units: str = "SI
             )
             results["h10"].append(round(met * 58.15, 1))
 
-
     fig = go.Figure()
 
     trace_configs = [
@@ -1411,151 +1449,133 @@ def get_heat_losses(inputs: dict = None, model: str = "ashrae", units: str = "SI
     return fig
 
 
-# 计算不对
-def psy_ashrae_pmv(inputs: dict = None, model: str = "ashrae"):
-    results = []
-    pmv_limits = [-0.5, 0.5]
-    clo_d = clo_dynamic(
-        clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
-    )
-    vr = v_relative(
-        v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
-    )
-    current_tdb = inputs[ElementsIDs.t_db_input.value]
-    current_rh = inputs[ElementsIDs.rh_input.value]
-    psy_data = psy_ta_rh(current_tdb, current_rh)
-    for pmv_limit in pmv_limits:
-        for rh in np.arange(10, 110, 10):
-            psy_data_rh = psy_ta_rh(current_tdb, rh)
+def psy_ashrae_pmv(
+    inputs: dict = None,
+    model: str = "ashrae",
+    units: str = "SI",
+):
 
-            def function(x):
-                return (
-                    pmv(
-                        x,
-                        tr=inputs[ElementsIDs.t_r_input.value],
-                        vr=vr,
-                        rh=rh,
-                        met=inputs[ElementsIDs.met_input.value],
-                        clo=clo_d,
-                        wme=0,
-                        standard=model,
-                        limit_inputs=False,
-                    )
-                    - pmv_limit
-                )
+    p_tdb = inputs[ElementsIDs.t_db_input.value]
+    p_tr = inputs[ElementsIDs.t_r_input.value]
+    p_v = inputs[ElementsIDs.v_input.value]
+    p_rh = inputs[ElementsIDs.rh_input.value]
+    p_met = inputs[ElementsIDs.met_input.value]
+    p_clo_d = inputs[ElementsIDs.clo_input.value]
+    p_t_running_mean = inputs[ElementsIDs.t_r_input.value]
 
-            temp = optimize.brentq(function, 10, 40)
-            results.append(
-                {
-                    "rh": rh,
-                    "hr": psy_data_rh["hr"] * 1000,
-                    "temp": temp,
-                    "pmv_limit": pmv_limit,
-                }
-            )
-
-    df = pd.DataFrame(results)
-    fig = go.Figure()
     traces = []
-    # 添加温度和hr值的虚线（灰色线）
-    for rh in np.arange(10, 110, 10):
-        temp_range = np.arange(10, 40, 1)
-        hr_values = [psy_ta_rh(t, rh)["hr"] * 1000 for t in temp_range]
-        fig.add_trace(
-            go.Scatter(
-                x=temp_range,
-                y=hr_values,
-                mode="lines",
-                line=dict(color="grey"),
-                showlegend=False,
+
+    # blue area
+    rh = np.arange(0, 110, 10)
+    pmv_list = [-0.5, 0.5]
+    v_r = v_relative(v=p_v, met=p_met)
+    tdb_dict = {}
+    for j in range(len(pmv_list)):
+        tdb_dict[j] = []
+        for i in range(len(rh)):
+            solution = fsolve(
+                lambda x: calculate_tdb(
+                    t_db_x=x,
+                    t_r=p_tr,
+                    v_r=v_r,
+                    r_h=rh[i],
+                    met=p_met,
+                    clo_d=p_clo_d,
+                    pmv_y=pmv_list[j],
+                ),
+                22,
             )
+            tdb_solution = Decimal(solution[0]).quantize(
+                Decimal("0.0"), rounding=ROUND_HALF_UP
+            )  # 单位：℃
+            tdb_dict[j].append(float(tdb_solution))
+
+    # calculate hr
+    lower_upper_tdb = np.append(np.array(tdb_dict[0]), np.array(tdb_dict[1])[::-1])
+
+    rh_list = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
+    # define
+    lower_upper_hr = []
+    for i in range(len(rh_list)):
+        lower_upper_hr.append(
+            psy_ta_rh(tdb=lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"] * 1000
         )
 
-    # lower_upper_tdb = np.append(np.array(pmv_limits[0]), np.array(pmv_limits[1]))
-    # rh_list = np.append(np.arange(0, 101, 10), np.arange(100, -1, -10))
-    # lower_upper_hr = []
-    # for i in range(len(rh_list)):
-    #     # tdb_index = i % len(lower_upper_tdb)  # 使用模运算来循环使用lower_upper_tdb的值
-    #     lower_upper_hr.append(psy_ta_rh(tdb=lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"] * 1000)
-    #
-    #
-    #
-    # traces.append(go.Scatter(
-    #     x=lower_upper_tdb,
-    #     y=lower_upper_hr,
-    #     mode='lines',
-    #     line=dict(color='rgba(0,0,0,0)'),
-    #     fill='toself',
-    #     fillcolor='rgba(0,255,0,0.3)',
-    #     showlegend=False,
-    #     hoverinfo='none'
-    # ))
-    # t1 = df[df["pmv_limit"] == pmv_limits[0]]
-    # t2 = df[df["pmv_limit"] == pmv_limits[1]]
-    # t1_hr = t1["hr"]  # y 轴
-    # t1_temp = t1["temp"]  # 第一个温度 (x 轴)
-    # t2_temp = t2["temp"]  # 第二个温度 (x 轴)
-    #
-    #
-    # # 绘制第一条线 (t1_temp 对应 t1_hr)
-    # fig.add_trace(go.Scatter(
-    #     x=t1_temp,  # x 轴是温度
-    #     y=t1_hr,  # y 轴是湿度 (hr)
-    #     mode='lines',
-    #     line=dict(color='#7BD0F2'),
-    #     name='Upper Boundary' # 上边界
-    # ))
-    #
-    # # 绘制第二条线 (t2_temp 对应 t1_hr)，并填充两者之间的区域
-    # fig.add_trace(go.Scatter(
-    #     x=t2_temp,  # 第二条线的 x 轴是 t2 的温度
-    #     y=t1_hr,  # y 轴还是湿度
-    #     mode='lines',
-    #     line=dict(color='#7BD0F2'),
-    #     fill='tonexty',  # 填充 t1 和 t2 之间的区域
-    #     fillcolor='rgba(123, 208, 242, 0.5)',  # 填充颜色和透明度
-    #     name='Lower Boundary'  # 下边界
-    # ))
-    #
-
-    # t1 = df[df["pmv_limit"] == pmv_limits[0]]
-    # t2 = df[df["pmv_limit"] == pmv_limits[1]]
-    # fig.add_trace(go.Scatter(
-    #     x=np.concatenate([t1["temp"], t2["temp"][::-1]]),  # 左边t1的温度和右边t2的温度
-    #     y=np.concatenate([t1["hr"], [0] * len(t2)]),  # 上边界是最大hr值，下边界是y=0
-    #     fill='toself',  # 填充区域
-    #     fillcolor='rgba(0, 0, 255, 0.2)',  # 蓝色填充，带透明度
-    #     line=dict(color='rgba(255,255,255,0)'),  # 隐藏边界线
-    #     hoverinfo="skip",  # 不显示hover信息
-    #     showlegend=False
-    # ))
-
-    # fig.add_trace(go.Scatter(
-    #     x=t1["temp"],  # 左右边界的温度
-    #     y=[0] * len(t1),  # 下方区域的y=0
-    #     mode='lines',
-    #     line=dict(color='blue', width=2),
-    #     showlegend=False
-    # ))
+    traces.append(
+        go.Scatter(
+            x=lower_upper_tdb,
+            y=lower_upper_hr,
+            mode="lines",
+            line=dict(color="rgba(0,0,0,0)"),
+            fill="toself",
+            fillcolor="rgba(59, 189, 237, 0.7)",
+            showlegend=False,
+            hoverinfo="none",
+        )
+    )
 
     # current point
-    fig.add_trace(
+    # Red point
+    red_point_x = p_tdb
+    red_point_y = (
+        psy_ta_rh(tdb=p_tdb, rh=p_rh, p_atm=101325)["hr"] * 1000
+    )  # kg/kg => g/kg
+    traces.append(
         go.Scatter(
-            x=[current_tdb],
-            y=[psy_data["hr"] * 1000],
+            x=[red_point_x],
+            y=[red_point_y],
             mode="markers",
-            marker=dict(size=12, color="red", line=dict(width=2, color="black")),
-            name="Current",
+            marker=dict(
+                color="red",
+                size=6,
+            ),
+            showlegend=False,
         )
     )
 
-    # 设置图形的标题和轴标签
-    fig.update_layout(
-        title="PMV-Based Psychrometric Chart",
-        xaxis_title="Temperature [°C]",
-        yaxis_title="Humidity Ratio [g/kg]",
-        template="plotly_white",
+    # lines
+    rh_list = np.arange(0, 110, 10)
+    tdb = np.linspace(10, 36, 500)
+    for rh in rh_list:
+        hr_list = np.array(
+            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb]
+        )  # kg/kg => g/kg
+        trace = go.Scatter(
+            x=tdb,
+            y=hr_list,
+            mode="lines",
+            line=dict(color="grey", width=1),
+            hoverinfo="x+y",
+            name=f"{rh}% RH",
+            showlegend=False,
+        )
+        traces.append(trace)
+
+    # layout
+    layout = go.Layout(
+        title="Psychrometric (air temperature)",
+        xaxis=dict(
+            title="Dry-bulb Temperature [°C]",
+            range=[10, 36],
+            dtick=2,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor="lightgrey",
+        ),
+        yaxis=dict(
+            title="Humidity Ratio [g_w/kg_da]",
+            range=[0, 30],
+            dtick=5,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor="lightgrey",
+            side="right",
+        ),
+        showlegend=True,
+        plot_bgcolor="white",
     )
 
-    # 显示图形
+    fig = go.Figure(data=traces, layout=layout)
     return fig
