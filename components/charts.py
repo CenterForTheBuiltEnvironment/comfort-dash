@@ -411,7 +411,7 @@ def generate_tdb_hr_chart(
             mode="lines",
             line=dict(color="rgba(0,0,0,0)"),
             fill="toself",
-            fillcolor="rgba(0,255,0,0.2)",
+            fillcolor="rgba(102,204,0,0.4)",
             showlegend=False,
             hoverinfo="none",
         )
@@ -424,7 +424,7 @@ def generate_tdb_hr_chart(
             mode="lines",
             line=dict(color="rgba(0,0,0,0)"),
             fill="toself",
-            fillcolor="rgba(0,255,0,0.3)",
+            fillcolor="rgba(102,204,0,0.5)",
             showlegend=False,
             hoverinfo="none",
         )
@@ -437,13 +437,12 @@ def generate_tdb_hr_chart(
             mode="lines",
             line=dict(color="rgba(0,0,0,0)"),
             fill="toself",
-            fillcolor="rgba(0,255,0,0.4)",
+            fillcolor="rgba(102,204,0,0.6)",
             showlegend=False,
             hoverinfo="none",
         )
     )
 
-    ### 3、添加红点和圆环
     # Red point
     red_point_x = p_tdb
     red_point_y = (
@@ -475,7 +474,7 @@ def generate_tdb_hr_chart(
         )
     )
 
-    ### 1、划曲线
+    # line
     rh_list = np.arange(0, 101, 10)
     tdb = np.linspace(10, 36, 500)
     for rh in rh_list:
@@ -493,7 +492,7 @@ def generate_tdb_hr_chart(
         )
         traces.append(trace)
 
-    ### 4、设置图表的title和轴标签
+    ##title
     layout = go.Layout(
         title="Psychrometric (air temperature)",
         xaxis=dict(
