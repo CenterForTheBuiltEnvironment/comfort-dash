@@ -25,8 +25,12 @@ from utils.my_config_file import (
 )
 from utils.website_text import TextHome
 import matplotlib
-from pythermalcomfort.psychrometrics import t_o, psy_ta_rh
 
+import plotly.graph_objs as go
+from pythermalcomfort.psychrometrics import psy_ta_rh, p_sat, t_dp, t_wb, enthalpy, t_o
+from pythermalcomfort.models import adaptive_en, pmv
+from scipy.optimize import fsolve
+from decimal import Decimal, ROUND_HALF_UP
 
 matplotlib.use("Agg")
 
@@ -226,6 +230,255 @@ def adaptive_chart(
         )
 
     return fig
+
+
+# function in pmv_ppd()
+def _pmv_ppd_optimized(tdb, tr, vr, rh, met, clo, wme=0):
+    pa = rh * 10 * np.exp(16.6536 - 4030.183 / (tdb + 235))
+
+    icl = 0.155 * clo  # thermal insulation of the clothing in M2K/W
+    m = met * 58.15  # metabolic rate in W/M2
+    w = wme * 58.15  # external work in W/M2
+    mw = m - w  # internal heat production in the human body
+    # calculation of the clothing area factor
+    if icl <= 0.078:
+        f_cl = 1 + (1.29 * icl)  # ratio of surface clothed body over nude body
+    else:
+        f_cl = 1.05 + (0.645 * icl)
+
+    # heat transfer coefficient by forced convection
+    hcf = 12.1 * np.sqrt(vr)
+    hc = hcf  # initialize variable
+    taa = tdb + 273
+    tra = tr + 273
+    t_cla = taa + (35.5 - tdb) / (3.5 * icl + 0.1)
+
+    p1 = icl * f_cl
+    p2 = p1 * 3.96
+    p3 = p1 * 100
+    p4 = p1 * taa
+    p5 = (308.7 - 0.028 * mw) + (p2 * (tra / 100.0) ** 4)
+    xn = t_cla / 100
+    xf = t_cla / 50
+    eps = 0.00015
+
+    n = 0
+    while np.abs(xn - xf) > eps:
+        xf = (xf + xn) / 2
+        hcn = 2.38 * np.abs(100.0 * xf - taa) ** 0.25
+        if hcf > hcn:
+            hc = hcf
+        else:
+            hc = hcn
+        xn = (p5 + p4 * hc - p2 * xf ** 4) / (100 + p3 * hc)
+        n += 1
+        if n > 150:
+            raise StopIteration("Max iterations exceeded")
+
+    tcl = 100 * xn - 273
+
+    # heat loss diff. through skin
+    hl1 = 3.05 * 0.001 * (5733 - (6.99 * mw) - pa)
+    # heat loss by sweating
+    if mw > 58.15:
+        hl2 = 0.42 * (mw - 58.15)
+    else:
+        hl2 = 0
+    # latent respiration heat loss
+    hl3 = 1.7 * 0.00001 * m * (5867 - pa)
+    # dry respiration heat loss
+    hl4 = 0.0014 * m * (34 - tdb)
+    # heat loss by radiation
+    hl5 = 3.96 * f_cl * (xn ** 4 - (tra / 100.0) ** 4)
+    # heat loss by convection
+    hl6 = f_cl * hc * (tcl - tdb)
+
+    ts = 0.303 * np.exp(-0.036 * m) + 0.028
+    _pmv = ts * (mw - hl1 - hl2 - hl3 - hl4 - hl5 - hl6)
+
+    return _pmv
+
+
+# calculate tdb, tdb为x输入，pmv为y输出
+def calculate_tdb(t_db_x, t_r, v_r, r_h, met, clo_d, pmv_y):
+    return _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d) - pmv_y
+
+
+# calculate relative humidity by dry bulb temperature, humidity ratio
+def calculate_relative_humidity(rh, tdb, hr):
+    return 0.62198 * (rh / 100 * p_sat(tdb)) / (101325 - (rh / 100 * p_sat(tdb))) - hr
+
+
+# calculate the parameters of the chart
+def calculate_chart_parameters(tem_dry_bulb, humidity_ratio):
+    """
+    param tem_dry_bulb: ℃
+    param humidity_ratio: g/kg
+    """
+    # 1为猜想解, hr因为单位为kg/kg，需要 / 1000
+    solution = fsolve(lambda x: calculate_relative_humidity(rh=x, tdb=tem_dry_bulb, hr=humidity_ratio / 1000), 1)
+    relative_humidity = solution[0]  # 单位：%
+    wet_bulb_temp = t_wb(tem_dry_bulb, relative_humidity)  # ℃
+    dew_point_temp = t_dp(tem_dry_bulb, relative_humidity)  # ℃
+    h = enthalpy(tem_dry_bulb, humidity_ratio / 1000) / 1000  # J/kg ==> kJ/kg
+    return {
+        "tdb": tem_dry_bulb,
+        "rh": relative_humidity,
+        "wa": humidity_ratio,
+        "twb": wet_bulb_temp,
+        "tdp": dew_point_temp,
+        "h": h
+    }
+
+
+def generate_tdb_hr_chart(inputs: dict = None,
+    model: str = "iso",
+    units: str = "SI",
+):
+
+    p_tdb = inputs[ElementsIDs.t_db_input.value]
+    p_tr = inputs[ElementsIDs.t_r_input.value]
+    p_v = inputs[ElementsIDs.v_input.value]
+    p_rh = inputs[ElementsIDs.rh_input.value]
+    p_met =inputs[ElementsIDs.met_input.value]
+    p_clo_d =inputs[ElementsIDs.clo_input.value]
+    p_t_running_mean = inputs[ElementsIDs.t_r_input.value]
+
+    traces = []
+
+    ### 2、画绿色区域
+    rh = np.arange(0, 101, 20)
+    pmv_list = [-0.7, -0.5, -0.2, 0.2, 0.5, 0.7]
+    v_r = v_relative(v=p_v, met=p_met)
+    tdb_dict = {}
+    for j in range(len(pmv_list)):
+        tdb_dict[j] = []
+        for i in range(len(rh)):
+            solution = fsolve(lambda x: calculate_tdb(t_db_x=x, t_r=p_tr, v_r=v_r, r_h=rh[i], met=p_met, clo_d=p_clo_d, pmv_y=pmv_list[j]), 22)
+            tdb_solution = Decimal(solution[0]).quantize(Decimal('0.0'), rounding=ROUND_HALF_UP)  # 单位：℃
+            tdb_dict[j].append(float(tdb_solution))
+
+    # 通过 tdb 和 rh 百分比值 计算hr的值
+    iii_lower_upper_tdb = np.append(np.array(tdb_dict[0]), np.array(tdb_dict[5])[::-1])
+    ii_lower_upper_tdb = np.append(np.array(tdb_dict[1]), np.array(tdb_dict[4])[::-1])
+    i_lower_upper_tdb = np.append(np.array(tdb_dict[2]), np.array(tdb_dict[3])[::-1])
+    rh_list = np.append(np.arange(0, 101, 20), np.arange(100, -1, -20))
+    # define
+    iii_lower_upper_hr = []
+    ii_lower_upper_hr = []
+    i_lower_upper_hr = []
+    for i in range(len(rh_list)):
+        iii_lower_upper_hr.append(psy_ta_rh(tdb=iii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
+        ii_lower_upper_hr.append(psy_ta_rh(tdb=ii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
+        i_lower_upper_hr.append(psy_ta_rh(tdb=i_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
+
+    # traces[0]
+    traces.append(go.Scatter(
+        x=iii_lower_upper_tdb,
+        y=iii_lower_upper_hr,
+        mode='lines',
+        line=dict(color='rgba(0,0,0,0)'),
+        fill='toself',
+        fillcolor='rgba(0,255,0,0.2)',
+        showlegend=False,
+        hoverinfo='none'
+    ))
+    # category II
+    traces.append(go.Scatter(
+        x=ii_lower_upper_tdb,
+        y=ii_lower_upper_hr,
+        mode='lines',
+        line=dict(color='rgba(0,0,0,0)'),
+        fill='toself',
+        fillcolor='rgba(0,255,0,0.3)',
+        showlegend=False,
+        hoverinfo='none'
+    ))
+    # category I
+    traces.append(go.Scatter(
+        x=i_lower_upper_tdb,
+        y=i_lower_upper_hr,
+        mode='lines',
+        line=dict(color='rgba(0,0,0,0)'),
+        fill='toself',
+        fillcolor='rgba(0,255,0,0.4)',
+        showlegend=False,
+        hoverinfo='none'
+    ))
+
+    ### 3、添加红点和圆环
+    # Red point
+    red_point_x = p_tdb
+    red_point_y = psy_ta_rh(tdb=p_tdb, rh=p_rh, p_atm=101325)["hr"] * 1000  # kg/kg => g/kg
+    traces.append(go.Scatter(
+        x=[red_point_x],
+        y=[red_point_y],
+        mode='markers',
+        marker=dict(
+            color='red',
+            size=4,
+        ),
+        showlegend=False,
+    ))
+    # Circle around the red point
+    theta = np.linspace(0, 2 * np.pi, 100)
+    circle_x = red_point_x + 0.6 * np.cos(theta)
+    circle_y = red_point_y + 1.0 * np.sin(theta)
+    traces.append(go.Scatter(
+        x=circle_x,
+        y=circle_y,
+        mode='lines',
+        line=dict(color='red', width=1.5),
+        showlegend=False,
+    ))
+
+    ### 1、划曲线
+    rh_list = np.arange(0, 101, 10)
+    tdb = np.linspace(10, 36, 500)
+    for rh in rh_list:
+        hr_list = np.array([psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb])  # kg/kg => g/kg
+        trace = go.Scatter(
+            x=tdb,
+            y=hr_list,
+            mode='lines',
+            line=dict(color='black', width=1),
+            hoverinfo='x+y',
+            name=f'{rh}% RH',
+            showlegend=False
+        )
+        traces.append(trace)
+
+    ### 4、设置图表的title和轴标签
+    layout = go.Layout(
+        title='Psychrometric (air temperature)',
+        xaxis=dict(
+            title='Dry-bulb Temperature [°C]',
+            range=[10, 36],
+            dtick=2,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor='black',
+        ),
+        yaxis=dict(
+            title='Humidity Ratio [g_w/kg_da]',
+            range=[0, 30],
+            dtick=5,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor='black',
+        ),
+        showlegend=True,
+        plot_bgcolor='white'
+    )
+
+    fig = go.Figure(data=traces, layout=layout)
+    return fig
+
+
+
+
 
 
 def t_rh_pmv(
@@ -760,6 +1013,7 @@ def SET_outputs_chart(
             title=(
                 "Dry-bulb Air Temperature [°C]"
                 if units == UnitSystem.SI.value
+
                 else "Dry-bulb Air Temperature [°F]"
             ),
             showgrid=False,
@@ -776,6 +1030,7 @@ def SET_outputs_chart(
             range=[18, 38] if units == UnitSystem.SI.value else [60, 100],
             dtick=2 if units == UnitSystem.SI.value else 5,
         ),
+
         yaxis2=dict(
             title="Heat Loss [W] / Skin Wettedness [%]",
             showgrid=False,
@@ -802,7 +1057,9 @@ def SET_outputs_chart(
     return fig
 
 
+
 # 单位切换成ip后的计算有问题
+
 def speed_temp_pmv(
     inputs: dict = None,
     model: str = "iso",
@@ -1087,44 +1344,6 @@ def get_heat_losses(inputs: dict = None, model: str = "ashrae", units: str = "SI
             )
             results["h10"].append(round(met * 58.15, 1))
 
-    #
-    #
-    # for ta in ta_range:
-    #     if units == UnitSystem.IP.value:
-    #         ta_si = UnitConverter.fahrenheit_to_celsius(ta)
-    #         tr_si = UnitConverter.fahrenheit_to_celsius(tr)
-    #         vel_si = UnitConverter.fps_to_mps(vel)
-    #     else:
-    #         ta_si = ta
-    #         tr_si = tr
-    #         vel_si = vel
-    #     heat_losses = pmv_pdd_6_heat_loss(
-    #         ta=ta_si, tr=tr_si, vel=vel_si, rh=rh, met=met, clo=clo_d, wme=0
-    #     )
-    #     results["h1"].append(round(heat_losses["hl1"], 1))
-    #     results["h2"].append(round(heat_losses["hl2"], 1))
-    #     results["h3"].append(round(heat_losses["hl3"], 1))
-    #     results["h4"].append(round(heat_losses["hl4"], 1))
-    #     results["h5"].append(round(heat_losses["hl5"], 1))  #
-    #     results["h6"].append(round(heat_losses["hl6"], 1))  #
-    #     results["h7"].append(
-    #         round(heat_losses["hl1"] + heat_losses["hl2"] + heat_losses["hl3"], 1)
-    #     )
-    #     results["h8"].append(
-    #         round(heat_losses["hl4"] + heat_losses["hl5"] + heat_losses["hl6"], 1)  #
-    #     )
-    #     results["h9"].append(
-    #         round(
-    #             heat_losses["hl1"]
-    #             + heat_losses["hl2"]
-    #             + heat_losses["hl3"]
-    #             + heat_losses["hl4"]
-    #             + heat_losses["hl5"]
-    #             + heat_losses["hl6"],
-    #             1,
-    #         )  #
-    #     )
-    # results["h10"].append(round(met * 58.15, 1))
 
     fig = go.Figure()
 
