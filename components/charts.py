@@ -802,6 +802,7 @@ def SET_outputs_chart(
     return fig
 
 
+# 单位切换成ip后的计算有问题
 def speed_temp_pmv(
     inputs: dict = None,
     model: str = "iso",
