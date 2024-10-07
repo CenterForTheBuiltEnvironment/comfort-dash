@@ -13,6 +13,7 @@ from components.charts import (
     get_heat_losses,
     psy_ashrae_pmv,
     generate_operative_chart,
+    psy_ashrae_pmv_operative,
 )
 
 from components.dropdowns import (
@@ -313,7 +314,12 @@ def update_chart(inputs: dict, function_selection: str):
             and function_selection == Functionalities.Default.value
         ):
             use_to = chart_selected == Charts.psychrometric_operative.value.name
-        image = generate_operative_chart(inputs=inputs, model="iso")
+            image = generate_operative_chart(inputs=inputs, model="iso")
+        elif (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = psy_ashrae_pmv_operative(inputs=inputs, model="ashrae")
 
     elif chart_selected == Charts.set_outputs.value.name:
         if (

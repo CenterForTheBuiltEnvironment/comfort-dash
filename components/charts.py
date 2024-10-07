@@ -299,7 +299,7 @@ def _pmv_ppd_optimized(tdb, tr, vr, rh, met, clo, wme=0):
     return _pmv
 
 
-# calculate tdb, tdb为x输入，pmv为y输出
+# calculate tdb, tdb is input，pmv is output
 def calculate_tdb(t_db_x, t_r, v_r, r_h, met, clo_d, pmv_y):
     return (
         _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d)
@@ -411,7 +411,7 @@ def generate_tdb_hr_chart(
             mode="lines",
             line=dict(color="rgba(0,0,0,0)"),
             fill="toself",
-            fillcolor="rgba(102,204,0,0.4)",
+            fillcolor="rgba(28,128,28,0.2)",
             showlegend=False,
             hoverinfo="none",
         )
@@ -424,7 +424,7 @@ def generate_tdb_hr_chart(
             mode="lines",
             line=dict(color="rgba(0,0,0,0)"),
             fill="toself",
-            fillcolor="rgba(102,204,0,0.5)",
+            fillcolor="rgba(28,128,28,0.3)",
             showlegend=False,
             hoverinfo="none",
         )
@@ -437,7 +437,7 @@ def generate_tdb_hr_chart(
             mode="lines",
             line=dict(color="rgba(0,0,0,0)"),
             fill="toself",
-            fillcolor="rgba(102,204,0,0.6)",
+            fillcolor="rgba(28,128,28,0.4)",
             showlegend=False,
             hoverinfo="none",
         )
@@ -485,7 +485,7 @@ def generate_tdb_hr_chart(
             x=tdb,
             y=hr_list,
             mode="lines",
-            line=dict(color="black", width=1),
+            line=dict(color="grey", width=1),
             hoverinfo="x+y",
             name=f"{rh}% RH",
             showlegend=False,
@@ -559,7 +559,7 @@ def calculate_tdb_by_to(t_db_x, t_r, v_r, r_h, met, clo_d, pmv_y):
     )
 
 
-# calculate tdb, tdb为x输入，pmv为y输出
+# calculate tdb, tdb is the x input，pmv is y output
 def calculate_tdb(t_db_x, t_r, v_r, r_h, met, clo_d, pmv_y):
     return (
         _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d)
@@ -588,7 +588,7 @@ def generate_operative_chart(
 
     traces = []
 
-    ### 2、画绿色区域
+    # green area
     rh = np.arange(0, 101, 10)
     pmv_list = [-0.7, -0.5, -0.2, 0.2, 0.5, 0.7]
     v_r = v_relative(v=p_v, met=p_met)
@@ -613,7 +613,8 @@ def generate_operative_chart(
             )  # 单位：℃
             tdb_dict[j].append(float(tdb_solution))
 
-    # 通过 tdb 和 rh 百分比值 计算hr的值
+    # hr
+
     iii_lower_upper_tdb = np.append(np.array(tdb_dict[0]), np.array(tdb_dict[5])[::-1])
     ii_lower_upper_tdb = np.append(np.array(tdb_dict[1]), np.array(tdb_dict[4])[::-1])
     i_lower_upper_tdb = np.append(np.array(tdb_dict[2]), np.array(tdb_dict[3])[::-1])
@@ -644,7 +645,7 @@ def generate_operative_chart(
             mode="lines",
             line=dict(color="rgba(0,0,0,0)"),
             fill="toself",
-            fillcolor="rgba(0,255,0,0.2)",
+            fillcolor="rgba(28,128,28,0.2)",
             showlegend=False,
             hoverinfo="none",
         )
@@ -658,7 +659,7 @@ def generate_operative_chart(
             mode="lines",
             line=dict(color="rgba(0,0,0,0)"),
             fill="toself",
-            fillcolor="rgba(0,255,0,0.3)",
+            fillcolor="rgba(28,128,28,0.3)",
             showlegend=False,
             hoverinfo="none",
         )
@@ -672,14 +673,13 @@ def generate_operative_chart(
             mode="lines",
             line=dict(color="rgba(0,0,0,0)"),
             fill="toself",
-            fillcolor="rgba(0,255,0,0.4)",
+            fillcolor="rgba(28,128,28,0.4)",
             showlegend=False,
             hoverinfo="none",
         )
     )
 
-    ### 3、画红点，based on air temperature [℃] and relative humidity [%]
-    # 圆心
+    # red point，based on air temperature [℃] and relative humidity [%]
     red_point = [0, 0]
     red_point[0] = p_tdb
     red_point[1] = psy_ta_rh(p_tdb, p_rh, p_atm=101325)["hr"] * 1000  # kg/kg ==> g/kg
@@ -698,7 +698,7 @@ def generate_operative_chart(
         )
     )
 
-    ### 1、划曲线
+    # line
     rh_list = np.arange(0, 101, 10)
     tdb = np.linspace(10, 36, 500)
     # traces[5-15]
@@ -713,7 +713,7 @@ def generate_operative_chart(
             x=tdb,
             y=hr_list,
             mode="lines",
-            line=dict(color="black", width=1),
+            line=dict(color="grey", width=1),
             hoverinfo="x+y",
             name=f"{rh}% RH",
             showlegend=False,
@@ -724,7 +724,7 @@ def generate_operative_chart(
     tr = inputs[ElementsIDs.t_r_input.value]
     psy_results = psy_ta_rh(tdb, rh)
 
-    ### 4、设置图表的title和轴标签
+    # layout
     layout = go.Layout(
         title="Psychrometric (operative temperature)",
         xaxis=dict(
@@ -734,16 +734,16 @@ def generate_operative_chart(
             showgrid=True,
             showline=True,
             linewidth=1.5,
-            linecolor="black",
+            linecolor="lightgrey",
         ),
         yaxis=dict(
-            title="Humidity Ratio [g_w/kg_da]",
+            title="Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]",
             range=[0, 30],
             dtick=5,
             showgrid=True,
             showline=True,
             linewidth=1.5,
-            linecolor="black",
+            linecolor="lightgrey",
             side="right",
         ),
         showlegend=True,
@@ -882,6 +882,21 @@ def t_rh_pmv(
             # hoverinfo="skip",
         )
     )
+    # Add hover area to allow hover interaction
+
+    x_range = np.linspace(10, 40, 100)
+    y_range = np.linspace(0, 100, 100)
+    xx, yy = np.meshgrid(x_range, y_range)
+    fig.add_trace(
+        go.Scatter(
+            x=xx.flatten(),
+            y=yy.flatten(),
+            mode="markers",
+            marker=dict(color="rgba(0,0,0,0)"),
+            hoverinfo="x+y",
+            name="Interactive Hover Area",
+        )
+    )
 
     if model == "ashrae" and function_selection == Functionalities.Compare.value:
         met_2, clo_2, tr_2, t_db_2, v_2, rh_2 = compare_get_inputs(inputs)
@@ -934,6 +949,27 @@ def t_rh_pmv(
     rh = inputs[ElementsIDs.rh_input.value]
     tr = inputs[ElementsIDs.t_r_input.value]
     psy_results = psy_ta_rh(tdb, rh)
+    annotation_text = (
+        f"t<sub>db</sub>: {tdb:.1f} °C<br>"
+        f"rh: {rh:.1f} %<br>"
+        f"W<sub>a</sub>: {psy_results.hr * 1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+        f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
+        f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
+        f"h: {psy_results.h / 1000:.1f} kJ/kg"
+    )
+
+    fig.add_annotation(
+        x=32,
+        y=86,
+        xref="x",
+        yref="y",
+        text=annotation_text,
+        showarrow=False,
+        align="left",
+        bgcolor="rgba(0,0,0,0)",
+        bordercolor="rgba(0,0,0,0)",
+        font=dict(size=14),
+    )
 
     fig.update_layout(
         yaxis=dict(title="Relative Humidity [%]", range=[0, 100], dtick=10),
@@ -941,27 +977,8 @@ def t_rh_pmv(
         showlegend=False,
         plot_bgcolor="white",
         margin=dict(l=40, r=40, t=40, b=40),
-        annotations=[
-            dict(
-                x=32,
-                y=70,
-                xref="x",
-                yref="y",
-                text=(
-                    f"t<sub>db</sub>: {tdb:.1f} °C<br>"
-                    f"rh: {rh:.1f} %<br>"
-                    f"W<sub>a</sub>: {psy_results.hr * 1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
-                    f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
-                    f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
-                    f"h: {psy_results.h / 1000:.1f} kJ/kg"
-                ),
-                showarrow=False,
-                align="right",
-                bgcolor="rgba(255,255,255,0.8)",
-                bordercolor="rgba(0,0,0,0)",
-                font=dict(size=14),
-            )
-        ],
+        hovermode="closest",
+        hoverdistance=5,
     )
 
     if units == UnitSystem.IP.value:
@@ -1374,9 +1391,6 @@ def SET_outputs_chart(
 
     # show
     return fig
-
-
-# 单位切换成ip后的计算有问题
 
 
 def speed_temp_pmv(
@@ -1831,6 +1845,11 @@ def psy_ashrae_pmv(
         )
         traces.append(trace)
 
+    tdb = inputs[ElementsIDs.t_db_input.value]
+    rh = inputs[ElementsIDs.rh_input.value]
+    tr = inputs[ElementsIDs.t_r_input.value]
+    psy_results = psy_ta_rh(tdb, rh)
+
     # layout
     layout = go.Layout(
         title="Psychrometric (air temperature)",
@@ -1853,9 +1872,194 @@ def psy_ashrae_pmv(
             linecolor="lightgrey",
             side="right",
         ),
+        annotations=[
+            dict(
+                x=14,
+                y=28,
+                xref="x",
+                yref="y",
+                text=(
+                    f"t<sub>db</sub>: {tdb:.1f} °C<br>"
+                    f"rh: {rh:.1f} %<br>"
+                    f"W<sub>a</sub>: {psy_results.hr * 1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                    f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
+                    f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
+                    f"h: {psy_results.h / 1000:.1f} kJ/kg"
+                ),
+                showarrow=False,
+                align="left",
+                bgcolor="rgba(255,255,255,0.8)",
+                bordercolor="rgba(0,0,0,0)",
+                font=dict(size=14),
+            )
+        ],
         showlegend=True,
         plot_bgcolor="white",
     )
 
     fig = go.Figure(data=traces, layout=layout)
+    return fig
+
+
+def psy_ashrae_pmv_operative(
+    inputs: dict = None,
+    model: str = "ashrae",
+    units: str = "SI",
+):
+
+    p_tdb = inputs[ElementsIDs.t_db_input.value]
+    p_tr = inputs[ElementsIDs.t_r_input.value]
+    p_v = inputs[ElementsIDs.v_input.value]
+    p_rh = inputs[ElementsIDs.rh_input.value]
+    p_met = inputs[ElementsIDs.met_input.value]
+    p_clo_d = inputs[ElementsIDs.clo_input.value]
+    p_t_running_mean = inputs[ElementsIDs.t_r_input.value]
+
+    traces = []
+
+    # green area
+    rh = np.arange(0, 101, 10)
+    pmv_list = [-0.5, 0.5]
+    v_r = v_relative(v=p_v, met=p_met)
+    tdb_dict = {}
+    for j in range(len(pmv_list)):
+        tdb_dict[j] = []
+        for i in range(len(rh)):
+            solution = fsolve(
+                lambda x: calculate_tdb(
+                    t_db_x=x,
+                    t_r=x,
+                    v_r=v_r,
+                    r_h=rh[i],
+                    met=p_met,
+                    clo_d=p_clo_d,
+                    pmv_y=pmv_list[j],
+                ),
+                22,
+            )
+            tdb_solution = Decimal(solution[0]).quantize(
+                Decimal("0.0"), rounding=ROUND_HALF_UP
+            )  # ℃
+            tdb_dict[j].append(float(tdb_solution))
+
+    # hr
+
+    lower_upper_tdb = np.append(np.array(tdb_dict[0]), np.array(tdb_dict[1])[::-1])
+    rh_list = np.append(np.arange(0, 101, 10), np.arange(100, -1, -10))
+    # define
+    lower_upper_hr = []
+
+    for i in range(len(rh_list)):
+        lower_upper_hr.append(
+            psy_ta_rh(tdb=lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"] * 1000
+        )
+
+    # traces[0]
+    traces.append(
+        go.Scatter(
+            x=lower_upper_tdb,
+            y=lower_upper_hr,
+            mode="lines",
+            line=dict(color="rgba(0,0,0,0)"),
+            fill="toself",
+            fillcolor="rgba(59, 189, 237, 0.7)",
+            showlegend=False,
+            hoverinfo="none",
+        )
+    )
+
+    # red point，based on air temperature [℃] and relative humidity [%]
+    red_point = [0, 0]
+    red_point[0] = p_tdb
+    red_point[1] = psy_ta_rh(p_tdb, p_rh, p_atm=101325)["hr"] * 1000  # kg/kg ==> g/kg
+    # traces[3]
+    traces.append(
+        go.Scatter(
+            x=[red_point[0]],
+            y=[red_point[1]],
+            mode="markers",
+            marker=dict(
+                color="red",
+                size=6,
+            ),
+            # name='point',
+            showlegend=False,
+        )
+    )
+
+    # line
+    rh_list = np.arange(0, 101, 10)
+    tdb = np.linspace(10, 36, 500)
+    # traces[5-15]
+    # based on rh%
+    for rh in rh_list:
+        # humidity ratio list
+
+        hr_list = np.array(
+            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb]
+        )  # kg/kg => g/kg
+        trace = go.Scatter(
+            x=tdb,
+            y=hr_list,
+            mode="lines",
+            line=dict(color="grey", width=1),
+            hoverinfo="x+y",
+            name=f"{rh}% RH",
+            showlegend=False,
+        )
+        traces.append(trace)
+    tdb = inputs[ElementsIDs.t_db_input.value]
+    rh = inputs[ElementsIDs.rh_input.value]
+    tr = inputs[ElementsIDs.t_r_input.value]
+    psy_results = psy_ta_rh(tdb, rh)
+
+    # layout
+    layout = go.Layout(
+        title="Psychrometric (operative temperature)",
+        xaxis=dict(
+            title="operative Temperature [°C]",
+            range=[10, 36],
+            dtick=2,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor="lightgrey",
+        ),
+        yaxis=dict(
+            title="Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]",
+            range=[0, 30],
+            dtick=5,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor="lightgrey",
+            side="right",
+        ),
+        showlegend=True,
+        plot_bgcolor="white",
+        annotations=[
+            dict(
+                x=14,
+                y=28,
+                xref="x",
+                yref="y",
+                text=(
+                    f"t<sub>db</sub>: {tdb:.1f} °C<br>"
+                    f"rh: {rh:.1f} %<br>"
+                    f"W<sub>a</sub>: {psy_results.hr * 1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                    f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
+                    f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
+                    f"h: {psy_results.h / 1000:.1f} kJ/kg"
+                ),
+                showarrow=False,
+                align="left",
+                bgcolor="rgba(255,255,255,0.8)",
+                bordercolor="rgba(0,0,0,0)",
+                font=dict(size=14),
+            )
+        ],
+    )
+
+    fig = go.Figure(data=traces, layout=layout)
+
     return fig
