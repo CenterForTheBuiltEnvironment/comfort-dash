@@ -355,7 +355,7 @@ def generate_tdb_hr_chart(
 
     traces = []
 
-    ### 2、画绿色区域
+    # green area
     rh = np.arange(0, 101, 20)
     pmv_list = [-0.7, -0.5, -0.2, 0.2, 0.5, 0.7]
     v_r = v_relative(v=p_v, met=p_met)
@@ -380,7 +380,7 @@ def generate_tdb_hr_chart(
             )  # 单位：℃
             tdb_dict[j].append(float(tdb_solution))
 
-    # 通过 tdb 和 rh 百分比值 计算hr的值
+    # hr
     iii_lower_upper_tdb = np.append(np.array(tdb_dict[0]), np.array(tdb_dict[5])[::-1])
     ii_lower_upper_tdb = np.append(np.array(tdb_dict[1]), np.array(tdb_dict[4])[::-1])
     i_lower_upper_tdb = np.append(np.array(tdb_dict[2]), np.array(tdb_dict[3])[::-1])
@@ -502,16 +502,17 @@ def generate_tdb_hr_chart(
             showgrid=True,
             showline=True,
             linewidth=1.5,
-            linecolor="black",
+            linecolor="lightgrey",
         ),
         yaxis=dict(
-            title="Humidity Ratio [g_w/kg_da]",
+            title="Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]",
             range=[0, 30],
             dtick=5,
             showgrid=True,
             showline=True,
             linewidth=1.5,
-            linecolor="black",
+            linecolor="lightgrey",
+            side="right",
         ),
         showlegend=True,
         plot_bgcolor="white",
@@ -1563,7 +1564,7 @@ def psy_ashrae_pmv(
             linecolor="lightgrey",
         ),
         yaxis=dict(
-            title="Humidity Ratio [g_w/kg_da]",
+            title="Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]",
             range=[0, 30],
             dtick=5,
             showgrid=True,
