@@ -491,6 +491,10 @@ def generate_tdb_hr_chart(
             showlegend=False,
         )
         traces.append(trace)
+    tdb = inputs[ElementsIDs.t_db_input.value]
+    rh = inputs[ElementsIDs.rh_input.value]
+    tr = inputs[ElementsIDs.t_r_input.value]
+    psy_results = psy_ta_rh(tdb, rh)
 
     ##title
     layout = go.Layout(
@@ -516,6 +520,27 @@ def generate_tdb_hr_chart(
         ),
         showlegend=True,
         plot_bgcolor="white",
+        annotations=[
+            dict(
+                x=14,
+                y=28,
+                xref="x",
+                yref="y",
+                text=(
+                    f"t<sub>db</sub>: {tdb:.1f} °C<br>"
+                    f"rh: {rh:.1f} %<br>"
+                    f"W<sub>a</sub>: {psy_results.hr * 1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                    f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
+                    f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
+                    f"h: {psy_results.h / 1000:.1f} kJ/kg"
+                ),
+                showarrow=False,
+                align="left",
+                bgcolor="rgba(255,255,255,0.8)",
+                bordercolor="rgba(0,0,0,0)",
+                font=dict(size=14),
+            )
+        ],
     )
 
     fig = go.Figure(data=traces, layout=layout)
@@ -675,6 +700,22 @@ def t_rh_pmv(
                 hoverinfo="skip",
             )
         )
+    annotation_text = (
+        f"t<sub>db</sub>   {inputs[ElementsIDs.t_db_input.value]:.1f} °C<br>"
+    )
+
+    fig.add_annotation(
+        x=32,
+        y=96,
+        xref="x",
+        yref="y",
+        text=annotation_text,
+        showarrow=False,
+        align="left",
+        bgcolor="rgba(0,0,0,0)",
+        bordercolor="rgba(0,0,0,0)",
+        font=dict(size=14),
+    )
 
     fig.update_layout(
         yaxis=dict(title="Relative Humidity [%]", range=[0, 100], dtick=10),

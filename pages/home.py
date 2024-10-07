@@ -10,10 +10,8 @@ from components.charts import (
     generate_tdb_hr_chart,
     SET_outputs_chart,
     speed_temp_pmv,
-
     get_heat_losses,
     psy_ashrae_pmv,
-
 )
 
 from components.dropdowns import (
@@ -36,6 +34,7 @@ from utils.my_config_file import (
     Functionalities,
 )
 import plotly.graph_objects as go
+from pythermalcomfort.psychrometrics import psy_ta_rh
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -172,6 +171,82 @@ def update_note_model(selected_model, function_selection):
     )
 
 
+#  double check the calculating method from pythermalcomfort lib, especially the units
+last_valid_annotation = None
+
+
+# @callback(
+#     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
+#     Input(MyStores.input_data.value, "data"),
+#     Input(ElementsIDs.GRAPH_HOVER.value, "hoverData"),
+#     State(ElementsIDs.GRAPH_HOVER.value, "figure"),
+#     Input(ElementsIDs.functionality_selection.value, "value"),
+#     State(MyStores.input_data.value, "data"),
+# )
+@callback(
+    Output(ElementsIDs.GRAPH_HOVER.value, "figure"),
+    Input(ElementsIDs.GRAPH_HOVER.value, "hoverData"),
+    State(ElementsIDs.GRAPH_HOVER.value, "figure"),
+    State(MyStores.input_data.value, "data"),
+)
+def update_hover_annotation(hover_data, figure, inputs):
+    # For ensure tdp never shown as nan value
+    global last_valid_annotation
+
+    if (
+        hover_data
+        and figure
+        and "points" in hover_data
+        and len(hover_data["points"]) > 0
+    ):
+        chart_selected = inputs[ElementsIDs.chart_selected.value]
+
+        # not show annotation for adaptive methods
+        if chart_selected in [Charts.psychrometric.value.name, Charts.t_rh.value.name]:
+            point = hover_data["points"][0]
+
+            if "x" in point and "y" in point:
+                t_db = point["x"]
+                rh = point["y"]
+
+                # check if y <= 0
+                if rh <= 0:
+                    if (
+                        last_valid_annotation is not None
+                        and "annotations" in figure["layout"]
+                    ):
+                        figure["layout"]["annotations"][0][
+                            "text"
+                        ] = last_valid_annotation
+                    return figure
+
+                # calculations
+                psy_results = psy_ta_rh(t_db, rh)
+                t_wb_value = psy_results.t_wb
+                t_dp_value = psy_results.t_dp
+                wa = psy_results.hr * 1000  # convert to g/kgda
+                h = psy_results.h / 1000  # convert to kj/kg
+
+                annotation_text = (
+                    f"t<sub>db</sub>: {t_db:.1f} °C<br>"
+                    f"RH: {rh:.1f} %<br>"
+                    f"W<sub>a</sub>: {wa:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                    f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
+                    f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
+                    f"h: {h:.1f} kJ/kg<br>"
+                )
+
+                if (
+                    "annotations" in figure["layout"]
+                    and len(figure["layout"]["annotations"]) > 0
+                ):
+                    figure["layout"]["annotations"][0]["text"] = annotation_text
+            else:
+                print("Unexpected hover data structure:", point)
+
+    return figure
+
+
 @callback(
     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
     Input(MyStores.input_data.value, "data"),
@@ -221,8 +296,9 @@ def update_chart(inputs: dict, function_selection: str):
         ):
             image = psy_ashrae_pmv(inputs=inputs, model="ashrae")
 
-        elif (selected_model == Models.PMV_EN.name
-              and function_selection == Functionalities.Default.value
+        elif (
+            selected_model == Models.PMV_EN.name
+            and function_selection == Functionalities.Default.value
         ):
             image = generate_tdb_hr_chart(inputs=inputs, model="iso", units=units)
 
