@@ -12,7 +12,7 @@ from components.charts import (
     speed_temp_pmv,
     get_heat_losses,
     psy_ashrae_pmv,
-    generate_operative_chart
+    generate_operative_chart,
 )
 
 from components.dropdowns import (
@@ -203,7 +203,11 @@ def update_hover_annotation(hover_data, figure, inputs):
         chart_selected = inputs[ElementsIDs.chart_selected.value]
 
         # not show annotation for adaptive methods
-        if chart_selected in [Charts.psychrometric.value.name, Charts.t_rh.value.name,Charts.psychrometric_operative.value.name]:
+        if chart_selected in [
+            Charts.psychrometric.value.name,
+            Charts.t_rh.value.name,
+            Charts.psychrometric_operative.value.name,
+        ]:
             point = hover_data["points"][0]
 
             if "x" in point and "y" in point:
@@ -304,12 +308,12 @@ def update_chart(inputs: dict, function_selection: str):
             image = generate_tdb_hr_chart(inputs=inputs, model="iso", units=units)
 
     elif chart_selected == Charts.psychrometric_operative.value.name:
-        if(
-            selected_model ==Models.PMV_EN.name
-                and function_selection == Functionalities.Default.value
+        if (
+            selected_model == Models.PMV_EN.name
+            and function_selection == Functionalities.Default.value
         ):
-           use_to = chart_selected == Charts.psychrometric_operative.value.name
-        image =generate_operative_chart (inputs=inputs,model="iso")
+            use_to = chart_selected == Charts.psychrometric_operative.value.name
+        image = generate_operative_chart(inputs=inputs, model="iso")
 
     elif chart_selected == Charts.set_outputs.value.name:
         if (

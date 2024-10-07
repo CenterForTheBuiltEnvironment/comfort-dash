@@ -553,11 +553,18 @@ def calculate_operative_temperature(tdb, tr, v):
 
 # calculate tdb by to value (tdb == tr)
 def calculate_tdb_by_to(t_db_x, t_r, v_r, r_h, met, clo_d, pmv_y):
-    return _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d) - pmv_y
+    return (
+        _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d)
+        - pmv_y
+    )
+
 
 # calculate tdb, tdb为x输入，pmv为y输出
 def calculate_tdb(t_db_x, t_r, v_r, r_h, met, clo_d, pmv_y):
-    return _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d) - pmv_y
+    return (
+        _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d)
+        - pmv_y
+    )
 
 
 # calculate relative humidity by dry bulb temperature, humidity ratio
@@ -565,8 +572,8 @@ def calculate_relative_humidity(rh, tdb, hr):
     return 0.62198 * (rh / 100 * p_sat(tdb)) / (101325 - (rh / 100 * p_sat(tdb))) - hr
 
 
-
-def generate_operative_chart(inputs: dict = None,
+def generate_operative_chart(
+    inputs: dict = None,
     model: str = "iso",
     units: str = "SI",
 ):
@@ -575,10 +582,10 @@ def generate_operative_chart(inputs: dict = None,
     p_tr = inputs[ElementsIDs.t_r_input.value]
     p_v = inputs[ElementsIDs.v_input.value]
     p_rh = inputs[ElementsIDs.rh_input.value]
-    p_met =inputs[ElementsIDs.met_input.value]
-    p_clo_d =inputs[ElementsIDs.clo_input.value]
+    p_met = inputs[ElementsIDs.met_input.value]
+    p_clo_d = inputs[ElementsIDs.clo_input.value]
     p_t_running_mean = inputs[ElementsIDs.t_r_input.value]
-    
+
     traces = []
 
     ### 2、画绿色区域
@@ -589,8 +596,21 @@ def generate_operative_chart(inputs: dict = None,
     for j in range(len(pmv_list)):
         tdb_dict[j] = []
         for i in range(len(rh)):
-            solution = fsolve(lambda x: calculate_tdb(t_db_x=x, t_r=x, v_r=v_r, r_h=rh[i], met=p_met, clo_d=p_clo_d, pmv_y=pmv_list[j]), 22)
-            tdb_solution = Decimal(solution[0]).quantize(Decimal('0.0'), rounding=ROUND_HALF_UP)  # 单位：℃
+            solution = fsolve(
+                lambda x: calculate_tdb(
+                    t_db_x=x,
+                    t_r=x,
+                    v_r=v_r,
+                    r_h=rh[i],
+                    met=p_met,
+                    clo_d=p_clo_d,
+                    pmv_y=pmv_list[j],
+                ),
+                22,
+            )
+            tdb_solution = Decimal(solution[0]).quantize(
+                Decimal("0.0"), rounding=ROUND_HALF_UP
+            )  # 单位：℃
             tdb_dict[j].append(float(tdb_solution))
 
     # 通过 tdb 和 rh 百分比值 计算hr的值
@@ -603,65 +623,80 @@ def generate_operative_chart(inputs: dict = None,
     ii_lower_upper_hr = []
     i_lower_upper_hr = []
     for i in range(len(rh_list)):
-        iii_lower_upper_hr.append(psy_ta_rh(tdb=iii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
-        ii_lower_upper_hr.append(psy_ta_rh(tdb=ii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
-        i_lower_upper_hr.append(psy_ta_rh(tdb=i_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
-   
+        iii_lower_upper_hr.append(
+            psy_ta_rh(tdb=iii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]
+            * 1000
+        )
+        ii_lower_upper_hr.append(
+            psy_ta_rh(tdb=ii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]
+            * 1000
+        )
+        i_lower_upper_hr.append(
+            psy_ta_rh(tdb=i_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]
+            * 1000
+        )
 
     # traces[0]
-    traces.append(go.Scatter(
-        x=iii_lower_upper_tdb,
-        y=iii_lower_upper_hr,
-        mode='lines',
-        line=dict(color='rgba(0,0,0,0)'),
-        fill='toself',
-        fillcolor='rgba(0,255,0,0.2)',
-        showlegend=False,
-        hoverinfo='none'
-    ))
+    traces.append(
+        go.Scatter(
+            x=iii_lower_upper_tdb,
+            y=iii_lower_upper_hr,
+            mode="lines",
+            line=dict(color="rgba(0,0,0,0)"),
+            fill="toself",
+            fillcolor="rgba(0,255,0,0.2)",
+            showlegend=False,
+            hoverinfo="none",
+        )
+    )
     # category II
     # traces[1]
-    traces.append(go.Scatter(
-        x=ii_lower_upper_tdb,
-        y=ii_lower_upper_hr,
-        mode='lines',
-        line=dict(color='rgba(0,0,0,0)'),
-        fill='toself',
-        fillcolor='rgba(0,255,0,0.3)',
-        showlegend=False,
-        hoverinfo='none'
-    ))
+    traces.append(
+        go.Scatter(
+            x=ii_lower_upper_tdb,
+            y=ii_lower_upper_hr,
+            mode="lines",
+            line=dict(color="rgba(0,0,0,0)"),
+            fill="toself",
+            fillcolor="rgba(0,255,0,0.3)",
+            showlegend=False,
+            hoverinfo="none",
+        )
+    )
     # category I
     # traces[2]
-    traces.append(go.Scatter(
-        x=i_lower_upper_tdb,
-        y=i_lower_upper_hr,
-        mode='lines',
-        line=dict(color='rgba(0,0,0,0)'),
-        fill='toself',
-        fillcolor='rgba(0,255,0,0.4)',
-        showlegend=False,
-        hoverinfo='none'
-    ))
+    traces.append(
+        go.Scatter(
+            x=i_lower_upper_tdb,
+            y=i_lower_upper_hr,
+            mode="lines",
+            line=dict(color="rgba(0,0,0,0)"),
+            fill="toself",
+            fillcolor="rgba(0,255,0,0.4)",
+            showlegend=False,
+            hoverinfo="none",
+        )
+    )
 
-         
     ### 3、画红点，based on air temperature [℃] and relative humidity [%]
     # 圆心
-    red_point = [0,0]
+    red_point = [0, 0]
     red_point[0] = p_tdb
     red_point[1] = psy_ta_rh(p_tdb, p_rh, p_atm=101325)["hr"] * 1000  # kg/kg ==> g/kg
     # traces[3]
-    traces.append(go.Scatter(
-        x=[red_point[0]],
-        y=[red_point[1]],
-        mode='markers',
-        marker=dict(
-            color='red', 
-            size=4,
-        ),
-        # name='point',
-        showlegend=False,
-    ))
+    traces.append(
+        go.Scatter(
+            x=[red_point[0]],
+            y=[red_point[1]],
+            mode="markers",
+            marker=dict(
+                color="red",
+                size=4,
+            ),
+            # name='point',
+            showlegend=False,
+        )
+    )
 
     ### 1、划曲线
     rh_list = np.arange(0, 101, 10)
@@ -670,48 +705,50 @@ def generate_operative_chart(inputs: dict = None,
     # based on rh%
     for rh in rh_list:
         # humidity ratio list
-        
-        hr_list = np.array([psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb])  # kg/kg => g/kg
+
+        hr_list = np.array(
+            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb]
+        )  # kg/kg => g/kg
         trace = go.Scatter(
             x=tdb,
             y=hr_list,
-            mode='lines',
-            line=dict(color='black', width=1),
-            hoverinfo='x+y',  
-            name=f'{rh}% RH',
-            showlegend=False
+            mode="lines",
+            line=dict(color="black", width=1),
+            hoverinfo="x+y",
+            name=f"{rh}% RH",
+            showlegend=False,
         )
         traces.append(trace)
     tdb = inputs[ElementsIDs.t_db_input.value]
     rh = inputs[ElementsIDs.rh_input.value]
     tr = inputs[ElementsIDs.t_r_input.value]
     psy_results = psy_ta_rh(tdb, rh)
-   
+
     ### 4、设置图表的title和轴标签
     layout = go.Layout(
-        title='Psychrometric (operative temperature)',
+        title="Psychrometric (operative temperature)",
         xaxis=dict(
-            title='operative Temperature [°C]', 
+            title="operative Temperature [°C]",
             range=[10, 36],
             dtick=2,
             showgrid=True,
             showline=True,
             linewidth=1.5,
-            linecolor='black',
+            linecolor="black",
         ),
         yaxis=dict(
-            title='Humidity Ratio [g_w/kg_da]', 
+            title="Humidity Ratio [g_w/kg_da]",
             range=[0, 30],
             dtick=5,
             showgrid=True,
             showline=True,
             linewidth=1.5,
-            linecolor='black',
+            linecolor="black",
             side="right",
         ),
         showlegend=True,
-        plot_bgcolor='white',
-         annotations=[
+        plot_bgcolor="white",
+        annotations=[
             dict(
                 x=14,
                 y=28,
@@ -731,13 +768,12 @@ def generate_operative_chart(inputs: dict = None,
                 bordercolor="rgba(0,0,0,0)",
                 font=dict(size=14),
             )
-        ]
+        ],
     )
-    
+
     fig = go.Figure(data=traces, layout=layout)
 
     return fig
-
 
 
 def t_rh_pmv(
@@ -893,7 +929,6 @@ def t_rh_pmv(
                 hoverinfo="skip",
             )
         )
-   
 
     tdb = inputs[ElementsIDs.t_db_input.value]
     rh = inputs[ElementsIDs.rh_input.value]
@@ -906,7 +941,7 @@ def t_rh_pmv(
         showlegend=False,
         plot_bgcolor="white",
         margin=dict(l=40, r=40, t=40, b=40),
-         annotations=[
+        annotations=[
             dict(
                 x=32,
                 y=70,
@@ -926,7 +961,7 @@ def t_rh_pmv(
                 bordercolor="rgba(0,0,0,0)",
                 font=dict(size=14),
             )
-        ]
+        ],
     )
 
     if units == UnitSystem.IP.value:
@@ -940,210 +975,210 @@ def t_rh_pmv(
     return fig
 
 
-def SET_outputs_chart( 
-    inputs: dict = None, 
-    calculate_ce: bool = False, 
-    p_atmospheric: int = 101325, 
-    units: str = "SI", 
-): 
-    # Dry-bulb air temperature (x-axis) 
-    # if units == UnitSystem.SI.value: 
-    #     tdb_values = np.arange(10, 40, 0.5, dtype=float).tolist() 
-    # else: 
-    #     tdb_values = np.arange(50, 104, 0.9, dtype=float).tolist() 
- 
-    # Prepare arrays for the outputs we want to plot 
-    set_temp = []  # set_tmp() 
-    skin_temp = []  # t_skin 
-    core_temp = []  # t_core 
-    clothing_temp = []  # t_cl 
-    mean_body_temp = []  # t_body 
-    total_skin_evaporative_heat_loss = []  # e_skin 
-    sweat_evaporation_skin_heat_loss = []  # e_rsw 
-    vapour_diffusion_skin_heat_loss = []  # e_diff 
-    total_skin_senesible_heat_loss = []  # q_sensible 
-    total_skin_heat_loss = []  # q_skin 
-    heat_loss_respiration = []  # q_res 
-    skin_wettedness = []  # w 
- 
-    # Extract common input values 
-    tr = float(inputs[ElementsIDs.t_r_input.value]) 
-    vr = float( 
-        v_relative(  # Ensure vr is scalar 
-            v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value] 
-        ) 
-    ) 
-    rh = float(inputs[ElementsIDs.rh_input.value])  # Ensure rh is scalar 
-    met = float(inputs[ElementsIDs.met_input.value])  # Ensure met is scalar 
-    clo = float( 
-        clo_dynamic(  # Ensure clo is scalar 
-            clo=inputs[ElementsIDs.clo_input.value], met=met 
-        ) 
-    ) 
-    if units == UnitSystem.SI.value: 
-        tdb_values = np.arange(10, 40, 0.5, dtype=float).tolist() 
-        for tdb in tdb_values: 
-            set = set_tmp( 
-                tdb=tdb, 
-                tr=tr, 
-                v=vr, 
-                rh=rh, 
-                met=met, 
-                clo=clo, 
-                wme=0, 
-                limit_inputs=False, 
-            ) 
-            set_temp.append(float(set))  # Convert np.float64 to float 
- 
-        # Iterate through each temperature value and call `two_nodes` 
-        for tdb in tdb_values: 
-            results = two_nodes (
-                tdb=tdb, 
-                tr=tr, 
-                v=vr, 
-                rh=rh, 
-                met=met, 
-                clo=clo, 
-                wme=0, 
-            ) 
-            # Collect relevant data for each variable, converting to float 
-            skin_temp.append(float(results["t_skin"]))  # Convert np.float64 to float 
-            core_temp.append(float(results["t_core"]))  # Convert np.float64 to float 
-            total_skin_evaporative_heat_loss.append( 
-                float(results["e_skin"]) 
-            )  # Convert np.float64 to float 
-            sweat_evaporation_skin_heat_loss.append( 
-                float(results["e_rsw"]) 
-            )  # Convert np.float64 to float  
-            vapour_diffusion_skin_heat_loss.append( 
-                float(results["e_skin"] - results["e_rsw"]) 
-            )  # Convert np.float64 to float 
-            total_skin_senesible_heat_loss.append( 
-                float(results["q_sensible"]) 
-            )  # Convert np.float64 to float 
-            total_skin_heat_loss.append( 
-                float(results["q_skin"]) 
-            )  # Convert np.float64 to float 
-            heat_loss_respiration.append( 
-                float(results["q_res"]) 
-            )  # Convert np.float64 to float 
-            skin_wettedness.append( 
-                float(results["w"]) * 100 
-            )  # Convert to percentage and float 
- 
-            # calculate clothing temperature t_cl 
-            pressure_in_atmospheres = float(p_atmospheric / 101325) 
-            r_clo = 0.155 * clo 
-            f_a_cl = 1.0 + 0.15 * clo 
-            h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53) 
-            h_fc = 8.600001 * pow((vr * pressure_in_atmospheres), 0.53) 
-            h_cc = max(h_cc, h_fc) 
-            if not calculate_ce and met > 0.85: 
-                h_c_met = 5.66 * (met - 0.85) ** 0.39 
-                h_cc = max(h_cc, h_c_met) 
-            h_r = 4.7 
-            h_t = h_r + h_cc 
-            r_a = 1.0 / (f_a_cl * h_t) 
-            t_op = (h_r * tr + h_cc * tdb) / h_t 
-            clothing_temp.append( 
-                float((r_a * results["t_skin"] + r_clo * t_op) / (r_a + r_clo)) 
-            ) 
-            # calculate mean body temperature t_body 
-            alfa = 0.1 
-            mean_body_temp.append( 
-                float(alfa * results["t_skin"] + (1 - alfa) * results["t_core"]) 
-            ) 
- 
-    else: 
-        tdb_values = np.arange(50, 104, 0.9, dtype=float).tolist() 
-        for tdb in tdb_values: 
-            tdb_si = UnitConverter.fahrenheit_to_celsius(tdb) 
-            tr_si = UnitConverter.fahrenheit_to_celsius(tr) 
-            vr_si = UnitConverter.fps_to_mps(vr) 
-            set = set_tmp( 
-                tdb=tdb_si, 
-                tr=tr_si, 
-                v=vr_si, 
-                rh=rh, 
-                met=met, 
-                clo=clo, 
-                wme=0, 
-                limit_inputs=False, 
-            ) 
-            set_temp.append( 
-                UnitConverter.celsius_to_fahrenheit(float(set)) 
-            )  # Convert np.float64 to float 
- 
-        # Iterate through each temperature value and call `two_nodes` 
-        for tdb in tdb_values: 
-            tdb_si = UnitConverter.fahrenheit_to_celsius(tdb) 
-            tr_si = UnitConverter.fahrenheit_to_celsius(tr) 
-            vr_si = UnitConverter.fps_to_mps(vr) 
-            results = two_nodes( 
-                tdb=tdb_si, 
-                tr=tr_si, 
-                v=vr_si, 
-                rh=rh, 
-                met=met, 
-                clo=clo, 
-                wme=0, 
-            ) 
-            # Collect relevant data for each variable, converting to float 
-            skin_temp.append( 
-                UnitConverter.celsius_to_fahrenheit(float(results["t_skin"])) 
-            )  # Convert np.float64 to float 
-            core_temp.append( 
-                UnitConverter.celsius_to_fahrenheit(float(results["t_core"])) 
-            )  # Convert np.float64 to float 
-            total_skin_evaporative_heat_loss.append( 
-                float(results["e_skin"]) 
-            )  # Convert np.float64 to float 
-            sweat_evaporation_skin_heat_loss.append( 
-                float(results["e_rsw"]) 
-            )  # Convert np.float64 to float 
-            vapour_diffusion_skin_heat_loss.append( 
-                float(results["e_skin"] - results["e_rsw"]) 
-            )  # Convert np.float64 to float 
-            total_skin_senesible_heat_loss.append( 
-                float(results["q_sensible"]) 
-            )  # Convert np.float64 to float# 
-            total_skin_heat_loss.append( 
-                float(results["q_skin"]) 
-            )  # Convert np.float64 to float# 
-            heat_loss_respiration.append( 
-                float(results["q_res"]) 
-            )  # Convert np.float64 to float 
-            skin_wettedness.append( 
-                float(results["w"]) * 100 
-            )  # Convert to percentage and float 
- 
-            # calculate clothing temperature t_cl 
-            pressure_in_atmospheres = float(p_atmospheric / 101325) 
- 
-            r_clo = 0.155 * clo 
-            f_a_cl = 1.0 + 0.15 * clo 
-            h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53) 
-            h_fc = 8.600001 * pow((vr * pressure_in_atmospheres), 0.53) 
-            h_cc = max(h_cc, h_fc) 
-            if not calculate_ce and met > 0.85: 
-                h_c_met = 5.66 * (met - 0.85) ** 0.39 
-                h_cc = max(h_cc, h_c_met) 
-            h_r = 4.7 
-            h_t = h_r + h_cc 
-            r_a = 1.0 / (f_a_cl * h_t) 
-            t_op = (h_r * tr + h_cc * tdb) / h_t 
-            # calculate mean body temperature t_body 
-            alfa = 0.1 
-            mean_body_temp.append( 
-                UnitConverter.celsius_to_fahrenheit( 
-                    float(alfa * results["t_skin"] + (1 - alfa) * results["t_core"]) 
-                ) 
-            ) 
-            clothing_temp.append( 
-                UnitConverter.celsius_to_fahrenheit( 
-                    float((r_a * results["t_skin"] + r_clo * t_op) / (r_a + r_clo)) 
-                ) 
-            ) 
+def SET_outputs_chart(
+    inputs: dict = None,
+    calculate_ce: bool = False,
+    p_atmospheric: int = 101325,
+    units: str = "SI",
+):
+    # Dry-bulb air temperature (x-axis)
+    # if units == UnitSystem.SI.value:
+    #     tdb_values = np.arange(10, 40, 0.5, dtype=float).tolist()
+    # else:
+    #     tdb_values = np.arange(50, 104, 0.9, dtype=float).tolist()
+
+    # Prepare arrays for the outputs we want to plot
+    set_temp = []  # set_tmp()
+    skin_temp = []  # t_skin
+    core_temp = []  # t_core
+    clothing_temp = []  # t_cl
+    mean_body_temp = []  # t_body
+    total_skin_evaporative_heat_loss = []  # e_skin
+    sweat_evaporation_skin_heat_loss = []  # e_rsw
+    vapour_diffusion_skin_heat_loss = []  # e_diff
+    total_skin_senesible_heat_loss = []  # q_sensible
+    total_skin_heat_loss = []  # q_skin
+    heat_loss_respiration = []  # q_res
+    skin_wettedness = []  # w
+
+    # Extract common input values
+    tr = float(inputs[ElementsIDs.t_r_input.value])
+    vr = float(
+        v_relative(  # Ensure vr is scalar
+            v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
+        )
+    )
+    rh = float(inputs[ElementsIDs.rh_input.value])  # Ensure rh is scalar
+    met = float(inputs[ElementsIDs.met_input.value])  # Ensure met is scalar
+    clo = float(
+        clo_dynamic(  # Ensure clo is scalar
+            clo=inputs[ElementsIDs.clo_input.value], met=met
+        )
+    )
+    if units == UnitSystem.SI.value:
+        tdb_values = np.arange(10, 40, 0.5, dtype=float).tolist()
+        for tdb in tdb_values:
+            set = set_tmp(
+                tdb=tdb,
+                tr=tr,
+                v=vr,
+                rh=rh,
+                met=met,
+                clo=clo,
+                wme=0,
+                limit_inputs=False,
+            )
+            set_temp.append(float(set))  # Convert np.float64 to float
+
+        # Iterate through each temperature value and call `two_nodes`
+        for tdb in tdb_values:
+            results = two_nodes(
+                tdb=tdb,
+                tr=tr,
+                v=vr,
+                rh=rh,
+                met=met,
+                clo=clo,
+                wme=0,
+            )
+            # Collect relevant data for each variable, converting to float
+            skin_temp.append(float(results["t_skin"]))  # Convert np.float64 to float
+            core_temp.append(float(results["t_core"]))  # Convert np.float64 to float
+            total_skin_evaporative_heat_loss.append(
+                float(results["e_skin"])
+            )  # Convert np.float64 to float
+            sweat_evaporation_skin_heat_loss.append(
+                float(results["e_rsw"])
+            )  # Convert np.float64 to float
+            vapour_diffusion_skin_heat_loss.append(
+                float(results["e_skin"] - results["e_rsw"])
+            )  # Convert np.float64 to float
+            total_skin_senesible_heat_loss.append(
+                float(results["q_sensible"])
+            )  # Convert np.float64 to float
+            total_skin_heat_loss.append(
+                float(results["q_skin"])
+            )  # Convert np.float64 to float
+            heat_loss_respiration.append(
+                float(results["q_res"])
+            )  # Convert np.float64 to float
+            skin_wettedness.append(
+                float(results["w"]) * 100
+            )  # Convert to percentage and float
+
+            # calculate clothing temperature t_cl
+            pressure_in_atmospheres = float(p_atmospheric / 101325)
+            r_clo = 0.155 * clo
+            f_a_cl = 1.0 + 0.15 * clo
+            h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53)
+            h_fc = 8.600001 * pow((vr * pressure_in_atmospheres), 0.53)
+            h_cc = max(h_cc, h_fc)
+            if not calculate_ce and met > 0.85:
+                h_c_met = 5.66 * (met - 0.85) ** 0.39
+                h_cc = max(h_cc, h_c_met)
+            h_r = 4.7
+            h_t = h_r + h_cc
+            r_a = 1.0 / (f_a_cl * h_t)
+            t_op = (h_r * tr + h_cc * tdb) / h_t
+            clothing_temp.append(
+                float((r_a * results["t_skin"] + r_clo * t_op) / (r_a + r_clo))
+            )
+            # calculate mean body temperature t_body
+            alfa = 0.1
+            mean_body_temp.append(
+                float(alfa * results["t_skin"] + (1 - alfa) * results["t_core"])
+            )
+
+    else:
+        tdb_values = np.arange(50, 104, 0.9, dtype=float).tolist()
+        for tdb in tdb_values:
+            tdb_si = UnitConverter.fahrenheit_to_celsius(tdb)
+            tr_si = UnitConverter.fahrenheit_to_celsius(tr)
+            vr_si = UnitConverter.fps_to_mps(vr)
+            set = set_tmp(
+                tdb=tdb_si,
+                tr=tr_si,
+                v=vr_si,
+                rh=rh,
+                met=met,
+                clo=clo,
+                wme=0,
+                limit_inputs=False,
+            )
+            set_temp.append(
+                UnitConverter.celsius_to_fahrenheit(float(set))
+            )  # Convert np.float64 to float
+
+        # Iterate through each temperature value and call `two_nodes`
+        for tdb in tdb_values:
+            tdb_si = UnitConverter.fahrenheit_to_celsius(tdb)
+            tr_si = UnitConverter.fahrenheit_to_celsius(tr)
+            vr_si = UnitConverter.fps_to_mps(vr)
+            results = two_nodes(
+                tdb=tdb_si,
+                tr=tr_si,
+                v=vr_si,
+                rh=rh,
+                met=met,
+                clo=clo,
+                wme=0,
+            )
+            # Collect relevant data for each variable, converting to float
+            skin_temp.append(
+                UnitConverter.celsius_to_fahrenheit(float(results["t_skin"]))
+            )  # Convert np.float64 to float
+            core_temp.append(
+                UnitConverter.celsius_to_fahrenheit(float(results["t_core"]))
+            )  # Convert np.float64 to float
+            total_skin_evaporative_heat_loss.append(
+                float(results["e_skin"])
+            )  # Convert np.float64 to float
+            sweat_evaporation_skin_heat_loss.append(
+                float(results["e_rsw"])
+            )  # Convert np.float64 to float
+            vapour_diffusion_skin_heat_loss.append(
+                float(results["e_skin"] - results["e_rsw"])
+            )  # Convert np.float64 to float
+            total_skin_senesible_heat_loss.append(
+                float(results["q_sensible"])
+            )  # Convert np.float64 to float#
+            total_skin_heat_loss.append(
+                float(results["q_skin"])
+            )  # Convert np.float64 to float#
+            heat_loss_respiration.append(
+                float(results["q_res"])
+            )  # Convert np.float64 to float
+            skin_wettedness.append(
+                float(results["w"]) * 100
+            )  # Convert to percentage and float
+
+            # calculate clothing temperature t_cl
+            pressure_in_atmospheres = float(p_atmospheric / 101325)
+
+            r_clo = 0.155 * clo
+            f_a_cl = 1.0 + 0.15 * clo
+            h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53)
+            h_fc = 8.600001 * pow((vr * pressure_in_atmospheres), 0.53)
+            h_cc = max(h_cc, h_fc)
+            if not calculate_ce and met > 0.85:
+                h_c_met = 5.66 * (met - 0.85) ** 0.39
+                h_cc = max(h_cc, h_c_met)
+            h_r = 4.7
+            h_t = h_r + h_cc
+            r_a = 1.0 / (f_a_cl * h_t)
+            t_op = (h_r * tr + h_cc * tdb) / h_t
+            # calculate mean body temperature t_body
+            alfa = 0.1
+            mean_body_temp.append(
+                UnitConverter.celsius_to_fahrenheit(
+                    float(alfa * results["t_skin"] + (1 - alfa) * results["t_core"])
+                )
+            )
+            clothing_temp.append(
+                UnitConverter.celsius_to_fahrenheit(
+                    float((r_a * results["t_skin"] + r_clo * t_op) / (r_a + r_clo))
+                )
+            )
 
     fig = go.Figure()
 
