@@ -300,11 +300,11 @@ def _pmv_ppd_optimized(tdb, tr, vr, rh, met, clo, wme=0):
 
 
 # calculate tdb, tdb is input，pmv is output
-def calculate_tdb(t_db_x, t_r, v_r, r_h, met, clo_d, pmv_y):
-    return (
-        _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d)
-        - pmv_y
-    )
+# def calculate_tdb(t_db_x, t_r, v_r, r_h, met, clo_d, pmv_y):
+#     return (
+#         _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d)
+#         - pmv_y
+#     )
 
 
 # calculate relative humidity by dry bulb temperature, humidity ratio
@@ -318,14 +318,14 @@ def calculate_chart_parameters(tem_dry_bulb, humidity_ratio):
     param tem_dry_bulb: ℃
     param humidity_ratio: g/kg
     """
-    # 1为猜想解, hr因为单位为kg/kg，需要 / 1000
+    # kg/kg，need / 1000
     solution = fsolve(
         lambda x: calculate_relative_humidity(
             rh=x, tdb=tem_dry_bulb, hr=humidity_ratio / 1000
         ),
         1,
     )
-    relative_humidity = solution[0]  # 单位：%
+    relative_humidity = solution[0]  # %
     wet_bulb_temp = t_wb(tem_dry_bulb, relative_humidity)  # ℃
     dew_point_temp = t_dp(tem_dry_bulb, relative_humidity)  # ℃
     h = enthalpy(tem_dry_bulb, humidity_ratio / 1000) / 1000  # J/kg ==> kJ/kg
@@ -377,7 +377,7 @@ def generate_tdb_hr_chart(
             )
             tdb_solution = Decimal(solution[0]).quantize(
                 Decimal("0.0"), rounding=ROUND_HALF_UP
-            )  # 单位：℃
+            )  # ℃
             tdb_dict[j].append(float(tdb_solution))
 
     # hr
@@ -610,7 +610,7 @@ def generate_operative_chart(
             )
             tdb_solution = Decimal(solution[0]).quantize(
                 Decimal("0.0"), rounding=ROUND_HALF_UP
-            )  # 单位：℃
+            )  # ℃
             tdb_dict[j].append(float(tdb_solution))
 
     # hr
@@ -1781,7 +1781,7 @@ def psy_ashrae_pmv(
             )
             tdb_solution = Decimal(solution[0]).quantize(
                 Decimal("0.0"), rounding=ROUND_HALF_UP
-            )  # 单位：℃
+            )  # ℃
             tdb_dict[j].append(float(tdb_solution))
 
     # calculate hr
