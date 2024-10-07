@@ -461,18 +461,18 @@ def generate_tdb_hr_chart(
         )
     )
     # Circle around the red point
-    theta = np.linspace(0, 2 * np.pi, 100)
-    circle_x = red_point_x + 0.6 * np.cos(theta)
-    circle_y = red_point_y + 1.0 * np.sin(theta)
-    traces.append(
-        go.Scatter(
-            x=circle_x,
-            y=circle_y,
-            mode="lines",
-            line=dict(color="red", width=1.5),
-            showlegend=False,
-        )
-    )
+    # theta = np.linspace(0, 2 * np.pi, 100)
+    # circle_x = red_point_x + 0.6 * np.cos(theta)
+    # circle_y = red_point_y + 1.0 * np.sin(theta)
+    # traces.append(
+    #     go.Scatter(
+    #         x=circle_x,
+    #         y=circle_y,
+    #         mode="lines",
+    #         line=dict(color="red", width=1.5),
+    #         showlegend=False,
+    #     )
+    # )
 
     # line
     rh_list = np.arange(0, 101, 10)
@@ -545,6 +545,199 @@ def generate_tdb_hr_chart(
 
     fig = go.Figure(data=traces, layout=layout)
     return fig
+
+
+def calculate_operative_temperature(tdb, tr, v):
+    return (tdb * np.sqrt(10 * v) + tr) / (1 + np.sqrt(10 * v))
+
+
+# calculate tdb by to value (tdb == tr)
+def calculate_tdb_by_to(t_db_x, t_r, v_r, r_h, met, clo_d, pmv_y):
+    return _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d) - pmv_y
+
+# calculate tdb, tdb为x输入，pmv为y输出
+def calculate_tdb(t_db_x, t_r, v_r, r_h, met, clo_d, pmv_y):
+    return _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d) - pmv_y
+
+
+# calculate relative humidity by dry bulb temperature, humidity ratio
+def calculate_relative_humidity(rh, tdb, hr):
+    return 0.62198 * (rh / 100 * p_sat(tdb)) / (101325 - (rh / 100 * p_sat(tdb))) - hr
+
+
+
+def generate_operative_chart(inputs: dict = None,
+    model: str = "iso",
+    units: str = "SI",
+):
+
+    p_tdb = inputs[ElementsIDs.t_db_input.value]
+    p_tr = inputs[ElementsIDs.t_r_input.value]
+    p_v = inputs[ElementsIDs.v_input.value]
+    p_rh = inputs[ElementsIDs.rh_input.value]
+    p_met =inputs[ElementsIDs.met_input.value]
+    p_clo_d =inputs[ElementsIDs.clo_input.value]
+    p_t_running_mean = inputs[ElementsIDs.t_r_input.value]
+    
+    traces = []
+
+    ### 2、画绿色区域
+    rh = np.arange(0, 101, 10)
+    pmv_list = [-0.7, -0.5, -0.2, 0.2, 0.5, 0.7]
+    v_r = v_relative(v=p_v, met=p_met)
+    tdb_dict = {}
+    for j in range(len(pmv_list)):
+        tdb_dict[j] = []
+        for i in range(len(rh)):
+            solution = fsolve(lambda x: calculate_tdb(t_db_x=x, t_r=x, v_r=v_r, r_h=rh[i], met=p_met, clo_d=p_clo_d, pmv_y=pmv_list[j]), 22)
+            tdb_solution = Decimal(solution[0]).quantize(Decimal('0.0'), rounding=ROUND_HALF_UP)  # 单位：℃
+            tdb_dict[j].append(float(tdb_solution))
+
+    # 通过 tdb 和 rh 百分比值 计算hr的值
+    iii_lower_upper_tdb = np.append(np.array(tdb_dict[0]), np.array(tdb_dict[5])[::-1])
+    ii_lower_upper_tdb = np.append(np.array(tdb_dict[1]), np.array(tdb_dict[4])[::-1])
+    i_lower_upper_tdb = np.append(np.array(tdb_dict[2]), np.array(tdb_dict[3])[::-1])
+    rh_list = np.append(np.arange(0, 101, 10), np.arange(100, -1, -10))
+    # define
+    iii_lower_upper_hr = []
+    ii_lower_upper_hr = []
+    i_lower_upper_hr = []
+    for i in range(len(rh_list)):
+        iii_lower_upper_hr.append(psy_ta_rh(tdb=iii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
+        ii_lower_upper_hr.append(psy_ta_rh(tdb=ii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
+        i_lower_upper_hr.append(psy_ta_rh(tdb=i_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]*1000)
+   
+
+    # traces[0]
+    traces.append(go.Scatter(
+        x=iii_lower_upper_tdb,
+        y=iii_lower_upper_hr,
+        mode='lines',
+        line=dict(color='rgba(0,0,0,0)'),
+        fill='toself',
+        fillcolor='rgba(0,255,0,0.2)',
+        showlegend=False,
+        hoverinfo='none'
+    ))
+    # category II
+    # traces[1]
+    traces.append(go.Scatter(
+        x=ii_lower_upper_tdb,
+        y=ii_lower_upper_hr,
+        mode='lines',
+        line=dict(color='rgba(0,0,0,0)'),
+        fill='toself',
+        fillcolor='rgba(0,255,0,0.3)',
+        showlegend=False,
+        hoverinfo='none'
+    ))
+    # category I
+    # traces[2]
+    traces.append(go.Scatter(
+        x=i_lower_upper_tdb,
+        y=i_lower_upper_hr,
+        mode='lines',
+        line=dict(color='rgba(0,0,0,0)'),
+        fill='toself',
+        fillcolor='rgba(0,255,0,0.4)',
+        showlegend=False,
+        hoverinfo='none'
+    ))
+
+         
+    ### 3、画红点，based on air temperature [℃] and relative humidity [%]
+    # 圆心
+    red_point = [0,0]
+    red_point[0] = p_tdb
+    red_point[1] = psy_ta_rh(p_tdb, p_rh, p_atm=101325)["hr"] * 1000  # kg/kg ==> g/kg
+    # traces[3]
+    traces.append(go.Scatter(
+        x=[red_point[0]],
+        y=[red_point[1]],
+        mode='markers',
+        marker=dict(
+            color='red', 
+            size=4,
+        ),
+        # name='point',
+        showlegend=False,
+    ))
+
+    ### 1、划曲线
+    rh_list = np.arange(0, 101, 10)
+    tdb = np.linspace(10, 36, 500)
+    # traces[5-15]
+    # based on rh%
+    for rh in rh_list:
+        # humidity ratio list
+        
+        hr_list = np.array([psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb])  # kg/kg => g/kg
+        trace = go.Scatter(
+            x=tdb,
+            y=hr_list,
+            mode='lines',
+            line=dict(color='black', width=1),
+            hoverinfo='x+y',  
+            name=f'{rh}% RH',
+            showlegend=False
+        )
+        traces.append(trace)
+    tdb = inputs[ElementsIDs.t_db_input.value]
+    rh = inputs[ElementsIDs.rh_input.value]
+    tr = inputs[ElementsIDs.t_r_input.value]
+    psy_results = psy_ta_rh(tdb, rh)
+   
+    ### 4、设置图表的title和轴标签
+    layout = go.Layout(
+        title='Psychrometric (operative temperature)',
+        xaxis=dict(
+            title='operative Temperature [°C]', 
+            range=[10, 36],
+            dtick=2,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor='black',
+        ),
+        yaxis=dict(
+            title='Humidity Ratio [g_w/kg_da]', 
+            range=[0, 30],
+            dtick=5,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor='black',
+            side="right",
+        ),
+        showlegend=True,
+        plot_bgcolor='white',
+         annotations=[
+            dict(
+                x=14,
+                y=28,
+                xref="x",
+                yref="y",
+                text=(
+                    f"t<sub>db</sub>: {tdb:.1f} °C<br>"
+                    f"rh: {rh:.1f} %<br>"
+                    f"W<sub>a</sub>: {psy_results.hr * 1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                    f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
+                    f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
+                    f"h: {psy_results.h / 1000:.1f} kJ/kg"
+                ),
+                showarrow=False,
+                align="left",
+                bgcolor="rgba(255,255,255,0.8)",
+                bordercolor="rgba(0,0,0,0)",
+                font=dict(size=14),
+            )
+        ]
+    )
+    
+    fig = go.Figure(data=traces, layout=layout)
+
+    return fig
+
 
 
 def t_rh_pmv(
@@ -700,22 +893,12 @@ def t_rh_pmv(
                 hoverinfo="skip",
             )
         )
-    annotation_text = (
-        f"t<sub>db</sub>   {inputs[ElementsIDs.t_db_input.value]:.1f} °C<br>"
-    )
+   
 
-    fig.add_annotation(
-        x=32,
-        y=96,
-        xref="x",
-        yref="y",
-        text=annotation_text,
-        showarrow=False,
-        align="left",
-        bgcolor="rgba(0,0,0,0)",
-        bordercolor="rgba(0,0,0,0)",
-        font=dict(size=14),
-    )
+    tdb = inputs[ElementsIDs.t_db_input.value]
+    rh = inputs[ElementsIDs.rh_input.value]
+    tr = inputs[ElementsIDs.t_r_input.value]
+    psy_results = psy_ta_rh(tdb, rh)
 
     fig.update_layout(
         yaxis=dict(title="Relative Humidity [%]", range=[0, 100], dtick=10),
@@ -723,6 +906,27 @@ def t_rh_pmv(
         showlegend=False,
         plot_bgcolor="white",
         margin=dict(l=40, r=40, t=40, b=40),
+         annotations=[
+            dict(
+                x=32,
+                y=70,
+                xref="x",
+                yref="y",
+                text=(
+                    f"t<sub>db</sub>: {tdb:.1f} °C<br>"
+                    f"rh: {rh:.1f} %<br>"
+                    f"W<sub>a</sub>: {psy_results.hr * 1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                    f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
+                    f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
+                    f"h: {psy_results.h / 1000:.1f} kJ/kg"
+                ),
+                showarrow=False,
+                align="right",
+                bgcolor="rgba(255,255,255,0.8)",
+                bordercolor="rgba(0,0,0,0)",
+                font=dict(size=14),
+            )
+        ]
     )
 
     if units == UnitSystem.IP.value:
