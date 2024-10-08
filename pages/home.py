@@ -216,7 +216,6 @@ def update_hover_annotation(hover_data, figure, inputs):
             if "x" in point and "y" in point:
                 t_db = point["x"]
                 rh = point["y"]
-
                 # check if y <= 0
                 if rh <= 0:
                     if (
