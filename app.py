@@ -47,7 +47,6 @@ app = Dash(
     serve_locally=True,
 )
 app.config.suppress_callback_exceptions = True
-
 app.layout = dmc.MantineProvider(
     defaultColorScheme="light",
     theme={
@@ -63,7 +62,7 @@ app.layout = dmc.MantineProvider(
     children=html.Div(
         [
             my_navbar(),
-            dcc.Location(id=ElementsIDs.URL.value),
+            dcc.Location(id=ElementsIDs.URL.value, refresh=False),
             dcc.Store(id=MyStores.input_data.value, storage_type="local"),
             html.Div(
                 dmc.Container(

@@ -27,6 +27,7 @@ class ElementsIDs(Enum):
     charts_dropdown = "id-charts-dropdown"
     CHART_CONTAINER = "id-chart-container"
     URL = "url"
+    INITIAL_URL = "initial-url"
     FOOTER = "id-footer"
     INPUT_SECTION = "id-input-section"
     inputs_form = "id-inputs-form"
