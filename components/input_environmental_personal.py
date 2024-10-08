@@ -629,11 +629,3 @@ update_clothing_level_options_input2 = create_and_update_callback(
 )
 
 
-# @callback(
-#     Output(ElementsIDs.v_input.value, "data"),
-#     Output(ElementsIDs.v_input.value, "value"),
-#     Input(ElementsIDs.v_input.value, "value"),
-#     State(ElementsIDs.v_input.value, "data"),
-# )
-# def update_adaptive_en_air_speed_options(input_value, _):
-#     return [speed.value for speed in AdaptiveENSpeeds], input_value

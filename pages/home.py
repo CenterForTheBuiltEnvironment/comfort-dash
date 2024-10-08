@@ -66,7 +66,7 @@ layout = dmc.Stack(
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
                             dcc.Location(id=ElementsIDs.URL.value, refresh=False),
-                            dcc.Store(id="url-initialized", storage_type="memory"),
+                            dcc.Store(id=ElementsIDs.INITIAL_URL.value, storage_type="memory"),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -144,9 +144,9 @@ def update_inputs(selected_model, units_selection, function_selection):
     Output(ElementsIDs.chart_selected.value, "value"),
     Output(ElementsIDs.functionality_selection.value, "value"),
     Output(ElementsIDs.UNIT_TOGGLE.value, "checked"),
-    Output("url-initialized", "data"),
+    Output(ElementsIDs.INITIAL_URL.value, "data"),
     Input(ElementsIDs.URL.value, "search"),
-    State("url-initialized", "data"),
+    State(ElementsIDs.INITIAL_URL.value, "data"),
     prevent_initial_call=True,
 )
 def update_page_from_url(url_search, url_initialized):
