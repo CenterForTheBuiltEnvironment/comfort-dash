@@ -885,6 +885,8 @@ def t_rh_pmv(
     # Add hover area to allow hover interaction
 
     x_range = np.linspace(10, 40, 100)
+    if units == UnitSystem.IP.value:  # The X-axis range of gridlines in the IP state
+        x_range = np.linspace(50, 100, 100)
     y_range = np.linspace(0, 100, 100)
     xx, yy = np.meshgrid(x_range, y_range)
     fig.add_trace(
@@ -949,18 +951,33 @@ def t_rh_pmv(
     rh = inputs[ElementsIDs.rh_input.value]
     tr = inputs[ElementsIDs.t_r_input.value]
     psy_results = psy_ta_rh(tdb, rh)
-    annotation_text = (
-        f"t<sub>db</sub>: {tdb:.1f} °C<br>"
-        f"rh: {rh:.1f} %<br>"
-        f"W<sub>a</sub>: {psy_results.hr * 1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
-        f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
-        f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
-        f"h: {psy_results.h / 1000:.1f} kJ/kg"
-    )
+
+    if units == UnitSystem.SI.value:
+        annotation_text = (
+            f"t<sub>db</sub>: {tdb:.1f} °C<br>"
+            f"rh: {rh:.1f} %<br>"
+            f"W<sub>a</sub>: {psy_results.hr*1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+            f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
+            f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
+            f"h: {psy_results.h / 1000:.1f} kJ/kg"
+        )
+        annotation_x = 32  # x coordinates in SI units
+        annotation_y = 86  # Y-coordinate of relative humidity
+    elif units == UnitSystem.IP.value:
+        annotation_text = (
+            f"t<sub>db</sub>: {tdb:.1f} °F<br>"
+            f"rh: {rh:.1f} %<br>"
+            f"W<sub>a</sub>: {psy_results.hr*1000:.1f} gr<sub>w</sub>/lb<sub>da</sub><br>"  # g/kg to gr/lb
+            f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °F<br>"
+            f"t<sub>dp</sub>: {(psy_results.t_dp-32)/1.8:.1f} °F<br>"
+            f"h: {psy_results.h / 2326:.1f} BTU/lb"  # kJ/kg to BTU/lb
+        )
+        annotation_x = 90  # x coordinates in IP units
+        annotation_y = 86  # Y-coordinate of relative humidity (unchanged)
 
     fig.add_annotation(
-        x=32,
-        y=86,
+        x=annotation_x,  # Dynamically adjust the x position of a comment
+        y=annotation_y,  # The y coordinates remain the same
         xref="x",
         yref="y",
         text=annotation_text,
@@ -973,18 +990,21 @@ def t_rh_pmv(
 
     fig.update_layout(
         yaxis=dict(title="Relative Humidity [%]", range=[0, 100], dtick=10),
-        xaxis=dict(title="Dry-bulb Temperature (°C)", range=[10, 36], dtick=2),
+        xaxis=dict(
+            title=(
+                "Dry-bulb Temperature (°C)"
+                if units == UnitSystem.SI.value
+                else "Dry-bulb Temperature [°F]"
+            ),
+            range=[10, 36] if units == UnitSystem.SI.value else [50, 100],
+            dtick=2 if units == UnitSystem.SI.value else 5,
+        ),
         showlegend=False,
         plot_bgcolor="white",
         margin=dict(l=40, r=40, t=40, b=40),
         hovermode="closest",
         hoverdistance=5,
     )
-
-    if units == UnitSystem.IP.value:
-        fig.update_layout(
-            xaxis=dict(title="Dry-bulb Temperature [°F]", range=[50, 100], dtick=5),
-        )
 
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
