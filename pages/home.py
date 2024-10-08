@@ -23,6 +23,7 @@ from utils.my_config_file import (
     Functionalities,
 )
 import plotly.graph_objects as go
+from urllib.parse import parse_qs, urlencode
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -64,6 +65,8 @@ layout = dmc.Stack(
                                 id=ElementsIDs.CHART_CONTAINER.value,
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
+                            dcc.Location(id=ElementsIDs.URL.value, refresh=False),
+                            dcc.Store(id=ElementsIDs.INITIAL_URL.value, storage_type="memory"),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -76,8 +79,10 @@ layout = dmc.Stack(
 
 
 # Todo adding reflecting value to the url
+# done
 @callback(
     Output(MyStores.input_data.value, "data"),
+    Output(ElementsIDs.URL.value, "search", allow_duplicate=True),
     Input(ElementsIDs.inputs_form.value, "n_clicks"),
     Input(ElementsIDs.inputs_form.value, "children"),
     Input(ElementsIDs.clo_input.value, "value"),
@@ -86,6 +91,7 @@ layout = dmc.Stack(
     Input(ElementsIDs.chart_selected.value, "value"),
     Input(ElementsIDs.functionality_selection.value, "value"),
     State(ElementsIDs.MODEL_SELECTION.value, "value"),
+    prevent_initial_call=True,
 )
 def update_store_inputs(
     form_clicks: int,
@@ -98,24 +104,21 @@ def update_store_inputs(
     selected_model: str,
 ):
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    inputs = get_inputs(selected_model, form_content, units, functionality_selection)
-
-    if ctx.triggered:
-        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
-        if triggered_id == ElementsIDs.clo_input.value and clo_value != "":
-            inputs[ElementsIDs.clo_input.value] = float(clo_value)
-        if triggered_id == ElementsIDs.met_input.value and met_value != "":
-            inputs[ElementsIDs.met_input.value] = float(met_value)
+    inputs = get_inputs(
+        selected_model, form_content, units, functionality_selection, type="input"
+    )
 
     inputs[ElementsIDs.UNIT_TOGGLE.value] = units
     inputs[ElementsIDs.MODEL_SELECTION.value] = selected_model
     inputs[ElementsIDs.chart_selected.value] = chart_selected
     inputs[ElementsIDs.functionality_selection.value] = functionality_selection
 
-    return inputs
+    url_search = f"?{urlencode(inputs)}"
+
+    return inputs, url_search
 
 
-# todo get the value from the url
+# keep data persistent in the store
 @callback(
     Output(ElementsIDs.INPUT_SECTION.value, "children"),
     Input(ElementsIDs.MODEL_SELECTION.value, "value"),
@@ -123,11 +126,54 @@ def update_store_inputs(
     Input(ElementsIDs.functionality_selection.value, "value"),
 )
 def update_inputs(selected_model, units_selection, function_selection):
-    # todo here I should first check if some inputs are already stored in the store
     if selected_model is None:
         return no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    return input_environmental_personal(selected_model, units, function_selection)
+    return (
+        input_environmental_personal(selected_model, units, function_selection),
+        selected_model,
+        units_selection,
+        function_selection,
+    )
+
+
+# once function: update_inputs via URL, update the value of the model dropdown, unit toggle and functionality dropdown and chart dropdown, and inputs, it only use once when the page is loaded
+@callback(
+    Output(ElementsIDs.MODEL_SELECTION.value, "value"),
+    Output(ElementsIDs.INPUT_SECTION.value, "children", allow_duplicate=True),
+    Output(ElementsIDs.chart_selected.value, "value"),
+    Output(ElementsIDs.functionality_selection.value, "value"),
+    Output(ElementsIDs.UNIT_TOGGLE.value, "checked"),
+    Output(ElementsIDs.INITIAL_URL.value, "data"),
+    Input(ElementsIDs.URL.value, "search"),
+    State(ElementsIDs.INITIAL_URL.value, "data"),
+    prevent_initial_call=True,
+)
+def update_page_from_url(url_search, url_initialized):
+    if url_initialized or url_search is None:
+        return no_update, no_update, no_update, no_update, no_update, no_update
+
+    url_params = parse_qs(url_search.lstrip("?"))
+    url_params = {k: v[0] if len(v) == 1 else v for k, v in url_params.items()}
+
+    selected_model = url_params.get(ElementsIDs.MODEL_SELECTION.value)
+    if selected_model is None:
+        return no_update, no_update, no_update, no_update, no_update, no_update
+    units = url_params.get(ElementsIDs.UNIT_TOGGLE.value)
+    function_selection = url_params.get(ElementsIDs.functionality_selection.value)
+    chart_selected = url_params.get(ElementsIDs.chart_selected.value)
+    inputs = get_inputs(
+        selected_model, url_params, units, function_selection, type="url"
+    )
+
+    return (
+        selected_model,
+        input_environmental_personal(selected_model, units, function_selection),
+        chart_selected,
+        function_selection,
+        units == UnitSystem.IP.value,
+        True,  # Mark URL as initialized
+    )
 
 
 @callback(
@@ -150,12 +196,15 @@ def update_note_model(selected_model):
     Output(ElementsIDs.charts_dropdown.value, "children"),
     Input(ElementsIDs.MODEL_SELECTION.value, "value"),
     Input(ElementsIDs.functionality_selection.value, "value"),
+    Input(ElementsIDs.chart_selected.value, "value"),
 )
-def update_note_model(selected_model, function_selection):
+def update_note_model(selected_model, function_selection, chart_selected):
     if selected_model is None:
         return no_update
     return chart_selector(
-        selected_model=selected_model, function_selection=function_selection
+        selected_model=selected_model,
+        function_selection=function_selection,
+        chart_selected=chart_selected,
     )
 
 
