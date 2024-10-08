@@ -22,7 +22,6 @@ from components.show_results import display_results
 import time
 
 
-
 def modal_custom_ensemble():
     return dmc.Modal(
         title="Custom Ensemble",
@@ -549,13 +548,18 @@ def create_select_component(values: ModelInputsInfo):
     )
 
 
-
 def get_min_max_range(model, input_type):
     model_info = Models[model].value
     for input_info in model_info.inputs:
-        if input_type == "metabolic_rate" and input_info.id == ElementsIDs.met_input.value:
+        if (
+            input_type == "metabolic_rate"
+            and input_info.id == ElementsIDs.met_input.value
+        ):
             return input_info.min, input_info.max
-        elif input_type == "clothing_level" and input_info.id == ElementsIDs.clo_input.value:
+        elif (
+            input_type == "clothing_level"
+            and input_info.id == ElementsIDs.clo_input.value
+        ):
             return input_info.min, input_info.max
 
 
@@ -621,5 +625,3 @@ update_metabolic_rate_options_input2 = create_and_update_callback(
 update_clothing_level_options_input2 = create_and_update_callback(
     ElementsIDs.clo_input_input2.value, ClothingSelection, "clothing_level"
 )
-
-

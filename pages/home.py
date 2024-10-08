@@ -2,7 +2,18 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
-from components.charts import t_rh_pmv, chart_selector, adaptive_en_chart
+from components.charts import (
+    t_rh_pmv,
+    chart_selector,
+    adaptive_chart,
+    generate_tdb_hr_chart,
+    SET_outputs_chart,
+    speed_temp_pmv,
+    get_heat_losses,
+    psy_ashrae_pmv,
+    generate_operative_chart,
+    psy_ashrae_pmv_operative,
+)
 from components.dropdowns import (
     model_selection,
 )
@@ -24,6 +35,7 @@ from utils.my_config_file import (
 )
 import plotly.graph_objects as go
 from urllib.parse import parse_qs, urlencode
+from pythermalcomfort.psychrometrics import psy_ta_rh
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -66,7 +78,9 @@ layout = dmc.Stack(
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
                             dcc.Location(id=ElementsIDs.URL.value, refresh=False),
-                            dcc.Store(id=ElementsIDs.INITIAL_URL.value, storage_type="memory"),
+                            dcc.Store(
+                                id=ElementsIDs.INITIAL_URL.value, storage_type="memory"
+                            ),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -107,6 +121,12 @@ def update_store_inputs(
     inputs = get_inputs(
         selected_model, form_content, units, functionality_selection, type="input"
     )
+    if ctx.triggered:
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if triggered_id == ElementsIDs.clo_input.value and clo_value != "":
+            inputs[ElementsIDs.clo_input.value] = float(clo_value)
+        if triggered_id == ElementsIDs.met_input.value and met_value != "":
+            inputs[ElementsIDs.met_input.value] = float(met_value)
 
     inputs[ElementsIDs.UNIT_TOGGLE.value] = units
     inputs[ElementsIDs.MODEL_SELECTION.value] = selected_model
@@ -208,6 +228,78 @@ def update_note_model(selected_model, function_selection, chart_selected):
     )
 
 
+#  double check the calculating method from pythermalcomfort lib, especially the units
+last_valid_annotation = None
+
+
+# @callback(
+#     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
+#     Input(MyStores.input_data.value, "data"),
+#     Input(ElementsIDs.GRAPH_HOVER.value, "hoverData"),
+#     State(ElementsIDs.GRAPH_HOVER.value, "figure"),
+#     Input(ElementsIDs.functionality_selection.value, "value"),
+#     State(MyStores.input_data.value, "data"),
+# )
+@callback(
+    Output(ElementsIDs.GRAPH_HOVER.value, "figure"),
+    Input(ElementsIDs.GRAPH_HOVER.value, "hoverData"),
+    State(ElementsIDs.GRAPH_HOVER.value, "figure"),
+    State(MyStores.input_data.value, "data"),
+)
+def update_hover_annotation(hover_data, figure, inputs):
+    # For ensure tdp never shown as nan value
+    global last_valid_annotation
+    if (
+        hover_data
+        and figure
+        and "points" in hover_data
+        and len(hover_data["points"]) > 0
+    ):
+        chart_selected = inputs[ElementsIDs.chart_selected.value]
+        # not show annotation for adaptive methods
+        if chart_selected in [
+            Charts.psychrometric.value.name,
+            Charts.t_rh.value.name,
+            Charts.psychrometric_operative.value.name,
+        ]:
+            point = hover_data["points"][0]
+            if "x" in point and "y" in point:
+                t_db = point["x"]
+                rh = point["y"]
+                # check if y <= 0
+                if rh <= 0:
+                    if (
+                        last_valid_annotation is not None
+                        and "annotations" in figure["layout"]
+                    ):
+                        figure["layout"]["annotations"][0][
+                            "text"
+                        ] = last_valid_annotation
+                    return figure
+                # calculations
+                psy_results = psy_ta_rh(t_db, rh)
+                t_wb_value = psy_results.t_wb
+                t_dp_value = psy_results.t_dp
+                wa = psy_results.hr * 1000  # convert to g/kgda
+                h = psy_results.h / 1000  # convert to kj/kg
+                annotation_text = (
+                    f"t<sub>db</sub>: {t_db:.1f} °C<br>"
+                    f"RH: {rh:.1f} %<br>"
+                    f"W<sub>a</sub>: {wa:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                    f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
+                    f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
+                    f"h: {h:.1f} kJ/kg<br>"
+                )
+                if (
+                    "annotations" in figure["layout"]
+                    and len(figure["layout"]["annotations"]) > 0
+                ):
+                    figure["layout"]["annotations"][0]["text"] = annotation_text
+            else:
+                print("Unexpected hover data structure:", point)
+    return figure
+
+
 @callback(
     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
     Input(MyStores.input_data.value, "data"),
@@ -242,7 +334,7 @@ def update_chart(inputs: dict, function_selection: str):
             )
         elif (
             selected_model == Models.PMV_ashrae.name
-            and function_selection != Functionalities.Ranges.value
+            and function_selection == Functionalities.Default.value
         ):
             image = t_rh_pmv(
                 inputs=inputs,
@@ -250,12 +342,58 @@ def update_chart(inputs: dict, function_selection: str):
                 function_selection=function_selection,
                 units=units,
             )
+    elif chart_selected == Charts.psychrometric.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = psy_ashrae_pmv(inputs=inputs, model="ashrae")
+        elif (
+            selected_model == Models.PMV_EN.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = generate_tdb_hr_chart(inputs=inputs, model="iso", units=units)
+    elif chart_selected == Charts.psychrometric_operative.value.name:
+        if (
+            selected_model == Models.PMV_EN.name
+            and function_selection == Functionalities.Default.value
+        ):
+            use_to = chart_selected == Charts.psychrometric_operative.value.name
+            image = generate_operative_chart(inputs=inputs, model="iso")
+        elif (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = psy_ashrae_pmv_operative(inputs=inputs, model="ashrae")
+    elif chart_selected == Charts.set_outputs.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = SET_outputs_chart(inputs=inputs, units=units)
+    elif chart_selected == Charts.wind_temp_chart.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = speed_temp_pmv(inputs=inputs, model="ashrae", units=units)
+    elif chart_selected == Charts.thl_psychrometric.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = get_heat_losses(inputs=inputs, model="ashrae", units=units)
 
     if (
         selected_model == Models.Adaptive_EN.name
         and function_selection == Functionalities.Default.value
     ):
-        image = adaptive_en_chart(inputs=inputs, units=units)
+        image = adaptive_chart(inputs=inputs, model="iso", units=units)
+    if (
+        selected_model == Models.Adaptive_ASHRAE.name
+        and function_selection == Functionalities.Default.value
+    ):
+        image = adaptive_chart(inputs=inputs, model="ashrae", units=units)
 
     note = ""
     chart: ChartsInfo
