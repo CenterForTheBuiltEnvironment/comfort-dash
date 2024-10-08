@@ -122,7 +122,6 @@ def get_inputs(
                 model_input.max = UnitConverter.convert_value(
                     model_input.max, UnitSystem.m_s.value, UnitSystem.ft_s.value
                 )
-    print(f"combined_model_inputs: {combined_model_inputs}")
 
     for model_input in combined_model_inputs:
         if model_input.min <= model_input.value <= model_input.max:

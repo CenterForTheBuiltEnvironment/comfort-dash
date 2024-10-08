@@ -549,20 +549,14 @@ def create_select_component(values: ModelInputsInfo):
     )
 
 
-MIN_MAX_RANGES = {
-    "metabolic_rate": {
-        "PMV_ashrae": (1.0, 4.0),
-        "PMV_EN": (0.8, 4.0),
-    },
-    "clothing_level": {
-        "PMV_ashrae": (0.0, 1.5),
-        "PMV_EN": (0.0, 2.0),
-    },
-}
-
 
 def get_min_max_range(model, input_type):
-    return MIN_MAX_RANGES.get(input_type, {}).get(model, (1.0, 4.0))
+    model_info = Models[model].value
+    for input_info in model_info.inputs:
+        if input_type == "metabolic_rate" and input_info.id == ElementsIDs.met_input.value:
+            return input_info.min, input_info.max
+        elif input_type == "clothing_level" and input_info.id == ElementsIDs.clo_input.value:
+            return input_info.min, input_info.max
 
 
 def update_options(input_value, selection_enum, model, input_type):
