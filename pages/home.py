@@ -308,10 +308,10 @@ def update_hover_annotation(hover_data, figure, inputs):
                     annotation_text = (
                         f"t<sub>db</sub>: {t_db:.1f} °F<br>"
                         f"RH: {rh:.1f} %<br>"
-                        f"W<sub>a</sub>: {psy_results.hr*1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                        f"W<sub>a</sub>: {psy_results.hr*1000:.1f} lb<sub>w</sub>/klb<sub>da</sub><br>"
                         f"t<sub>wb</sub>: {t_wb_value:.1f} °F<br>"
                         f"t<sub>dp</sub>: {(psy_results.t_dp-32)/1.8:.1f} °F<br>"
-                        f"h: {h / 2.326:.1f} BTU/lb<br>"  # kJ/kg to BTU/lb
+                        f"h: {h / 2.326:.1f} btu/lb<br>"  # kJ/kg to btu/lb
                     )
 
                 if (
@@ -372,7 +372,7 @@ def update_chart(inputs: dict, function_selection: str):
             selected_model == Models.PMV_ashrae.name
             and function_selection == Functionalities.Default.value
         ):
-            image = psy_ashrae_pmv(inputs=inputs, model="ashrae")
+            image = psy_ashrae_pmv(inputs=inputs, units=units)
 
         elif (
             selected_model == Models.PMV_EN.name

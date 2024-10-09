@@ -23,11 +23,12 @@ from scipy.optimize import fsolve
 from decimal import Decimal, ROUND_HALF_UP
 
 
+
 from pythermalcomfort.models import adaptive_en, pmv
 
 
-import plotly.graph_objects as go
 
+import plotly.graph_objects as go
 
 def chart_selector(selected_model: str, function_selection: str, chart_selected: str):
     list_charts = list(Models[selected_model].value.charts)
@@ -340,7 +341,6 @@ def generate_tdb_hr_chart(
     p_rh = inputs[ElementsIDs.rh_input.value]
     p_met = inputs[ElementsIDs.met_input.value]
     p_clo_d = inputs[ElementsIDs.clo_input.value]
-    p_t_running_mean = inputs[ElementsIDs.t_r_input.value]
 
     traces = []
 
@@ -953,10 +953,10 @@ def t_rh_pmv(
         annotation_text = (
             f"t<sub>db</sub>: {tdb:.1f} °F<br>"
             f"rh: {rh:.1f} %<br>"
-            f"W<sub>a</sub>: {psy_results.hr*1000:.1f} gr<sub>w</sub>/lb<sub>da</sub><br>"  # g/kg to gr/lb
+            f"W<sub>a</sub>: {psy_results.hr*1000:.1f} lb<sub>w</sub>/klb<sub>da</sub><br>"  # g/kg to gr/lb
             f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °F<br>"
             f"t<sub>dp</sub>: {(psy_results.t_dp-32)/1.8:.1f} °F<br>"
-            f"h: {psy_results.h / 2326:.1f} BTU/lb"  # kJ/kg to BTU/lb
+            f"h: {psy_results.h / 2326:.1f} btu/lb"  # kJ/kg to btu/lb
         )
         annotation_x = 90  # x coordinates in IP units
         annotation_y = 86  # Y-coordinate of relative humidity (unchanged)
@@ -1065,6 +1065,8 @@ def speed_temp_pmv(
                         - pmv_limit
                     )
 
+
+
                 try:
                     temp = optimize.brentq(function, 10, 100)
                     results.append(
@@ -1074,6 +1076,7 @@ def speed_temp_pmv(
                             "pmv_limit": pmv_limit,
                         }
                     )
+
 
                 except ValueError:
                     continue
@@ -1157,6 +1160,7 @@ def speed_temp_pmv(
             mirror=True,
         ),
     )
+
     return fig
 
 
@@ -1550,54 +1554,82 @@ def psy_ashrae_pmv_operative(
 
 def psy_ashrae_pmv(
     inputs: dict = None,
-    model: str = "ashrae",
     units: str = "SI",
 ):
 
-    p_tdb = inputs[ElementsIDs.t_db_input.value]
-    p_tr = inputs[ElementsIDs.t_r_input.value]
-    p_v = inputs[ElementsIDs.v_input.value]
-    p_rh = inputs[ElementsIDs.rh_input.value]
-    p_met = inputs[ElementsIDs.met_input.value]
-    p_clo_d = inputs[ElementsIDs.clo_input.value]
-    p_t_running_mean = inputs[ElementsIDs.t_r_input.value]
+
+    p_tdb = float(inputs[ElementsIDs.t_db_input.value])
+    tr = float(inputs[ElementsIDs.t_r_input.value])
+    vr = float(
+        v_relative(  # Ensure vr is scalar
+            v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
+        )
+    )
+    rh = float(inputs[ElementsIDs.rh_input.value])
+    met = float(inputs[ElementsIDs.met_input.value])
+    clo = float(
+        clo_dynamic(  # Ensure clo is scalar
+            clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
+        )
+    )
+    # save original values for plotting
+    if units == UnitSystem.IP.value:
+        tdb = round(float(units_converter(tdb=p_tdb)[0]), 1)
+        tr = round(float(units_converter(tr=tr)[0]), 1)
+        vr = round(float(units_converter(vr=vr)[0]), 1)
+    else:
+        tdb = p_tdb
+
 
     traces = []
 
     # blue area
-    rh = np.arange(0, 110, 10)
+
+    rh_values = np.arange(0, 110, 10)
+    tdb_guess = 22
     pmv_list = [-0.5, 0.5]
-    v_r = v_relative(v=p_v, met=p_met)
-    tdb_dict = {}
-    for j in range(len(pmv_list)):
-        tdb_dict[j] = []
-        for i in range(len(rh)):
+    tdb_array = np.zeros((len(pmv_list), len(rh_values)))
+    for j, pmv_value in enumerate(pmv_list):
+        for i, rh_value in enumerate(rh_values):
             solution = fsolve(
                 lambda x: calculate_tdb(
                     t_db_x=x,
-                    t_r=p_tr,
-                    v_r=v_r,
-                    r_h=rh[i],
-                    met=p_met,
-                    clo_d=p_clo_d,
-                    pmv_y=pmv_list[j],
+                    t_r=tr,
+                    v_r=vr,
+                    r_h=rh_value,
+                    met=met,
+                    clo_d=clo,
+                    pmv_y=pmv_value
+
                 ),
-                22,
+                tdb_guess,
             )
-            tdb_solution = Decimal(solution[0]).quantize(
-                Decimal("0.0"), rounding=ROUND_HALF_UP
-            )  # ℃
-            tdb_dict[j].append(float(tdb_solution))
+            tdb_solution = round(solution[0], 1)
+            tdb_guess = tdb_solution
+            tdb_array[j, i] = float(tdb_solution)
 
     # calculate hr
-    lower_upper_tdb = np.append(np.array(tdb_dict[0]), np.array(tdb_dict[1])[::-1])
+
+    lower_upper_tdb = np.append(tdb_array[0], tdb_array[1][::-1])
+    lower_upper_tdb = [round(float(value), 1) for value in lower_upper_tdb.tolist()] # convert to list & round to 1 decimal
+
 
     rh_list = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
     # define
     lower_upper_hr = []
     for i in range(len(rh_list)):
         lower_upper_hr.append(
-            psy_ta_rh(tdb=lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"] * 1000
+            psy_ta_rh(tdb=lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
+        )
+
+    lower_upper_hr = [round(float(value), 1) for value in lower_upper_hr] # convert to list & round to 1 decimal
+
+    if units == UnitSystem.IP.value:
+        lower_upper_tdb = list(
+            map(
+                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                lower_upper_tdb,
+            )
         )
 
     traces.append(
@@ -1615,14 +1647,24 @@ def psy_ashrae_pmv(
 
     # current point
     # Red point
-    red_point_x = p_tdb
-    red_point_y = (
-        psy_ta_rh(tdb=p_tdb, rh=p_rh, p_atm=101325)["hr"] * 1000
-    )  # kg/kg => g/kg
+
+    psy_results = psy_ta_rh(tdb, rh)
+    hr = round(float(psy_results["hr"]) * 1000, 1)
+    t_wb = round(float(psy_results["t_wb"]), 1)
+    t_dp = round(float(psy_results["t_dp"]), 1)
+    h = round(float(psy_results["h"]) / 1000, 1)
+
+    if units == UnitSystem.IP.value:
+        t_wb = round(float(units_converter(tmp=t_wb, from_units='si')[0]), 1)
+        t_dp = round(float(units_converter(tmp=t_dp, from_units='si')[0]), 1)
+        h = round(float(h/2.326),1)   # kJ/kg => btu/lb
+        tdb = p_tdb
+
     traces.append(
         go.Scatter(
-            x=[red_point_x],
-            y=[red_point_y],
+            x=[tdb],
+            y=[hr],
+
             mode="markers",
             marker=dict(
                 color="red",
@@ -1633,14 +1675,20 @@ def psy_ashrae_pmv(
     )
 
     # lines
-    rh_list = np.arange(0, 110, 10)
-    tdb = np.linspace(10, 36, 500)
+
+    rh_list = np.arange(0, 110, 10, dtype=float).tolist()
+    tdb_list = np.linspace(10, 36, 500, dtype=float).tolist()
+    if units == UnitSystem.IP.value:
+        tdb_list_conv = list(map(lambda x: round(float(units_converter(tmp=x, from_units='si')[0]), 1), tdb_list))
+    else:
+        tdb_list_conv = tdb_list
+
     for rh in rh_list:
         hr_list = np.array(
-            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb]
+            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb_list]
         )  # kg/kg => g/kg
         trace = go.Scatter(
-            x=tdb,
+            x=tdb_list_conv,
             y=hr_list,
             mode="lines",
             line=dict(color="grey", width=1),
@@ -1650,10 +1698,16 @@ def psy_ashrae_pmv(
         )
         traces.append(trace)
 
-    tdb = inputs[ElementsIDs.t_db_input.value]
-    rh = inputs[ElementsIDs.rh_input.value]
-    tr = inputs[ElementsIDs.t_r_input.value]
-    psy_results = psy_ta_rh(tdb, rh)
+
+    if units == UnitSystem.SI.value:
+        temperature_unit = "°C"
+        hr_unit = "g<sub>w</sub>/kg<sub>da</sub>"
+        h_unit = "kJ/kg"
+    else:
+        temperature_unit = "°F"
+        hr_unit = "lb<sub>w</sub>/klb<sub>da</sub>"
+        h_unit = "btu/lb"
+
 
     # layout
     layout = go.Layout(
@@ -1664,7 +1718,9 @@ def psy_ashrae_pmv(
                 if units == UnitSystem.SI.value
                 else "operative Temperature [°F]"
             ),
-            range=[10, 36],
+
+            range=[10, 36] if units == UnitSystem.SI.value else [50, 96.8],
+
             dtick=2,
             showgrid=True,
             showline=True,
@@ -1672,7 +1728,11 @@ def psy_ashrae_pmv(
             linecolor="lightgrey",
         ),
         yaxis=dict(
-            title="Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]",
+            title= (
+                "Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]" 
+                if units == UnitSystem.SI.value 
+                else "Humidity ratio [lb<sub>w</sub>/klb<sub>da</sub>]"
+            ),
             range=[0, 30],
             dtick=5,
             showgrid=True,
@@ -1683,17 +1743,17 @@ def psy_ashrae_pmv(
         ),
         annotations=[
             dict(
-                x=14,
+                x=14 if units == UnitSystem.SI.value else 57.2,
                 y=28,
                 xref="x",
                 yref="y",
                 text=(
-                    f"t<sub>db</sub>: {tdb:.1f} °C<br>"
+                    f"t<sub>db</sub>: {tdb:.1f} {temperature_unit}<br>"
                     f"rh: {rh:.1f} %<br>"
-                    f"W<sub>a</sub>: {psy_results.hr * 1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
-                    f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
-                    f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
-                    f"h: {psy_results.h / 1000:.1f} kJ/kg"
+                    f"W<sub>a</sub>: {hr} {hr_unit}<br>"
+                    f"t<sub>wb</sub>: {t_wb} {temperature_unit}<br>"
+                    f"t<sub>dp</sub>: {t_dp} {temperature_unit}<br>"
+                    f"h: {h} {h_unit}"
                 ),
                 showarrow=False,
                 align="left",
@@ -1745,7 +1805,7 @@ def SET_outputs_chart(
     met = float(inputs[ElementsIDs.met_input.value])  # Ensure met is scalar
     clo = float(
         clo_dynamic(  # Ensure clo is scalar
-            clo=inputs[ElementsIDs.clo_input.value], met=met
+            clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
         )
     )
 
