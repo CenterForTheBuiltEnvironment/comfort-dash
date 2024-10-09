@@ -561,13 +561,20 @@ def get_min_max_range(model, input_type):
             and input_info.id == ElementsIDs.clo_input.value
         ):
             return input_info.min, input_info.max
+    return None
 
 
 def update_options(input_value, selection_enum, model, input_type):
-    min_value, max_value = get_min_max_range(model, input_type)
+    range_result = get_min_max_range(model, input_type)
+
+    # If range_result is None, it means the input type is not applicable for this model
+    if range_result is None:
+        return [], ""
+
+    min_value, max_value = range_result
 
     if input_value is None or input_value == "":
-        return [], ""
+        return [option.value for option in selection_enum], ""
 
     option_values = [option.value for option in selection_enum]
 
