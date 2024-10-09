@@ -131,9 +131,6 @@ def update_inputs(selected_model, units_selection, function_selection):
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
     return (
         input_environmental_personal(selected_model, units, function_selection),
-        selected_model,
-        units_selection,
-        function_selection,
     )
 
 
