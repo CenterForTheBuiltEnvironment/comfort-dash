@@ -23,7 +23,9 @@ from scipy.optimize import fsolve
 from decimal import Decimal, ROUND_HALF_UP
 
 
+
 from pythermalcomfort.models import adaptive_en, pmv
+
 
 
 import plotly.graph_objects as go
@@ -1063,6 +1065,8 @@ def speed_temp_pmv(
                         - pmv_limit
                     )
 
+
+
                 try:
                     temp = optimize.brentq(function, 10, 100)
                     results.append(
@@ -1072,6 +1076,7 @@ def speed_temp_pmv(
                             "pmv_limit": pmv_limit,
                         }
                     )
+
 
                 except ValueError:
                     continue
@@ -1155,6 +1160,7 @@ def speed_temp_pmv(
             mirror=True,
         ),
     )
+
     return fig
 
 
@@ -1551,6 +1557,7 @@ def psy_ashrae_pmv(
     units: str = "SI",
 ):
 
+
     p_tdb = float(inputs[ElementsIDs.t_db_input.value])
     tr = float(inputs[ElementsIDs.t_r_input.value])
     vr = float(
@@ -1573,9 +1580,11 @@ def psy_ashrae_pmv(
     else:
         tdb = p_tdb
 
+
     traces = []
 
     # blue area
+
     rh_values = np.arange(0, 110, 10)
     tdb_guess = 22
     pmv_list = [-0.5, 0.5]
@@ -1591,6 +1600,7 @@ def psy_ashrae_pmv(
                     met=met,
                     clo_d=clo,
                     pmv_y=pmv_value
+
                 ),
                 tdb_guess,
             )
@@ -1599,8 +1609,10 @@ def psy_ashrae_pmv(
             tdb_array[j, i] = float(tdb_solution)
 
     # calculate hr
+
     lower_upper_tdb = np.append(tdb_array[0], tdb_array[1][::-1])
     lower_upper_tdb = [round(float(value), 1) for value in lower_upper_tdb.tolist()] # convert to list & round to 1 decimal
+
 
     rh_list = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
     # define
@@ -1635,6 +1647,7 @@ def psy_ashrae_pmv(
 
     # current point
     # Red point
+
     psy_results = psy_ta_rh(tdb, rh)
     hr = round(float(psy_results["hr"]) * 1000, 1)
     t_wb = round(float(psy_results["t_wb"]), 1)
@@ -1651,6 +1664,7 @@ def psy_ashrae_pmv(
         go.Scatter(
             x=[tdb],
             y=[hr],
+
             mode="markers",
             marker=dict(
                 color="red",
@@ -1661,12 +1675,14 @@ def psy_ashrae_pmv(
     )
 
     # lines
+
     rh_list = np.arange(0, 110, 10, dtype=float).tolist()
     tdb_list = np.linspace(10, 36, 500, dtype=float).tolist()
     if units == UnitSystem.IP.value:
         tdb_list_conv = list(map(lambda x: round(float(units_converter(tmp=x, from_units='si')[0]), 1), tdb_list))
     else:
         tdb_list_conv = tdb_list
+
     for rh in rh_list:
         hr_list = np.array(
             [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb_list]
@@ -1682,6 +1698,7 @@ def psy_ashrae_pmv(
         )
         traces.append(trace)
 
+
     if units == UnitSystem.SI.value:
         temperature_unit = "°C"
         hr_unit = "g<sub>w</sub>/kg<sub>da</sub>"
@@ -1690,6 +1707,7 @@ def psy_ashrae_pmv(
         temperature_unit = "°F"
         hr_unit = "lb<sub>w</sub>/klb<sub>da</sub>"
         h_unit = "btu/lb"
+
 
     # layout
     layout = go.Layout(
@@ -1700,7 +1718,9 @@ def psy_ashrae_pmv(
                 if units == UnitSystem.SI.value
                 else "operative Temperature [°F]"
             ),
+
             range=[10, 36] if units == UnitSystem.SI.value else [50, 96.8],
+
             dtick=2,
             showgrid=True,
             showline=True,
