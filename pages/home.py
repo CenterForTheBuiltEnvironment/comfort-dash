@@ -244,6 +244,8 @@ def update_hover_annotation(hover_data, figure, inputs):
     # For ensure tdp never shown as nan value
     global last_valid_annotation
 
+    # import units
+    units = inputs[ElementsIDs.UNIT_TOGGLE.value]
     if (
         hover_data
         and figure
@@ -263,7 +265,6 @@ def update_hover_annotation(hover_data, figure, inputs):
             if "x" in point and "y" in point:
                 t_db = point["x"]
                 rh = point["y"]
-
                 # check if y <= 0
                 if rh <= 0:
                     if (
@@ -282,15 +283,26 @@ def update_hover_annotation(hover_data, figure, inputs):
                 wa = psy_results.hr * 1000  # convert to g/kgda
                 h = psy_results.h / 1000  # convert to kj/kg
 
-                annotation_text = (
-                    f"t<sub>db</sub>: {t_db:.1f} °C<br>"
-                    f"RH: {rh:.1f} %<br>"
-                    f"W<sub>a</sub>: {wa:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
-                    f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
-                    f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
-                    f"h: {h:.1f} kJ/kg<br>"
-                )
-
+                # Added unit judgment logic
+                if units == UnitSystem.SI.value:
+                    annotation_text = (
+                        f"t<sub>db</sub>: {t_db:.1f} °C<br>"
+                        f"RH: {rh:.1f} %<br>"
+                        # f"W<sub>a</sub>: {wa:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                        f"W<sub>a</sub>: {psy_results.hr*1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                        f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
+                        f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
+                        f"h: {h:.1f} kJ/kg<br>"
+                    )
+                else:  # IP
+                    annotation_text = (
+                        f"t<sub>db</sub>: {t_db:.1f} °F<br>"
+                        f"RH: {rh:.1f} %<br>"
+                        f"W<sub>a</sub>: {psy_results.hr*1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                        f"t<sub>wb</sub>: {t_wb_value:.1f} °F<br>"
+                        f"t<sub>dp</sub>: {(psy_results.t_dp-32)/1.8:.1f} °F<br>"
+                        f"h: {h / 2.326:.1f} BTU/lb<br>"  # kJ/kg to BTU/lb
+                    )
                 if (
                     "annotations" in figure["layout"]
                     and len(figure["layout"]["annotations"]) > 0
