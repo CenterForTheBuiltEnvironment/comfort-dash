@@ -998,6 +998,7 @@ def t_rh_pmv(
     return fig
 
 
+# 单位转换后的计算不对
 def speed_temp_pmv(
     inputs: dict = None,
     model: str = "iso",
@@ -1011,38 +1012,71 @@ def speed_temp_pmv(
     clo_d = clo_dynamic(
         clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
     )
+    if units == UnitSystem.SI.value:
+        for pmv_limit in pmv_limits:
+            for vr in np.arange(0.1, 1.3, 0.1):
 
-    for pmv_limit in pmv_limits:
-        for vr in np.arange(0.1, 1.3, 0.1):
-
-            def function(x):
-                return (
-                    pmv(
-                        x,
-                        tr=inputs[ElementsIDs.t_r_input.value],
-                        vr=vr,
-                        rh=inputs[ElementsIDs.rh_input.value],
-                        met=inputs[ElementsIDs.met_input.value],
-                        clo=clo_d,
-                        wme=0,
-                        standard=model,
-                        limit_inputs=False,
+                def function(x):
+                    return (
+                        pmv(
+                            x,
+                            tr=inputs[ElementsIDs.t_r_input.value],
+                            vr=vr,
+                            rh=inputs[ElementsIDs.rh_input.value],
+                            met=inputs[ElementsIDs.met_input.value],
+                            clo=clo_d,
+                            wme=0,
+                            standard=model,
+                            limit_inputs=False,
+                        )
+                        - pmv_limit
                     )
-                    - pmv_limit
-                )
 
-            try:
-                temp = optimize.brentq(function, 10, 40)
-                results.append(
-                    {
-                        "vr": vr,
-                        "temp": temp,
-                        "pmv_limit": pmv_limit,
-                    }
-                )
+                try:
+                    temp = optimize.brentq(function, 10, 40)
+                    results.append(
+                        {
+                            "vr": vr,
+                            "temp": temp,
+                            "pmv_limit": pmv_limit,
+                        }
+                    )
 
-            except ValueError:
-                continue
+                except ValueError:
+                    continue
+    else:
+        for pmv_limit in pmv_limits:
+            for vr in np.arange(0, 241, 10):
+
+                def function(x):
+                    return (
+                        pmv(
+                            x,
+                            tr=inputs[ElementsIDs.t_r_input.value],
+                            vr=vr,
+                            rh=inputs[ElementsIDs.rh_input.value],
+                            met=inputs[ElementsIDs.met_input.value],
+                            clo=clo_d,
+                            wme=0,
+                            standard=model,
+                            units=units,
+                            limit_inputs=False,
+                        )
+                        - pmv_limit
+                    )
+
+                try:
+                    temp = optimize.brentq(function, 10, 100)
+                    results.append(
+                        {
+                            "vr": vr,
+                            "temp": temp,
+                            "pmv_limit": pmv_limit,
+                        }
+                    )
+
+                except ValueError:
+                    continue
 
     df = pd.DataFrame(results)
 
@@ -1054,8 +1088,6 @@ def speed_temp_pmv(
             x=df[df["pmv_limit"] == pmv_limits[0]]["temp"],
             y=df[df["pmv_limit"] == pmv_limits[0]]["vr"],
             mode="lines",
-            # fill='tozerox',
-            # fillcolor='rgba(123, 208, 242, 0.5)',
             name=f"PMV {pmv_limits[0]}",
             showlegend=False,
             line=dict(color="rgba(0,0,0,0)"),
