@@ -38,6 +38,7 @@ from utils.my_config_file import (
 import plotly.graph_objects as go
 from pythermalcomfort.psychrometrics import psy_ta_rh
 from urllib.parse import parse_qs, urlencode
+from pythermalcomfort.psychrometrics import psy_ta_rh
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -80,7 +81,9 @@ layout = dmc.Stack(
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
                             dcc.Location(id=ElementsIDs.URL.value, refresh=False),
-                            dcc.Store(id=ElementsIDs.INITIAL_URL.value, storage_type="memory"),
+                            dcc.Store(
+                                id=ElementsIDs.INITIAL_URL.value, storage_type="memory"
+                            ),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -121,6 +124,12 @@ def update_store_inputs(
     inputs = get_inputs(
         selected_model, form_content, units, functionality_selection, type="input"
     )
+    if ctx.triggered:
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if triggered_id == ElementsIDs.clo_input.value and clo_value != "":
+            inputs[ElementsIDs.clo_input.value] = float(clo_value)
+        if triggered_id == ElementsIDs.met_input.value and met_value != "":
+            inputs[ElementsIDs.met_input.value] = float(met_value)
 
     inputs[ElementsIDs.UNIT_TOGGLE.value] = units
     inputs[ElementsIDs.MODEL_SELECTION.value] = selected_model
@@ -244,8 +253,10 @@ def update_hover_annotation(hover_data, figure, inputs):
     # For ensure tdp never shown as nan value
     global last_valid_annotation
 
+
     # import units
     units = inputs[ElementsIDs.UNIT_TOGGLE.value]
+nt
     if (
         hover_data
         and figure
@@ -261,7 +272,7 @@ def update_hover_annotation(hover_data, figure, inputs):
             Charts.psychrometric_operative.value.name,
         ]:
             point = hover_data["points"][0]
-
+t
             if "x" in point and "y" in point:
                 t_db = point["x"]
                 rh = point["y"]
@@ -283,6 +294,7 @@ def update_hover_annotation(hover_data, figure, inputs):
                 wa = psy_results.hr * 1000  # convert to g/kgda
                 h = psy_results.h / 1000  # convert to kj/kg
 
+
                 # Added unit judgment logic
                 if units == UnitSystem.SI.value:
                     annotation_text = (
@@ -303,6 +315,7 @@ def update_hover_annotation(hover_data, figure, inputs):
                         f"t<sub>dp</sub>: {(psy_results.t_dp-32)/1.8:.1f} °F<br>"
                         f"h: {h / 2.326:.1f} BTU/lb<br>"  # kJ/kg to BTU/lb
                     )
+
                 if (
                     "annotations" in figure["layout"]
                     and len(figure["layout"]["annotations"]) > 0
@@ -387,9 +400,11 @@ def update_chart(inputs: dict, function_selection: str):
             selected_model == Models.PMV_ashrae.name
             and function_selection == Functionalities.Default.value
         ):
+
             image = SET_outputs_chart(
                 inputs=inputs, calculate_ce=False, p_atmospheric=101325, units=units
             )
+
 
     elif chart_selected == Charts.wind_temp_chart.value.name:
         if (
