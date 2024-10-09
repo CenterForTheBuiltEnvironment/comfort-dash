@@ -1,15 +1,8 @@
-import base64
-import io
-import math
-from copy import deepcopy
-
-import dash_mantine_components as dmc
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import math
-
-from pandas.plotting import table
+import plotly.graph_objs as go
+from pythermalcomfort.psychrometrics import psy_ta_rh, p_sat, t_dp, t_wb, enthalpy, t_o
 from pythermalcomfort import set_tmp, two_nodes
 
 from pythermalcomfort.models import pmv, adaptive_en, adaptive_ashrae, cooling_effect
@@ -26,20 +19,14 @@ from utils.my_config_file import (
     UnitConverter,
 )
 from utils.website_text import TextHome
-import matplotlib
-
-import plotly.graph_objs as go
-from pythermalcomfort.psychrometrics import psy_ta_rh, p_sat, t_dp, t_wb, enthalpy, t_o
-
-from pythermalcomfort.models import adaptive_en, pmv
-
 from scipy.optimize import fsolve
 from decimal import Decimal, ROUND_HALF_UP
 
-matplotlib.use("Agg")
+
+from pythermalcomfort.models import adaptive_en, pmv
+
 
 import plotly.graph_objects as go
-from dash import dcc
 
 
 def chart_selector(selected_model: str, function_selection: str, chart_selected: str):
@@ -1361,168 +1348,6 @@ def get_heat_losses(inputs: dict = None, model: str = "ashrae", units: str = "SI
     return fig
 
 
-def psy_ashrae_pmv(
-    inputs: dict = None,
-    model: str = "ashrae",
-    units: str = "SI",
-):
-
-    p_tdb = inputs[ElementsIDs.t_db_input.value]
-    p_tr = inputs[ElementsIDs.t_r_input.value]
-    p_v = inputs[ElementsIDs.v_input.value]
-    p_rh = inputs[ElementsIDs.rh_input.value]
-    p_met = inputs[ElementsIDs.met_input.value]
-    p_clo_d = inputs[ElementsIDs.clo_input.value]
-    p_t_running_mean = inputs[ElementsIDs.t_r_input.value]
-
-    traces = []
-
-    # blue area
-    rh = np.arange(0, 110, 10)
-    pmv_list = [-0.5, 0.5]
-    v_r = v_relative(v=p_v, met=p_met)
-    tdb_dict = {}
-    for j in range(len(pmv_list)):
-        tdb_dict[j] = []
-        for i in range(len(rh)):
-            solution = fsolve(
-                lambda x: calculate_tdb(
-                    t_db_x=x,
-                    t_r=p_tr,
-                    v_r=v_r,
-                    r_h=rh[i],
-                    met=p_met,
-                    clo_d=p_clo_d,
-                    pmv_y=pmv_list[j],
-                ),
-                22,
-            )
-            tdb_solution = Decimal(solution[0]).quantize(
-                Decimal("0.0"), rounding=ROUND_HALF_UP
-            )  # ℃
-            tdb_dict[j].append(float(tdb_solution))
-
-    # calculate hr
-    lower_upper_tdb = np.append(np.array(tdb_dict[0]), np.array(tdb_dict[1])[::-1])
-
-    rh_list = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
-    # define
-    lower_upper_hr = []
-    for i in range(len(rh_list)):
-        lower_upper_hr.append(
-            psy_ta_rh(tdb=lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"] * 1000
-        )
-
-    traces.append(
-        go.Scatter(
-            x=lower_upper_tdb,
-            y=lower_upper_hr,
-            mode="lines",
-            line=dict(color="rgba(0,0,0,0)"),
-            fill="toself",
-            fillcolor="rgba(59, 189, 237, 0.7)",
-            showlegend=False,
-            hoverinfo="none",
-        )
-    )
-
-    # current point
-    # Red point
-    red_point_x = p_tdb
-    red_point_y = (
-        psy_ta_rh(tdb=p_tdb, rh=p_rh, p_atm=101325)["hr"] * 1000
-    )  # kg/kg => g/kg
-    traces.append(
-        go.Scatter(
-            x=[red_point_x],
-            y=[red_point_y],
-            mode="markers",
-            marker=dict(
-                color="red",
-                size=6,
-            ),
-            showlegend=False,
-        )
-    )
-
-    # lines
-    rh_list = np.arange(0, 110, 10)
-    tdb = np.linspace(10, 36, 500)
-    for rh in rh_list:
-        hr_list = np.array(
-            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb]
-        )  # kg/kg => g/kg
-        trace = go.Scatter(
-            x=tdb,
-            y=hr_list,
-            mode="lines",
-            line=dict(color="grey", width=1),
-            hoverinfo="x+y",
-            name=f"{rh}% RH",
-            showlegend=False,
-        )
-        traces.append(trace)
-
-    tdb = inputs[ElementsIDs.t_db_input.value]
-    rh = inputs[ElementsIDs.rh_input.value]
-    tr = inputs[ElementsIDs.t_r_input.value]
-    psy_results = psy_ta_rh(tdb, rh)
-
-    # layout
-    layout = go.Layout(
-        title="Psychrometric (air temperature)",
-        xaxis=dict(
-            title=(
-                "Dry-bulb Temperature [°C]"
-                if units == UnitSystem.SI.value
-                else "operative Temperature [°F]"
-            ),
-            range=[10, 36],
-            dtick=2,
-            showgrid=True,
-            showline=True,
-            linewidth=1.5,
-            linecolor="lightgrey",
-        ),
-        yaxis=dict(
-            title="Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]",
-            range=[0, 30],
-            dtick=5,
-            showgrid=True,
-            showline=True,
-            linewidth=1.5,
-            linecolor="lightgrey",
-            side="right",
-        ),
-        annotations=[
-            dict(
-                x=14,
-                y=28,
-                xref="x",
-                yref="y",
-                text=(
-                    f"t<sub>db</sub>: {tdb:.1f} °C<br>"
-                    f"rh: {rh:.1f} %<br>"
-                    f"W<sub>a</sub>: {psy_results.hr * 1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
-                    f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
-                    f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
-                    f"h: {psy_results.h / 1000:.1f} kJ/kg"
-                ),
-                showarrow=False,
-                align="left",
-                bgcolor="rgba(255,255,255,0.8)",
-                bordercolor="rgba(0,0,0,0)",
-                font=dict(size=14),
-            )
-        ],
-        showlegend=True,
-        plot_bgcolor="white",
-    )
-
-    fig = go.Figure(data=traces, layout=layout)
-    return fig
-
-
 def psy_ashrae_pmv_operative(
     inputs: dict = None,
     model: str = "ashrae",
@@ -1688,6 +1513,168 @@ def psy_ashrae_pmv_operative(
 
     fig = go.Figure(data=traces, layout=layout)
 
+    return fig
+
+
+def psy_ashrae_pmv(
+    inputs: dict = None,
+    model: str = "ashrae",
+    units: str = "SI",
+):
+
+    p_tdb = inputs[ElementsIDs.t_db_input.value]
+    p_tr = inputs[ElementsIDs.t_r_input.value]
+    p_v = inputs[ElementsIDs.v_input.value]
+    p_rh = inputs[ElementsIDs.rh_input.value]
+    p_met = inputs[ElementsIDs.met_input.value]
+    p_clo_d = inputs[ElementsIDs.clo_input.value]
+    p_t_running_mean = inputs[ElementsIDs.t_r_input.value]
+
+    traces = []
+
+    # blue area
+    rh = np.arange(0, 110, 10)
+    pmv_list = [-0.5, 0.5]
+    v_r = v_relative(v=p_v, met=p_met)
+    tdb_dict = {}
+    for j in range(len(pmv_list)):
+        tdb_dict[j] = []
+        for i in range(len(rh)):
+            solution = fsolve(
+                lambda x: calculate_tdb(
+                    t_db_x=x,
+                    t_r=p_tr,
+                    v_r=v_r,
+                    r_h=rh[i],
+                    met=p_met,
+                    clo_d=p_clo_d,
+                    pmv_y=pmv_list[j],
+                ),
+                22,
+            )
+            tdb_solution = Decimal(solution[0]).quantize(
+                Decimal("0.0"), rounding=ROUND_HALF_UP
+            )  # ℃
+            tdb_dict[j].append(float(tdb_solution))
+
+    # calculate hr
+    lower_upper_tdb = np.append(np.array(tdb_dict[0]), np.array(tdb_dict[1])[::-1])
+
+    rh_list = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
+    # define
+    lower_upper_hr = []
+    for i in range(len(rh_list)):
+        lower_upper_hr.append(
+            psy_ta_rh(tdb=lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"] * 1000
+        )
+
+    traces.append(
+        go.Scatter(
+            x=lower_upper_tdb,
+            y=lower_upper_hr,
+            mode="lines",
+            line=dict(color="rgba(0,0,0,0)"),
+            fill="toself",
+            fillcolor="rgba(59, 189, 237, 0.7)",
+            showlegend=False,
+            hoverinfo="none",
+        )
+    )
+
+    # current point
+    # Red point
+    red_point_x = p_tdb
+    red_point_y = (
+        psy_ta_rh(tdb=p_tdb, rh=p_rh, p_atm=101325)["hr"] * 1000
+    )  # kg/kg => g/kg
+    traces.append(
+        go.Scatter(
+            x=[red_point_x],
+            y=[red_point_y],
+            mode="markers",
+            marker=dict(
+                color="red",
+                size=6,
+            ),
+            showlegend=False,
+        )
+    )
+
+    # lines
+    rh_list = np.arange(0, 110, 10)
+    tdb = np.linspace(10, 36, 500)
+    for rh in rh_list:
+        hr_list = np.array(
+            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb]
+        )  # kg/kg => g/kg
+        trace = go.Scatter(
+            x=tdb,
+            y=hr_list,
+            mode="lines",
+            line=dict(color="grey", width=1),
+            hoverinfo="x+y",
+            name=f"{rh}% RH",
+            showlegend=False,
+        )
+        traces.append(trace)
+
+    tdb = inputs[ElementsIDs.t_db_input.value]
+    rh = inputs[ElementsIDs.rh_input.value]
+    tr = inputs[ElementsIDs.t_r_input.value]
+    psy_results = psy_ta_rh(tdb, rh)
+
+    # layout
+    layout = go.Layout(
+        title="Psychrometric (air temperature)",
+        xaxis=dict(
+            title=(
+                "Dry-bulb Temperature [°C]"
+                if units == UnitSystem.SI.value
+                else "operative Temperature [°F]"
+            ),
+            range=[10, 36],
+            dtick=2,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor="lightgrey",
+        ),
+        yaxis=dict(
+            title="Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]",
+            range=[0, 30],
+            dtick=5,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor="lightgrey",
+            side="right",
+        ),
+        annotations=[
+            dict(
+                x=14,
+                y=28,
+                xref="x",
+                yref="y",
+                text=(
+                    f"t<sub>db</sub>: {tdb:.1f} °C<br>"
+                    f"rh: {rh:.1f} %<br>"
+                    f"W<sub>a</sub>: {psy_results.hr * 1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                    f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
+                    f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
+                    f"h: {psy_results.h / 1000:.1f} kJ/kg"
+                ),
+                showarrow=False,
+                align="left",
+                bgcolor="rgba(255,255,255,0.8)",
+                bordercolor="rgba(0,0,0,0)",
+                font=dict(size=14),
+            )
+        ],
+        showlegend=True,
+        plot_bgcolor="white",
+    )
+
+    fig = go.Figure(data=traces, layout=layout)
     return fig
 
 
@@ -1891,56 +1878,52 @@ def SET_outputs_chart(
                 mean_body_temp,
             )
         )
-
     fig = go.Figure()
-
-    # Added SET temperature curve
     fig.add_trace(
         go.Scatter(
             x=tdb_values,
             y=set_temp,
             mode="lines",
             name="SET temperature",
-            line=dict(shape="spline", color="blue"),
-            yaxis="y1",  # Use a  y-axis
+            line=dict(color="blue"),
+            yaxis="y1",
         )
     )
-
-    # Adding skin temperature curve
     fig.add_trace(
         go.Scatter(
             x=tdb_values,
             y=skin_temp,
             mode="lines",
             name="Skin temperature",
-            line=dict(shape="spline", color="cyan"),
-            yaxis="y1",
+            line=dict(color="cyan"),
         )
     )
 
-    # Added core temperature curve
+    # core temperature curve
     fig.add_trace(
         go.Scatter(
             x=tdb_values,
             y=core_temp,
             mode="lines",
             name="Core temperature",
-            line=dict(shape="spline", color="limegreen"),
-            yaxis="y1",
+            line=dict(color="limegreen"),
+            yaxis="y1",  # Use a second y-axis
         )
     )
 
+    # Clothing temperature
     fig.add_trace(
         go.Scatter(
             x=tdb_values,
             y=clothing_temp,
             mode="lines",
             name="Clothing temperature",
-            line=dict(shape="spline", color="lightgreen"),
-            yaxis="y1",
+            line=dict(color="lightgreen"),
+            yaxis="y1",  # Use a second y-axis
         )
     )
 
+    # Mean body temperature
     fig.add_trace(
         go.Scatter(
             x=tdb_values,
@@ -1948,10 +1931,11 @@ def SET_outputs_chart(
             mode="lines",
             name="Mean body temperature",
             visible="legendonly",
-            line=dict(shape="spline", color="green"),
-            yaxis="y1",
+            line=dict(color="green"),
+            yaxis="y1",  # Use a second y-axis
         )
     )
+
     # total skin evaporative heat loss
     fig.add_trace(
         go.Scatter(
@@ -1960,7 +1944,7 @@ def SET_outputs_chart(
             mode="lines",
             name="Total skin evaporative heat loss",
             visible="legendonly",
-            line=dict(shape="spline", color="lightgrey"),
+            line=dict(color="lightgrey"),
             yaxis="y2",  # Use a second y-axis
         )
     )
@@ -1972,7 +1956,7 @@ def SET_outputs_chart(
             mode="lines",
             name="Sweat evaporation skin heat loss ",
             visible="legendonly",
-            line=dict(shape="spline", color="orange"),
+            line=dict(color="orange"),
             yaxis="y2",  # Use a second y-axis
         )
     )
@@ -1985,7 +1969,7 @@ def SET_outputs_chart(
             mode="lines",
             name="Vapour diffusion skin heat loss ",
             visible="legendonly",
-            line=dict(shape="spline", color="darkorange"),
+            line=dict(color="darkorange"),
             yaxis="y2",  # Use a second y-axis
         )
     )
@@ -1994,23 +1978,23 @@ def SET_outputs_chart(
     fig.add_trace(
         go.Scatter(
             x=tdb_values,
-            y=total_skin_sensible_heat_loss,
+            y=total_skin_heat_loss,
             mode="lines",
             name="Total skin sensible heat loss ",
             visible="legendonly",
-            line=dict(shape="spline", color="darkgrey"),
+            line=dict(color="darkgrey"),
             yaxis="y2",  # Use a second y-axis
         )
     )
 
-    # Added  total skin heat loss curve
+    # total skin heat loss curve
     fig.add_trace(
         go.Scatter(
             x=tdb_values,
             y=total_skin_heat_loss,
             mode="lines",
             name="Total skin heat loss",
-            line=dict(shape="spline", color="black"),
+            line=dict(color="black"),
             yaxis="y2",  # Use a second y-axis
         )
     )
@@ -2022,12 +2006,12 @@ def SET_outputs_chart(
             y=heat_loss_respiration,
             mode="lines",
             name="Heat loss respiration",
-            line=dict(shape="spline", color="black", dash="dash"),
+            line=dict(color="black", dash="dash"),
             yaxis="y2",  # Use a second y-axis
         )
     )
 
-    # Added skin moisture curve
+    #  skin moisture curve
     fig.add_trace(
         go.Scatter(
             x=tdb_values,
@@ -2035,29 +2019,28 @@ def SET_outputs_chart(
             mode="lines",
             name="Skin wettedness",
             visible="legendonly",
-            line=dict(shape="spline", color="yellow"),
+            line=dict(color="yellow"),
             yaxis="y2",  # Use a second y-axis
         )
     )
 
-    # Set the layout of the chart and adjust the legend position
+    #  layout of the chart and adjust the legend position
     fig.update_layout(
-        # title='Temperature and Heat Loss',
         xaxis=dict(
             title=(
                 "Dry-bulb Air Temperature [°C]"
                 if units == UnitSystem.SI.value
-                else "Dry-bulb Air Temperature [°F]"
+                else "Dry-bulb Temperature [°F]"
             ),
             showgrid=False,
             range=[10, 40] if units == UnitSystem.SI.value else [50, 104],
-            dtick=2 if units == UnitSystem.SI.value else 5,
+            dtick=2 if units == UnitSystem.SI.value else 5.4,
         ),
         yaxis=dict(
             title=(
-                "Dry-bulb Air Temperature [°C]"
+                "Temperature [°C]"
                 if units == UnitSystem.SI.value
-                else "Dry-bulb Air Temperature [°F]"
+                else "Temperature [°F]"
             ),
             showgrid=False,
             range=[18, 38] if units == UnitSystem.SI.value else [60, 100],
@@ -2069,21 +2052,18 @@ def SET_outputs_chart(
             overlaying="y",
             side="right",
             range=[0, 70],
-            # title_standoff=50  # Increase the distance between the Y axis title and the chart
         ),
         legend=dict(
-            x=0.5,  # Adjust the horizontal position of the legend
-            y=-0.2,  # Move the legend below the chart
-            orientation="h",  # Display the legend horizontally
+            x=0.5,
+            y=-0.2,
+            orientation="h",
             traceorder="normal",
             xanchor="center",
             yanchor="top",
         ),
         template="plotly_white",
         autosize=False,
-        width=700,  # 3:4
-        height=700,  # 3:4
+        width=700,
+        height=700,
     )
-
-    # show
     return fig
