@@ -2,6 +2,7 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
+
 from components.charts import (
     t_rh_pmv,
     chart_selector,
@@ -14,6 +15,7 @@ from components.charts import (
     generate_operative_chart,
     psy_ashrae_pmv_operative,
 )
+
 from components.dropdowns import (
     model_selection,
 )
@@ -34,6 +36,7 @@ from utils.my_config_file import (
     Functionalities,
 )
 import plotly.graph_objects as go
+from pythermalcomfort.psychrometrics import psy_ta_rh
 from urllib.parse import parse_qs, urlencode
 from pythermalcomfort.psychrometrics import psy_ta_rh
 
@@ -249,6 +252,11 @@ last_valid_annotation = None
 def update_hover_annotation(hover_data, figure, inputs):
     # For ensure tdp never shown as nan value
     global last_valid_annotation
+
+
+    # import units
+    units = inputs[ElementsIDs.UNIT_TOGGLE.value]
+nt
     if (
         hover_data
         and figure
@@ -256,6 +264,7 @@ def update_hover_annotation(hover_data, figure, inputs):
         and len(hover_data["points"]) > 0
     ):
         chart_selected = inputs[ElementsIDs.chart_selected.value]
+
         # not show annotation for adaptive methods
         if chart_selected in [
             Charts.psychrometric.value.name,
@@ -263,6 +272,7 @@ def update_hover_annotation(hover_data, figure, inputs):
             Charts.psychrometric_operative.value.name,
         ]:
             point = hover_data["points"][0]
+t
             if "x" in point and "y" in point:
                 t_db = point["x"]
                 rh = point["y"]
@@ -276,20 +286,36 @@ def update_hover_annotation(hover_data, figure, inputs):
                             "text"
                         ] = last_valid_annotation
                     return figure
+
                 # calculations
                 psy_results = psy_ta_rh(t_db, rh)
                 t_wb_value = psy_results.t_wb
                 t_dp_value = psy_results.t_dp
                 wa = psy_results.hr * 1000  # convert to g/kgda
                 h = psy_results.h / 1000  # convert to kj/kg
-                annotation_text = (
-                    f"t<sub>db</sub>: {t_db:.1f} °C<br>"
-                    f"RH: {rh:.1f} %<br>"
-                    f"W<sub>a</sub>: {wa:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
-                    f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
-                    f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
-                    f"h: {h:.1f} kJ/kg<br>"
-                )
+
+
+                # Added unit judgment logic
+                if units == UnitSystem.SI.value:
+                    annotation_text = (
+                        f"t<sub>db</sub>: {t_db:.1f} °C<br>"
+                        f"RH: {rh:.1f} %<br>"
+                        # f"W<sub>a</sub>: {wa:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                        f"W<sub>a</sub>: {psy_results.hr*1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                        f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
+                        f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
+                        f"h: {h:.1f} kJ/kg<br>"
+                    )
+                else:  # IP
+                    annotation_text = (
+                        f"t<sub>db</sub>: {t_db:.1f} °F<br>"
+                        f"RH: {rh:.1f} %<br>"
+                        f"W<sub>a</sub>: {psy_results.hr*1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                        f"t<sub>wb</sub>: {t_wb_value:.1f} °F<br>"
+                        f"t<sub>dp</sub>: {(psy_results.t_dp-32)/1.8:.1f} °F<br>"
+                        f"h: {h / 2.326:.1f} BTU/lb<br>"  # kJ/kg to BTU/lb
+                    )
+
                 if (
                     "annotations" in figure["layout"]
                     and len(figure["layout"]["annotations"]) > 0
@@ -297,6 +323,7 @@ def update_hover_annotation(hover_data, figure, inputs):
                     figure["layout"]["annotations"][0]["text"] = annotation_text
             else:
                 print("Unexpected hover data structure:", point)
+
     return figure
 
 
@@ -348,11 +375,13 @@ def update_chart(inputs: dict, function_selection: str):
             and function_selection == Functionalities.Default.value
         ):
             image = psy_ashrae_pmv(inputs=inputs, model="ashrae")
+
         elif (
             selected_model == Models.PMV_EN.name
             and function_selection == Functionalities.Default.value
         ):
             image = generate_tdb_hr_chart(inputs=inputs, model="iso", units=units)
+
     elif chart_selected == Charts.psychrometric_operative.value.name:
         if (
             selected_model == Models.PMV_EN.name
@@ -365,12 +394,18 @@ def update_chart(inputs: dict, function_selection: str):
             and function_selection == Functionalities.Default.value
         ):
             image = psy_ashrae_pmv_operative(inputs=inputs, model="ashrae")
+
     elif chart_selected == Charts.set_outputs.value.name:
         if (
             selected_model == Models.PMV_ashrae.name
             and function_selection == Functionalities.Default.value
         ):
-            image = SET_outputs_chart(inputs=inputs, units=units)
+
+            image = SET_outputs_chart(
+                inputs=inputs, calculate_ce=False, p_atmospheric=101325, units=units
+            )
+
+
     elif chart_selected == Charts.wind_temp_chart.value.name:
         if (
             selected_model == Models.PMV_ashrae.name

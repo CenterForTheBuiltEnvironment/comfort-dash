@@ -103,7 +103,7 @@ def display_results(inputs: dict):
             )
         elif selected_model == Models.PMV_EN.name:
             comfort_category = mapping(
-                r_pmv["pmv"], {0.2: "I", 0.5: "II", 0.7: "III", float("inf"): "IV"}
+                abs(r_pmv["pmv"]), {0.2: "I", 0.5: "II", 0.7: "III", float("inf"): "IV"}
             )
             results[1].children.append(
                 dmc.Center(dmc.Text(f"Category: {comfort_category}"))
