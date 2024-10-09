@@ -253,10 +253,9 @@ def update_hover_annotation(hover_data, figure, inputs):
     # For ensure tdp never shown as nan value
     global last_valid_annotation
 
-
     # import units
     units = inputs[ElementsIDs.UNIT_TOGGLE.value]
-nt
+
     if (
         hover_data
         and figure
@@ -272,7 +271,7 @@ nt
             Charts.psychrometric_operative.value.name,
         ]:
             point = hover_data["points"][0]
-t
+
             if "x" in point and "y" in point:
                 t_db = point["x"]
                 rh = point["y"]
@@ -293,7 +292,6 @@ t
                 t_dp_value = psy_results.t_dp
                 wa = psy_results.hr * 1000  # convert to g/kgda
                 h = psy_results.h / 1000  # convert to kj/kg
-
 
                 # Added unit judgment logic
                 if units == UnitSystem.SI.value:
@@ -404,7 +402,6 @@ def update_chart(inputs: dict, function_selection: str):
             image = SET_outputs_chart(
                 inputs=inputs, calculate_ce=False, p_atmospheric=101325, units=units
             )
-
 
     elif chart_selected == Charts.wind_temp_chart.value.name:
         if (
