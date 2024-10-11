@@ -199,7 +199,6 @@ def display_results(inputs: dict):
         )
 
     elif selected_model == Models.Adaptive_EN.name:
-
         results = gain_adaptive_en_hover_text(
             tdb=inputs[ElementsIDs.t_db_input.value],
             tr=inputs[ElementsIDs.t_r_input.value],
