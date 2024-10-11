@@ -23,7 +23,6 @@ from components.show_results import display_results
 import time
 
 
-
 def modal_custom_ensemble():
     return dmc.Modal(
         title="Custom Ensemble",
@@ -549,6 +548,7 @@ def create_autocomplete(values: ModelInputsInfo):
 #         air_speed_box, clearable=False, only_dropdown=True
 #     )
 
+
 def create_select_component(values: ModelInputsInfo, model_name):
     air_speed_box = {}
     speed_options = {
@@ -573,9 +573,15 @@ def create_select_component(values: ModelInputsInfo, model_name):
 def get_min_max_range(model, input_type):
     model_info = Models[model].value
     for input_info in model_info.inputs:
-        if input_type == "metabolic_rate" and input_info.id == ElementsIDs.met_input.value:
+        if (
+            input_type == "metabolic_rate"
+            and input_info.id == ElementsIDs.met_input.value
+        ):
             return input_info.min, input_info.max
-        elif input_type == "clothing_level" and input_info.id == ElementsIDs.clo_input.value:
+        elif (
+            input_type == "clothing_level"
+            and input_info.id == ElementsIDs.clo_input.value
+        ):
             return input_info.min, input_info.max
     return None
 
@@ -648,5 +654,3 @@ update_metabolic_rate_options_input2 = create_and_update_callback(
 update_clothing_level_options_input2 = create_and_update_callback(
     ElementsIDs.clo_input_input2.value, ClothingSelection, "clothing_level"
 )
-
-

@@ -73,8 +73,6 @@ def compare_get_inputs(inputs):
     return met_2, clo_2, tr_2, t_db_2, v_2, rh_2
 
 
-
-
 def adaptive_chart(
     inputs: dict = None,
     model: str = "iso",
@@ -201,9 +199,8 @@ def adaptive_chart(
         showlegend=False,
         plot_bgcolor="white",
         margin=dict(l=10, t=10),
-        height = 500,
-        width = 680,
-
+        height=500,
+        width=680,
     )
 
     fig = go.Figure(data=traces, layout=layout)
@@ -223,9 +220,6 @@ def adaptive_chart(
         )
 
     return fig
-
-
-
 
 
 def t_rh_pmv(
@@ -384,6 +378,7 @@ def t_rh_pmv(
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
 
     return fig
+
 
 # Thermal heat losses vs. air temperature of ASHRAE
 def get_heat_losses(inputs: dict = None, model: str = "ashrae", units: str = "SI"):

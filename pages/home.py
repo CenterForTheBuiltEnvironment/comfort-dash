@@ -2,7 +2,13 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
-from components.charts import t_rh_pmv, chart_selector, get_heat_losses, SET_outputs_chart, adaptive_chart
+from components.charts import (
+    t_rh_pmv,
+    chart_selector,
+    get_heat_losses,
+    SET_outputs_chart,
+    adaptive_chart,
+)
 from components.dropdowns import (
     model_selection,
 )
@@ -66,7 +72,9 @@ layout = dmc.Stack(
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
                             dcc.Location(id=ElementsIDs.URL.value, refresh=False),
-                            dcc.Store(id=ElementsIDs.INITIAL_URL.value, storage_type="memory"),
+                            dcc.Store(
+                                id=ElementsIDs.INITIAL_URL.value, storage_type="memory"
+                            ),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -93,7 +101,6 @@ layout = dmc.Stack(
     Input(ElementsIDs.chart_selected.value, "value"),
     Input(ElementsIDs.functionality_selection.value, "value"),
     State(ElementsIDs.MODEL_SELECTION.value, "value"),
-
     prevent_initial_call=True,
 )
 def update_store_inputs(
@@ -133,9 +140,7 @@ def update_inputs(selected_model, units_selection, function_selection):
     if selected_model is None:
         return no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    return (
-        input_environmental_personal(selected_model, units, function_selection),
-    )
+    return (input_environmental_personal(selected_model, units, function_selection),)
 
 
 # once function: update_inputs via URL, update the value of the model dropdown, unit toggle and functionality dropdown and chart dropdown, and inputs, it only use once when the page is loaded
@@ -251,8 +256,6 @@ def update_chart(inputs: dict, function_selection: str):
                 units=units,
             )
 
-
-
     elif chart_selected == Charts.thl_psychrometric.value.name:
         if (
             selected_model == Models.PMV_ashrae.name
@@ -275,18 +278,12 @@ def update_chart(inputs: dict, function_selection: str):
             )
 
     elif chart_selected == Charts.adaptive_en.value.name:
-        if (
-            function_selection == Functionalities.Default.value
-        ):
+        if function_selection == Functionalities.Default.value:
             image = adaptive_chart(inputs=inputs, model="iso", units=units)
 
     elif chart_selected == Charts.adaptive_ashrae.value.name:
         if function_selection == Functionalities.Default.value:
             image = adaptive_chart(inputs=inputs, model="ashrae", units=units)
-
-
-
-
 
     note = ""
     chart: ChartsInfo

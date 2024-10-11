@@ -12,7 +12,8 @@ from utils.my_config_file import (
     ElementsIDs,
     Functionalities,
     CompareInputColor,
-    ComfortLevel, Charts,
+    ComfortLevel,
+    Charts,
 )
 
 
@@ -190,8 +191,11 @@ def display_results(inputs: dict):
         )
 
     if selected_model == Models.PMV_ashrae.name:
-        if inputs[ElementsIDs.chart_selected.value] == Charts.set_outputs.value.name or \
-                inputs[ElementsIDs.chart_selected.value] == Charts.thl_psychrometric.value.name:
+        if (
+            inputs[ElementsIDs.chart_selected.value] == Charts.set_outputs.value.name
+            or inputs[ElementsIDs.chart_selected.value]
+            == Charts.thl_psychrometric.value.name
+        ):
             return None
 
     return dmc.Stack(
@@ -275,42 +279,7 @@ def gain_adaptive_en_hover_text(tdb, tr, trm, v, units):
     return results
 
 
-    elif selected_model == Models.Adaptive_EN.name:
-
-        results = gain_adaptive_en_hover_text(
-            tdb=inputs[ElementsIDs.t_db_input.value],
-            tr=inputs[ElementsIDs.t_r_input.value],
-            trm=inputs[ElementsIDs.t_rm_input.value],
-            v=inputs[ElementsIDs.v_input.value],
-            units=units,
-        )
-
-    elif selected_model == Models.Adaptive_ASHRAE.name:
-
-        results = gain_adaptive_ashare_hover_text(
-            tdb=inputs[ElementsIDs.t_db_input.value],
-            tr=inputs[ElementsIDs.t_r_input.value],
-            trm=inputs[ElementsIDs.t_rm_input.value],
-            v=inputs[ElementsIDs.v_input.value],
-            units=units,
-        )
-
-    if selected_model == Models.PMV_ashrae.name:
-        if inputs[ElementsIDs.chart_selected.value] == Charts.set_outputs.value.name or \
-                inputs[ElementsIDs.chart_selected.value] == Charts.thl_psychrometric.value.name:
-            return None
-
-    return dmc.Stack(
-        children=results,
-        gap=0,
-        align="stretch",
-    )
-
 def gain_adaptive_ashare_hover_text(tdb, tr, trm, v, units):
-
-
-
-
     if tdb is None or tr is None or trm is None or v is None:
         return "None"
 
