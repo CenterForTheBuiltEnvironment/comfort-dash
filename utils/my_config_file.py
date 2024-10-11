@@ -174,7 +174,7 @@ class AdaptiveAshraeSpeeds(Enum):
 
 
 class AdaptiveENSpeeds(Enum):
-    lower_than_06: str = "lower than 0.6 m/s (118fpm)"
+    lower_than_06: str = "0.1 m/s (118fpm)"
     speed_06: str = "0.6 m/s (118fpm)"
     speed_09: str = "0.9 m/s (177fpm)"
     speed_12: str = "1.2 m/s (236fpm)"
