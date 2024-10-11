@@ -211,6 +211,13 @@ def gain_adaptive_en_hover_text(tdb, tr, trm, v, units):
 
     result = adaptive_en(tdb=tdb, tr=tr, t_running_mean=trm, v=v, units=units)
     y = t_o(tdb=tdb, tr=tr, v=v)
+    if y > result["tmp_cmf_cat_iii_up"] or y < result["tmp_cmf_cat_iii_low"]:
+        compliance_text = "✘ Does not comply with EN 16798"
+        compliance_color = "red"
+    else:
+        compliance_text = "✔ Complies with EN 16798"
+        compliance_color = "green"
+
     if result["tmp_cmf_cat_i_low"] <= y <= result["tmp_cmf_cat_i_up"]:
         class3_bool = ComfortLevel.COMFORTABLE
         class2_bool = ComfortLevel.COMFORTABLE
@@ -246,6 +253,15 @@ def gain_adaptive_en_hover_text(tdb, tr, trm, v, units):
 
     results = []
     temp_unit = "°F" if units == UnitSystem.IP.value else "°C"
+    results.append(
+        dmc.Text(
+            compliance_text,
+            c=compliance_color,
+            ta="center",
+            size="md",
+            style={"width": "100%"},
+        )
+    )
     results.append(
         dmc.Center(
             dmc.Text(
@@ -285,6 +301,14 @@ def gain_adaptive_ashare_hover_text(tdb, tr, trm, v, units):
 
     result = adaptive_ashrae(tdb=tdb, tr=tr, t_running_mean=trm, v=v, units=units)
     y = t_o(tdb=tdb, tr=tr, v=v)
+
+    if y > result["tmp_cmf_80_up"] or y < result["tmp_cmf_80_low"]:
+        compliance_text = "✘ Does not comply with ASHRAE 55"
+        compliance_color = "red"
+    else:
+        compliance_text = "✔ Complies with ASHRAE 55"
+        compliance_color = "green"
+
     if result["tmp_cmf_90_low"] <= y <= result["tmp_cmf_90_up"]:
         class2_bool = ComfortLevel.COMFORTABLE
         class1_bool = ComfortLevel.COMFORTABLE
@@ -306,6 +330,15 @@ def gain_adaptive_ashare_hover_text(tdb, tr, trm, v, units):
 
     results = []
     temp_unit = "°F" if units == UnitSystem.IP.value else "°C"
+    results.append(
+        dmc.Text(
+            compliance_text,
+            c=compliance_color,
+            ta="center",
+            size="md",
+            style={"width": "100%"},
+        )
+    )
     results.append(
         dmc.Center(
             dmc.Text(
