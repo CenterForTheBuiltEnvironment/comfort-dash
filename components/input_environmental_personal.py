@@ -536,19 +536,6 @@ def create_autocomplete(values: ModelInputsInfo):
     )
 
 
-# def create_select_component(values: ModelInputsInfo):
-#     air_speed_box = {
-#         "id": ElementsIDs.v_input.value,
-#         "question": None,
-#         "options": [speed.value for speed in AdaptiveENSpeeds],
-#         "multi": False,
-#         "default": values.value,
-#     }
-#     return generate_dropdown_selection(
-#         air_speed_box, clearable=False, only_dropdown=True
-#     )
-
-
 def create_select_component(values: ModelInputsInfo, model_name):
     air_speed_box = {}
     speed_options = {
