@@ -322,7 +322,6 @@ class Models(Enum):
         charts=[
             Charts.t_rh.value,
             Charts.psychrometric.value,
-            Charts.psychrometric_operative.value,
             Charts.wind_temp_chart.value,
             Charts.thl_psychrometric.value,
             Charts.set_outputs.value,
@@ -330,7 +329,6 @@ class Models(Enum):
         charts_compare=[
             Charts.t_rh.value,
             Charts.psychrometric.value,
-            Charts.psychrometric_operative.value,
         ],
         inputs=[
             ModelInputsInfo(
