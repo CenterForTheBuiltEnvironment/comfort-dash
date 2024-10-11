@@ -109,14 +109,14 @@ def adaptive_chart(
 
     if model == "iso":
         categories = [
-            ("cat_iii", "Category III", "rgba(144, 238, 144, 0.3)"),
+            ("cat_iii", "Category III", "rgba(168, 195, 161, 0.6)"),
             ("cat_ii", "Category II", "rgba(34, 139, 34, 0.5)"),
-            ("cat_i", "Category I", "rgba(0, 100, 0, 0.7)"),
+            ("cat_i", "Category I", "rgba(0, 100, 0, 0.5)"),
         ]
     else:
         categories = [
-            ("80", "80% Acceptability", "rgba(0, 100, 200, 0.2)"),
-            ("90", "90% Acceptability", "rgba(0, 100, 200, 0.4)"),
+            ("80", "80% Acceptability", "rgba(144, 205, 239, 0.8)"),
+            ("90", "90% Acceptability", "rgba(63, 105, 152, 0.8)"),
         ]
 
     for cat, name, color in categories:
@@ -200,7 +200,10 @@ def adaptive_chart(
         legend=dict(x=0.8, y=1),
         showlegend=False,
         plot_bgcolor="white",
-        margin=dict(l=40, r=40, t=0, b=40),
+        margin=dict(l=10, t=10),
+        height = 500,
+        width = 680,
+
     )
 
     fig = go.Figure(data=traces, layout=layout)
@@ -366,7 +369,9 @@ def t_rh_pmv(
         xaxis=dict(title="Dry-bulb Temperature (°C)", range=[10, 36], dtick=2),
         showlegend=False,
         plot_bgcolor="white",
-        margin=dict(l=40, r=40, t=40, b=40),
+        margin=dict(l=10, t=0),
+        height=500,
+        width=680,
     )
 
     if units == UnitSystem.IP.value:
@@ -594,9 +599,9 @@ def get_heat_losses(inputs: dict = None, model: str = "ashrae", units: str = "SI
         ),
         template="plotly_white",
         autosize=False,
-        margin=dict(l=40, r=40, t=0, b=40),
-        # height=500,
-        # width=500,
+        margin=dict(l=0, r=10, t=0),
+        height=600,
+        width=600,
     )
 
     return fig
@@ -989,8 +994,8 @@ def SET_outputs_chart(
         ),
         template="plotly_white",
         autosize=False,
-        margin=dict(l=40, r=40, t=0, b=0),
+        margin=dict(l=0, r=10, t=0),
         height=600,
-        width=700,
+        width=600,
     )
     return fig
