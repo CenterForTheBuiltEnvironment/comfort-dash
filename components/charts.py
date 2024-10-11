@@ -15,7 +15,7 @@ from utils.my_config_file import (
 )
 from utils.website_text import TextHome
 import matplotlib
-from pythermalcomfort.models import adaptive_en
+from pythermalcomfort.models import adaptive_en, adaptive_ashrae
 from pythermalcomfort.psychrometrics import t_o
 
 matplotlib.use("Agg")
@@ -73,22 +73,33 @@ def compare_get_inputs(inputs):
     return met_2, clo_2, tr_2, t_db_2, v_2, rh_2
 
 
-def adaptive_en_chart(inputs, units):
+
+
+def adaptive_chart(
+    inputs: dict = None,
+    model: str = "iso",
+    units: str = "SI",
+):
     traces = []
 
     if units == UnitSystem.IP.value:
-        x_values = np.array([50, 92.3])
+        x_values = np.array([50, 92.3]) if model == "iso" else np.array([50, 92.3])
     else:
-        x_values = np.array([10, 30])
+        x_values = np.array([10, 30]) if model == "iso" else np.array([10, 33.5])
 
-    results_min = adaptive_en(
+    if model == "iso":
+        adaptive_func = adaptive_en
+    else:
+        adaptive_func = adaptive_ashrae
+
+    results_min = adaptive_func(
         tdb=inputs[ElementsIDs.t_db_input.value],
         tr=inputs[ElementsIDs.t_r_input.value],
         t_running_mean=x_values[0],
         v=inputs[ElementsIDs.v_input.value],
         units=units,
     )
-    results_max = adaptive_en(
+    results_max = adaptive_func(
         tdb=inputs[ElementsIDs.t_db_input.value],
         tr=inputs[ElementsIDs.t_r_input.value],
         t_running_mean=x_values[1],
@@ -96,69 +107,40 @@ def adaptive_en_chart(inputs, units):
         units=units,
     )
 
-    y_values_cat_iii_up = [
-        results_min["tmp_cmf_cat_iii_up"],
-        results_max["tmp_cmf_cat_iii_up"],
-    ]
-    y_values_cat_iii_low = [
-        results_min["tmp_cmf_cat_iii_low"],
-        results_max["tmp_cmf_cat_iii_low"],
-    ]
+    if model == "iso":
+        categories = [
+            ("cat_iii", "Category III", "rgba(144, 238, 144, 0.3)"),
+            ("cat_ii", "Category II", "rgba(34, 139, 34, 0.5)"),
+            ("cat_i", "Category I", "rgba(0, 100, 0, 0.7)"),
+        ]
+    else:
+        categories = [
+            ("80", "80% Acceptability", "rgba(0, 100, 200, 0.2)"),
+            ("90", "90% Acceptability", "rgba(0, 100, 200, 0.4)"),
+        ]
 
-    y_values_cat_ii_up = [
-        results_min["tmp_cmf_cat_ii_up"],
-        results_max["tmp_cmf_cat_ii_up"],
-    ]
-    y_values_cat_ii_low = [
-        results_min["tmp_cmf_cat_ii_low"],
-        results_max["tmp_cmf_cat_ii_low"],
-    ]
+    for cat, name, color in categories:
+        y_values_up = [
+            results_min[f"tmp_cmf_{cat}_up"],
+            results_max[f"tmp_cmf_{cat}_up"],
+        ]
+        y_values_low = [
+            results_min[f"tmp_cmf_{cat}_low"],
+            results_max[f"tmp_cmf_{cat}_low"],
+        ]
 
-    y_values_cat_i_up = [
-        results_min["tmp_cmf_cat_i_up"],
-        results_max["tmp_cmf_cat_i_up"],
-    ]
-    y_values_cat_i_low = [
-        results_min["tmp_cmf_cat_i_low"],
-        results_max["tmp_cmf_cat_i_low"],
-    ]
+        traces.append(
+            go.Scatter(
+                x=np.concatenate([x_values, x_values[::-1]]),
+                y=np.concatenate([y_values_up, y_values_low[::-1]]),
+                fill="toself",
+                fillcolor=color,
+                line=dict(color="rgba(0,0,0,0)", shape="linear"),
+                name=name,
+                mode="lines",
+            )
+        )
 
-    # traces[0]
-    traces.append(
-        go.Scatter(
-            x=np.concatenate([x_values, x_values[::-1]]),
-            y=np.concatenate([y_values_cat_iii_up, y_values_cat_iii_low[::-1]]),
-            fill="toself",
-            fillcolor="rgba(144, 238, 144, 0.3)",
-            line=dict(color="rgba(144, 238, 144, 0)", shape="linear"),
-            name="Category III",
-            mode="lines",
-        )
-    )
-    # traces[1]
-    traces.append(
-        go.Scatter(
-            x=np.concatenate([x_values, x_values[::-1]]),
-            y=np.concatenate([y_values_cat_ii_up, y_values_cat_ii_low[::-1]]),
-            fill="toself",
-            fillcolor="rgba(34, 139, 34, 0.5)",
-            line=dict(color="rgba(34, 139, 34, 0)", shape="linear"),
-            name="Category II",
-            mode="lines",
-        )
-    )
-    # traces[2]
-    traces.append(
-        go.Scatter(
-            x=np.concatenate([x_values, x_values[::-1]]),
-            y=np.concatenate([y_values_cat_i_up, y_values_cat_i_low[::-1]]),
-            fill="toself",
-            fillcolor="rgba(0, 100, 0, 0.7)",
-            line=dict(color="rgba(0, 100, 0, 0)", shape="linear"),
-            name="Category I",
-            mode="lines",
-        )
-    )
     x = inputs[ElementsIDs.t_rm_input.value]
     y = t_o(
         tdb=inputs[ElementsIDs.t_db_input.value],
@@ -166,7 +148,6 @@ def adaptive_en_chart(inputs, units):
         v=inputs[ElementsIDs.v_input.value],
     )
     red_point = [x, y]
-    # traces[3]
     traces.append(
         go.Scatter(
             x=[red_point[0]],
@@ -180,52 +161,46 @@ def adaptive_en_chart(inputs, units):
             showlegend=False,
         )
     )
-    # theta = np.linspace(0, 2 * np.pi, 100)
-    # circle_x = red_point[0] + 0.5 * np.cos(theta)
-    # circle_y = red_point[1] + 0.8 * np.sin(theta)
-    # # traces[4]
-    # traces.append(
-    #     go.Scatter(
-    #         x=circle_x,
-    #         y=circle_y,
-    #         mode="lines",
-    #         line=dict(color="red", width=2.5),
-    #         # name='circle',
-    #         showlegend=False,
-    #     )
-    # )
 
     layout = go.Layout(
         xaxis=dict(
-            title="Outdoor Running Mean Temperature [°C]",
-            range=[10, 30],
-            dtick=2,
+            title=(
+                "Outdoor Running Mean Temperature [°C]"
+                if units == UnitSystem.SI.value
+                else "Prevailing Mean Outdoor Temperature [°F]"
+            ),
+            range=[10, 30] if model == "iso" else [10, 33.5],
+            dtick=2 if units == UnitSystem.SI.value else 5,
             showgrid=True,
             gridcolor="lightgray",
-            gridwidth=1.5,
+            gridwidth=1,
             ticks="outside",
             ticklen=5,
             showline=True,
             linewidth=1.5,
-            linecolor="black",
+            linecolor="gray",
         ),
         yaxis=dict(
-            title="Operative Temperature [°C]",
-            range=[14, 36],
-            dtick=2,
+            title=(
+                "Operative Temperature [°C]"
+                if units == UnitSystem.SI.value
+                else "Operative Temperature [°F]"
+            ),
+            range=[14, 36] if units == UnitSystem.SI.value else [60, 104],
+            dtick=2 if units == UnitSystem.SI.value else 5,
             showgrid=True,
             gridcolor="lightgray",
-            gridwidth=1.5,
+            gridwidth=1,
             ticks="outside",
             ticklen=5,
             showline=True,
             linewidth=1.5,
-            linecolor="black",
+            linecolor="gray",
         ),
         legend=dict(x=0.8, y=1),
         showlegend=False,
         plot_bgcolor="white",
-        margin=dict(l=40, r=40, t=40, b=40),
+        margin=dict(l=40, r=40, t=0, b=40),
     )
 
     fig = go.Figure(data=traces, layout=layout)
@@ -233,14 +208,21 @@ def adaptive_en_chart(inputs, units):
     if units == UnitSystem.IP.value:
         fig.update_layout(
             xaxis=dict(
-                title="Outdoor Running Mean Temperature [°F]", range=[50, 92.3], dtick=5
+                range=(
+                    [50, 92.3]
+                    if model == "iso"
+                    else [
+                        UnitConverter.celsius_to_fahrenheit(10),
+                        UnitConverter.celsius_to_fahrenheit(33.5),
+                    ]
+                ),
             ),
-        )
-        fig.update_layout(
-            yaxis=dict(title="Operative Temperature [°F]", range=[60, 104], dtick=5),
         )
 
     return fig
+
+
+
 
 
 def t_rh_pmv(
@@ -612,9 +594,9 @@ def get_heat_losses(inputs: dict = None, model: str = "ashrae", units: str = "SI
         ),
         template="plotly_white",
         autosize=False,
-        margin=dict(t=40),
-        height=600,
-        width=700,
+        margin=dict(l=40, r=40, t=0, b=40),
+        # height=500,
+        # width=500,
     )
 
     return fig
@@ -1007,7 +989,7 @@ def SET_outputs_chart(
         ),
         template="plotly_white",
         autosize=False,
-        margin=dict(t=40),
+        margin=dict(l=40, r=40, t=0, b=0),
         height=600,
         width=700,
     )

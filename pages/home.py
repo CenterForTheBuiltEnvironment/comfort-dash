@@ -2,7 +2,7 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
-from components.charts import t_rh_pmv, chart_selector, adaptive_en_chart, get_heat_losses, SET_outputs_chart
+from components.charts import t_rh_pmv, chart_selector, get_heat_losses, SET_outputs_chart, adaptive_chart
 from components.dropdowns import (
     model_selection,
 )
@@ -229,7 +229,6 @@ def update_chart(inputs: dict, function_selection: str):
         ]
     )
     image = go.Figure()
-
     if chart_selected == Charts.t_rh.value.name:
         if (
             selected_model == Models.PMV_EN.name
@@ -251,6 +250,8 @@ def update_chart(inputs: dict, function_selection: str):
                 function_selection=function_selection,
                 units=units,
             )
+
+
 
     elif chart_selected == Charts.thl_psychrometric.value.name:
         if (
@@ -275,10 +276,17 @@ def update_chart(inputs: dict, function_selection: str):
 
     elif chart_selected == Charts.adaptive_en.value.name:
         if (
-            selected_model == Models.Adaptive_EN.name
-            and function_selection == Functionalities.Default.value
+            function_selection == Functionalities.Default.value
         ):
-            image = adaptive_en_chart(inputs=inputs, units=units)
+            image = adaptive_chart(inputs=inputs, model="iso", units=units)
+
+    elif chart_selected == Charts.adaptive_ashrae.value.name:
+        if function_selection == Functionalities.Default.value:
+            image = adaptive_chart(inputs=inputs, model="ashrae", units=units)
+
+
+
+
 
     note = ""
     chart: ChartsInfo
@@ -292,6 +300,7 @@ def update_chart(inputs: dict, function_selection: str):
         else dcc.Graph(
             id=ElementsIDs.GRAPH_HOVER.value,
             figure=image,  # Pass the Plotly figure object here
+            config={"displayModeBar": False},
         )
     )
 

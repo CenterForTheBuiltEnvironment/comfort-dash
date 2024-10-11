@@ -164,6 +164,11 @@ class Charts(Enum):
         id="id_set_outputs_chart",
         note_chart="This chart shows how some variables, calculated using the SET model, vary as a function of the input parameters you selected. You can toggle on and off the lines by clicking on the relative variable in the legend.",
     )
+    adaptive_ashrae: ChartsInfo = ChartsInfo(
+        name="Adaptive - ASHRAE",
+        id="id_adaptive_ashrae_chart",
+        note_chart = "Method is applicable only for occupant-controlled naturally conditioned spaces that meet all of the following criteria: (a) There is no mechanical cooling system installed. No heating system is in operation; (b) Metabolic rates ranging from 1.0 to 1.3 met; and (c) Occupants are free to adapt their clothing to the indoor and/or outdoor thermal conditions within a range at least as wide as 0.5-1.0 clo."
+    )
 
 
 class AdaptiveAshraeSpeeds(Enum):
@@ -511,7 +516,7 @@ class Models(Enum):
         description="Adaptive - ASHRAE 55",
         charts=[
             # todo add the right charts
-            Charts.t_rh.value,
+            Charts.adaptive_ashrae.value,
         ],
         inputs=[
             ModelInputsInfo(
