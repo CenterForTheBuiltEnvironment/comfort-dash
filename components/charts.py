@@ -69,159 +69,6 @@ def compare_get_inputs(inputs):
     return met_2, clo_2, tr_2, t_db_2, v_2, rh_2
 
 
-def adaptive_chart(
-    inputs: dict = None,
-    model: str = "iso",
-    units: str = "SI",
-):
-    traces = []
-
-    if units == UnitSystem.IP.value:
-        x_values = np.array([50, 92.3]) if model == "iso" else np.array([50, 92.3])
-
-    else:
-        x_values = np.array([10, 30]) if model == "iso" else np.array([10, 33.5])
-
-    if model == "iso":
-        adaptive_func = adaptive_en
-    else:
-        adaptive_func = adaptive_ashrae
-
-    results_min = adaptive_func(
-        tdb=inputs[ElementsIDs.t_db_input.value],
-        tr=inputs[ElementsIDs.t_r_input.value],
-        t_running_mean=x_values[0],
-        v=inputs[ElementsIDs.v_input.value],
-        units=units,
-    )
-    results_max = adaptive_func(
-        tdb=inputs[ElementsIDs.t_db_input.value],
-        tr=inputs[ElementsIDs.t_r_input.value],
-        t_running_mean=x_values[1],
-        v=inputs[ElementsIDs.v_input.value],
-        units=units,
-    )
-
-    if model == "iso":
-        categories = [
-            ("cat_iii", "Category III", "rgba(144, 238, 144, 0.3)"),
-            ("cat_ii", "Category II", "rgba(34, 139, 34, 0.5)"),
-            ("cat_i", "Category I", "rgba(0, 100, 0, 0.7)"),
-        ]
-    else:
-        categories = [
-            ("80", "80% Acceptability", "rgba(0, 100, 200, 0.2)"),
-            ("90", "90% Acceptability", "rgba(0, 100, 200, 0.4)"),
-        ]
-
-    for cat, name, color in categories:
-        y_values_up = [
-            results_min[f"tmp_cmf_{cat}_up"],
-            results_max[f"tmp_cmf_{cat}_up"],
-        ]
-        y_values_low = [
-            results_min[f"tmp_cmf_{cat}_low"],
-            results_max[f"tmp_cmf_{cat}_low"],
-        ]
-
-        traces.append(
-            go.Scatter(
-                x=np.concatenate([x_values, x_values[::-1]]),
-                y=np.concatenate([y_values_up, y_values_low[::-1]]),
-                fill="toself",
-                fillcolor=color,
-                line=dict(color="rgba(0,0,0,0)", shape="linear"),
-                name=name,
-                mode="lines",
-            )
-        )
-
-    x = inputs[ElementsIDs.t_rm_input.value]
-    y = t_o(
-        tdb=inputs[ElementsIDs.t_db_input.value],
-        tr=inputs[ElementsIDs.t_r_input.value],
-        v=inputs[ElementsIDs.v_input.value],
-    )
-    red_point = [x, y]
-    traces.append(
-        go.Scatter(
-            x=[red_point[0]],
-            y=[red_point[1]],
-            mode="markers",
-            marker=dict(
-                color="red",
-                size=6,
-            ),
-            name="current input",
-            showlegend=False,
-        )
-    )
-
-    layout = go.Layout(
-        xaxis=dict(
-            title=(
-                "Outdoor Running Mean Temperature [°C]"
-                if units == UnitSystem.SI.value
-                else "Prevailing Mean Outdoor Temperature [°F]"
-            ),
-            range=[10, 30] if model == "iso" else [10, 33.5],
-            dtick=2 if units == UnitSystem.SI.value else 5,
-            showgrid=True,
-            gridcolor="lightgray",
-            gridwidth=1.5,
-            ticks="outside",
-            ticklen=5,
-            showline=True,
-            linewidth=1.5,
-            linecolor="lightgray",
-            mirror=True,
-        ),
-        yaxis=dict(
-            title=(
-                "Operative Temperature [°C]"
-                if units == UnitSystem.SI.value
-                else "Operative Temperature [°F]"
-            ),
-            range=[14, 36] if units == UnitSystem.SI.value else [60, 104],
-            dtick=2 if units == UnitSystem.SI.value else 5,
-            showgrid=True,
-            gridcolor="lightgray",
-            gridwidth=1.5,
-            ticks="outside",
-            ticklen=5,
-            showline=True,
-            linewidth=1.5,
-            linecolor="lightgray",
-            mirror=True,
-        ),
-        legend=dict(x=0.8, y=1),
-        showlegend=False,
-        # plot_bgcolor="white",
-        template="plotly_white",
-        # margin=dict(l=40, r=40, t=40, b=40),
-        width=700,
-        height=525,
-    )
-
-    fig = go.Figure(data=traces, layout=layout)
-
-    if units == UnitSystem.IP.value:
-        fig.update_layout(
-            xaxis=dict(
-                range=(
-                    [50, 92.3]
-                    if model == "iso"
-                    else [
-                        UnitConverter.celsius_to_fahrenheit(10),
-                        UnitConverter.celsius_to_fahrenheit(33.5),
-                    ]
-                ),
-            ),
-        )
-
-    return fig
-
-
 # function in pmv_ppd()
 def _pmv_ppd_optimized(tdb, tr, vr, rh, met, clo, wme=0):
     pa = rh * 10 * np.exp(16.6536 - 4030.183 / (tdb + 235))
@@ -902,6 +749,7 @@ def psy_ashrae_pmv(
                 size=6,
             ),
             showlegend=False,
+            hoverinfo="none",
         )
     )
 
@@ -928,11 +776,28 @@ def psy_ashrae_pmv(
             y=hr_list,
             mode="lines",
             line=dict(color="grey", width=1),
-            hoverinfo="x+y",
+            hoverinfo="none",
             name=f"{rh}% RH",
             showlegend=False,
         )
         traces.append(trace)
+
+    #add transparent grid
+    x_range = np.linspace(10, 36, 100) if units == UnitSystem.SI.value else np.linspace(50, 96.8, 100)
+    y_range = np.linspace(0, 30, 100)
+    xx, yy = np.meshgrid(x_range, y_range)
+
+    traces.append(
+        go.Scatter(
+            x=xx.flatten(),
+            y=yy.flatten(),
+            mode="markers",
+            marker=dict(size=2, color="rgba(0,0,0,0)"),
+            hoverinfo="x+y",
+            name="Interactive Hover Area",
+            showlegend=False
+        )
+    )
 
     if units == UnitSystem.SI.value:
         temperature_unit = "°C"
@@ -945,6 +810,7 @@ def psy_ashrae_pmv(
 
     # layout
     layout = go.Layout(
+        hovermode="closest",
         xaxis=dict(
             title=(
                 "Dry-bulb Temperature [°C]"

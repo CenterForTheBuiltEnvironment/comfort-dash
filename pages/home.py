@@ -300,7 +300,7 @@ def update_hover_annotation(hover_data, figure, inputs):
                 if units == UnitSystem.SI.value:
                     annotation_text = (
                         f"t<sub>db</sub>: {o_t_db:.1f} °C<br>"
-                        f"RH: {rh:.1f} %<br>"
+                        f"rh: {rh:.1f} %<br>"
                         f"W<sub>a</sub>: {wa:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
                         f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
                         f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
@@ -309,7 +309,7 @@ def update_hover_annotation(hover_data, figure, inputs):
                 else:  # IP
                     annotation_text = (
                         f"t<sub>db</sub>: {o_t_db:.1f} °F<br>"
-                        f"RH: {rh:.1f} %<br>"
+                        f"rh: {rh:.1f} %<br>"
                         f"W<sub>a</sub>: {wa:.1f} lb<sub>w</sub>/klb<sub>da</sub><br>"
                         f"t<sub>wb</sub>: {t_wb_value*1.8+32:.1f} °F<br>"
                         f"t<sub>dp</sub>: {t_dp_value*1.8+32:.1f} °F<br>"
@@ -359,7 +359,7 @@ def update_hover_annotation(hover_data, figure, inputs):
                 if units == UnitSystem.SI.value:
                     annotation_text = (
                         f"t<sub>db</sub>: {o_t_db:.1f} °C<br>"
-                        f"RH: {rh:.1f} %<br>"
+                        f"rh: {rh:.1f} %<br>"
                         f"W<sub>a</sub>: {hr:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
                         f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
                         f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
@@ -368,7 +368,7 @@ def update_hover_annotation(hover_data, figure, inputs):
                 else:  # IP
                     annotation_text = (
                         f"t<sub>db</sub>: {o_t_db:.1f} °F<br>"
-                        f"RH: {rh:.1f} %<br>"
+                        f"rh: {rh:.1f} %<br>"
                         f"W<sub>a</sub>: {hr:.1f} lb<sub>w</sub>/klb<sub>da</sub><br>"
                         f"t<sub>wb</sub>: {t_wb_value*1.8+32:.1f} °F<br>"
                         f"t<sub>dp</sub>: {t_dp_value*1.8+32:.1f} °F<br>"
