@@ -67,7 +67,9 @@ layout = dmc.Stack(
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
                             dcc.Location(id=ElementsIDs.URL.value, refresh=False),
-                            dcc.Store(id=ElementsIDs.INITIAL_URL.value, storage_type="memory"),
+                            dcc.Store(
+                                id=ElementsIDs.INITIAL_URL.value, storage_type="memory"
+                            ),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -130,9 +132,7 @@ def update_inputs(selected_model, units_selection, function_selection):
     if selected_model is None:
         return no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    return (
-        input_environmental_personal(selected_model, units, function_selection),
-    )
+    return (input_environmental_personal(selected_model, units, function_selection),)
 
 
 # once function: update_inputs via URL, update the value of the model dropdown, unit toggle and functionality dropdown and chart dropdown, and inputs, it only use once when the page is loaded
@@ -282,11 +282,12 @@ def update_chart(inputs: dict, function_selection: str):
         ]
     )
 
+
 @callback(
-Output(ElementsIDs.GRAPH_HOVER.value, "figure"),
-Input(ElementsIDs.GRAPH_HOVER.value, "hoverData"),
-State(ElementsIDs.GRAPH_HOVER.value, "figure"),
-State(MyStores.input_data.value, "data"),
+    Output(ElementsIDs.GRAPH_HOVER.value, "figure"),
+    Input(ElementsIDs.GRAPH_HOVER.value, "hoverData"),
+    State(ElementsIDs.GRAPH_HOVER.value, "figure"),
+    State(MyStores.input_data.value, "data"),
 )
 def update_hover_annotation(hover_data, figure, inputs):
     # For ensure tdp never shown as nan value
@@ -367,6 +368,7 @@ def update_hover_annotation(hover_data, figure, inputs):
                 print("Unexpected hover data structure:", point)
 
     return figure
+
 
 @callback(
     Output(ElementsIDs.RESULTS_SECTION.value, "children"),
