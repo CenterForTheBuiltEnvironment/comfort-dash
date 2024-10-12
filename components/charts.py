@@ -4,12 +4,10 @@ import math
 import plotly.graph_objs as go
 from pythermalcomfort.psychrometrics import psy_ta_rh, p_sat, t_dp, t_wb, enthalpy, t_o
 from pythermalcomfort import set_tmp, two_nodes
-
 from pythermalcomfort.models import pmv, adaptive_en, adaptive_ashrae, cooling_effect
 from pythermalcomfort.utilities import v_relative, clo_dynamic, units_converter
 
 from scipy import optimize
-
 from components.drop_down_inline import generate_dropdown_inline
 from utils.my_config_file import (
     ElementsIDs,
@@ -22,13 +20,6 @@ from utils.website_text import TextHome
 from scipy.optimize import fsolve
 from decimal import Decimal, ROUND_HALF_UP
 
-
-
-from pythermalcomfort.models import adaptive_en, pmv
-
-
-
-import plotly.graph_objects as go
 
 def chart_selector(selected_model: str, function_selection: str, chart_selected: str):
     list_charts = list(Models[selected_model].value.charts)
@@ -998,172 +989,6 @@ def t_rh_pmv(
     return fig
 
 
-# 单位转换后的计算不对
-def speed_temp_pmv(
-    inputs: dict = None,
-    model: str = "iso",
-    units: str = "SI",
-):
-    results = []
-    met, clo, tr, t_db, v, rh = get_inputs(inputs)
-    clo_d = clo_dynamic(clo, met)
-    vr = v_relative(v, met)
-    pmv_limits = [-0.5, 0.5]
-    clo_d = clo_dynamic(
-        clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
-    )
-    if units == UnitSystem.SI.value:
-        for pmv_limit in pmv_limits:
-            for vr in np.arange(0.1, 1.3, 0.1):
-
-                def function(x):
-                    return (
-                        pmv(
-                            x,
-                            tr=inputs[ElementsIDs.t_r_input.value],
-                            vr=vr,
-                            rh=inputs[ElementsIDs.rh_input.value],
-                            met=inputs[ElementsIDs.met_input.value],
-                            clo=clo_d,
-                            wme=0,
-                            standard=model,
-                            limit_inputs=False,
-                        )
-                        - pmv_limit
-                    )
-
-                try:
-                    temp = optimize.brentq(function, 10, 40)
-                    results.append(
-                        {
-                            "vr": vr,
-                            "temp": temp,
-                            "pmv_limit": pmv_limit,
-                        }
-                    )
-
-                except ValueError:
-                    continue
-    else:
-        for pmv_limit in pmv_limits:
-            for vr in np.arange(0, 241, 10):
-
-                def function(x):
-                    return (
-                        pmv(
-                            x,
-                            tr=inputs[ElementsIDs.t_r_input.value],
-                            vr=vr,
-                            rh=inputs[ElementsIDs.rh_input.value],
-                            met=inputs[ElementsIDs.met_input.value],
-                            clo=clo_d,
-                            wme=0,
-                            standard=model,
-                            units=units,
-                            limit_inputs=False,
-                        )
-                        - pmv_limit
-                    )
-
-
-
-                try:
-                    temp = optimize.brentq(function, 10, 100)
-                    results.append(
-                        {
-                            "vr": vr,
-                            "temp": temp,
-                            "pmv_limit": pmv_limit,
-                        }
-                    )
-
-
-                except ValueError:
-                    continue
-
-    df = pd.DataFrame(results)
-
-    fig = go.Figure()
-
-    # Define trace1
-    fig.add_trace(
-        go.Scatter(
-            x=df[df["pmv_limit"] == pmv_limits[0]]["temp"],
-            y=df[df["pmv_limit"] == pmv_limits[0]]["vr"],
-            mode="lines",
-            name=f"PMV {pmv_limits[0]}",
-            showlegend=False,
-            line=dict(color="rgba(0,0,0,0)"),
-        )
-    )
-
-    # Define trace2
-    fig.add_trace(
-        go.Scatter(
-            x=df[df["pmv_limit"] == pmv_limits[1]]["temp"],
-            y=df[df["pmv_limit"] == pmv_limits[1]]["vr"],
-            mode="lines",
-            fill="tonextx",
-            fillcolor="rgba(59, 189, 237, 0.7)",
-            name=f"PMV {pmv_limits[1]}",
-            showlegend=False,
-            line=dict(color="rgba(0,0,0,0)"),
-        )
-    )
-
-    # Define input point
-    fig.add_trace(
-        go.Scatter(
-            x=[inputs[ElementsIDs.t_db_input.value]],
-            y=[inputs[ElementsIDs.v_input.value]],
-            mode="markers",
-            marker=dict(color="red"),
-            name="Input",
-            showlegend=False,
-        )
-    )
-
-    fig.update_layout(
-        xaxis_title=(
-            "Operative Temperature [°C]"
-            if units == UnitSystem.SI.value
-            else "Operative Temperature [°F]"
-        ),
-        # x title
-        yaxis_title=(
-            "Relative Air Speed [m/s]"
-            if units == UnitSystem.SI.value
-            else "Relative Air Speed [fpm]"
-        ),
-        # y title
-        template="plotly_white",
-        width=700,
-        height=700,
-        xaxis=dict(
-            range=[20, 34] if units == UnitSystem.SI.value else [68, 92],  # x range
-            tickmode="linear",
-            tick0=20 if units == UnitSystem.SI.value else 68,
-            dtick=2,
-            linecolor="lightgrey",
-            gridcolor="lightgray",
-            showgrid=True,
-            mirror=True,
-        ),
-        yaxis=dict(
-            range=[0.0, 1.2] if units == UnitSystem.SI.value else [0, 240],  # y range
-            tickmode="linear",
-            tick0=0.0,
-            dtick=0.1 if units == UnitSystem.SI.value else 20,
-            linecolor="lightgrey",
-            gridcolor="lightgray",
-            showgrid=True,
-            mirror=True,
-        ),
-    )
-
-    return fig
-
-
 def get_heat_losses(inputs: dict = None, model: str = "ashrae", units: str = "SI"):
     def pmv_pdd_6_heat_loss(ta, tr, vel, rh, met, clo, wme=0):
         pa = rh * 10 * np.exp(16.6536 - 4030.183 / (ta + 235))
@@ -1384,6 +1209,200 @@ def get_heat_losses(inputs: dict = None, model: str = "ashrae", units: str = "SI
     return fig
 
 
+# 单位转换后的计算不对
+def speed_temp_pmv(
+    inputs: dict = None,
+    model: str = "iso",
+    units: str = "SI",
+):
+    results = []
+    met, clo, tr, t_db, v, rh = get_inputs(inputs)
+    clo_d = clo_dynamic(clo, met)
+    vr = v_relative(v, met)
+    pmv_limits = [-0.5, 0.5]
+    clo_d = clo_dynamic(
+        clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
+    )
+    for pmv_limit in pmv_limits:
+        for vr in np.arange(0.1, 0.9, 0.1):
+
+            def function(x):
+                return (
+                    pmv(
+                        x,
+                        tr=inputs[ElementsIDs.t_r_input.value],
+                        vr=vr,
+                        rh=inputs[ElementsIDs.rh_input.value],
+                        met=inputs[ElementsIDs.met_input.value],
+                        clo=clo_d,
+                        wme=0,
+                        standard=model,
+                        limit_inputs=False,
+                    )
+                    - pmv_limit
+                )
+
+            try:
+                temp = optimize.brentq(function, 10, 40)
+                results.append(
+                    {
+                        "vr": vr,
+                        "temp": temp,
+                        "pmv_limit": pmv_limit,
+                    }
+                )
+
+            except ValueError:
+                continue
+    # if units == UnitSystem.SI.value:
+    #     for pmv_limit in pmv_limits:
+    #         for vr in np.arange(0.1, 1.3, 0.1):
+    #
+    #             def function(x):
+    #                 return (
+    #                     pmv(
+    #                         x,
+    #                         tr=inputs[ElementsIDs.t_r_input.value],
+    #                         vr=vr,
+    #                         rh=inputs[ElementsIDs.rh_input.value],
+    #                         met=inputs[ElementsIDs.met_input.value],
+    #                         clo=clo_d,
+    #                         wme=0,
+    #                         standard=model,
+    #                         limit_inputs=False,
+    #                     )
+    #                     - pmv_limit
+    #                 )
+    #
+    #             try:
+    #                 temp = optimize.brentq(function, 10, 40)
+    #                 results.append(
+    #                     {
+    #                         "vr": vr,
+    #                         "temp": temp,
+    #                         "pmv_limit": pmv_limit,
+    #                     }
+    #                 )
+    #
+    #             except ValueError:
+    #                 continue
+    # else:
+    #     for pmv_limit in pmv_limits:
+    #         vr = units_converter(vr=vr, units="ip")
+    #         tr = units_converter(tr=inputs[ElementsIDs.t_r_input.value], units="ip")
+    #         for vr in np.arange(0.1, 1.3, 0.1):
+    #
+    #             def function(x):
+    #                 return (
+    #                     pmv(
+    #                         x,
+    #                         tr= tr,
+    #                         vr=vr,
+    #                         rh= inputs[ElementsIDs.rh_input.value],
+    #                         met=inputs[ElementsIDs.met_input.value],
+    #                         clo=clo_d,
+    #                         wme=0,
+    #                         standard=model,
+    #                         limit_inputs=False,
+    #                     )
+    #                     - pmv_limit
+    #                 )
+    #
+    #             try:
+    #                 temp = units_converter(tmp=optimize.brentq(function, 10, 40),units="si")
+    #                 results.append(
+    #                     {
+    #                         "vr": units_converter(vr=vr, units="si"),
+    #                         "temp": temp,
+    #                         "pmv_limit": pmv_limit,
+    #                     }
+    #                 )
+    #             except ValueError:
+    #                 continue
+
+    df = pd.DataFrame(results)
+
+    fig = go.Figure()
+
+    # Define trace1
+    fig.add_trace(
+        go.Scatter(
+            x=df[df["pmv_limit"] == pmv_limits[0]]["temp"],
+            y=df[df["pmv_limit"] == pmv_limits[0]]["vr"],
+            mode="lines",
+            name=f"PMV {pmv_limits[0]}",
+            showlegend=False,
+            line=dict(color="rgba(0,0,0,0)"),
+        )
+    )
+
+    # Define trace2
+    fig.add_trace(
+        go.Scatter(
+            x=df[df["pmv_limit"] == pmv_limits[1]]["temp"],
+            y=df[df["pmv_limit"] == pmv_limits[1]]["vr"],
+            mode="lines",
+            fill="tonextx",
+            fillcolor="rgba(59, 189, 237, 0.7)",
+            name=f"PMV {pmv_limits[1]}",
+            showlegend=False,
+            line=dict(color="rgba(0,0,0,0)"),
+        )
+    )
+
+    # Define input point
+    fig.add_trace(
+        go.Scatter(
+            x=[inputs[ElementsIDs.t_db_input.value]],
+            y=[inputs[ElementsIDs.v_input.value]],
+            mode="markers",
+            marker=dict(color="red"),
+            name="Input",
+            showlegend=False,
+        )
+    )
+
+    fig.update_layout(
+        xaxis_title=(
+            "Operative Temperature [°C]"
+            if units == UnitSystem.SI.value
+            else "Operative Temperature [°F]"
+        ),
+        # x title
+        yaxis_title=(
+            "Relative Air Speed [m/s]"
+            if units == UnitSystem.SI.value
+            else "Relative Air Speed [fpm]"
+        ),
+        # y title
+        template="plotly_white",
+        width=700,
+        height=700,
+        xaxis=dict(
+            range=[20, 34] if units == UnitSystem.SI.value else [68, 92],  # x range
+            tickmode="linear",
+            tick0=20 if units == UnitSystem.SI.value else 68,
+            dtick=2,
+            linecolor="lightgrey",
+            gridcolor="lightgray",
+            showgrid=True,
+            mirror=True,
+        ),
+        yaxis=dict(
+            range=[0.0, 1.2] if units == UnitSystem.SI.value else [0, 240],  # y range
+            tickmode="linear",
+            tick0=0.0,
+            dtick=0.1 if units == UnitSystem.SI.value else 20,
+            linecolor="lightgrey",
+            gridcolor="lightgray",
+            showgrid=True,
+            mirror=True,
+        ),
+    )
+
+    return fig
+
+
 def psy_ashrae_pmv_operative(
     inputs: dict = None,
     model: str = "ashrae",
@@ -1557,7 +1576,6 @@ def psy_ashrae_pmv(
     units: str = "SI",
 ):
 
-
     p_tdb = float(inputs[ElementsIDs.t_db_input.value])
     tr = float(inputs[ElementsIDs.t_r_input.value])
     vr = float(
@@ -1565,11 +1583,12 @@ def psy_ashrae_pmv(
             v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
         )
     )
-    rh = float(inputs[ElementsIDs.rh_input.value])
+    p_rh = float(inputs[ElementsIDs.rh_input.value])
     met = float(inputs[ElementsIDs.met_input.value])
     clo = float(
         clo_dynamic(  # Ensure clo is scalar
-            clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
+            clo=inputs[ElementsIDs.clo_input.value],
+            met=inputs[ElementsIDs.met_input.value],
         )
     )
     # save original values for plotting
@@ -1579,7 +1598,6 @@ def psy_ashrae_pmv(
         vr = round(float(units_converter(vr=vr)[0]), 1)
     else:
         tdb = p_tdb
-
 
     traces = []
 
@@ -1599,8 +1617,7 @@ def psy_ashrae_pmv(
                     r_h=rh_value,
                     met=met,
                     clo_d=clo,
-                    pmv_y=pmv_value
-
+                    pmv_y=pmv_value,
                 ),
                 tdb_guess,
             )
@@ -1611,8 +1628,9 @@ def psy_ashrae_pmv(
     # calculate hr
 
     lower_upper_tdb = np.append(tdb_array[0], tdb_array[1][::-1])
-    lower_upper_tdb = [round(float(value), 1) for value in lower_upper_tdb.tolist()] # convert to list & round to 1 decimal
-
+    lower_upper_tdb = [
+        round(float(value), 1) for value in lower_upper_tdb.tolist()
+    ]  # convert to list & round to 1 decimal
 
     rh_list = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
     # define
@@ -1622,7 +1640,9 @@ def psy_ashrae_pmv(
             psy_ta_rh(tdb=lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
         )
 
-    lower_upper_hr = [round(float(value), 1) for value in lower_upper_hr] # convert to list & round to 1 decimal
+    lower_upper_hr = [
+        round(float(value), 1) for value in lower_upper_hr
+    ]  # convert to list & round to 1 decimal
 
     if units == UnitSystem.IP.value:
         lower_upper_tdb = list(
@@ -1648,23 +1668,22 @@ def psy_ashrae_pmv(
     # current point
     # Red point
 
-    psy_results = psy_ta_rh(tdb, rh)
+    psy_results = psy_ta_rh(tdb, p_rh)
     hr = round(float(psy_results["hr"]) * 1000, 1)
     t_wb = round(float(psy_results["t_wb"]), 1)
     t_dp = round(float(psy_results["t_dp"]), 1)
     h = round(float(psy_results["h"]) / 1000, 1)
 
     if units == UnitSystem.IP.value:
-        t_wb = round(float(units_converter(tmp=t_wb, from_units='si')[0]), 1)
-        t_dp = round(float(units_converter(tmp=t_dp, from_units='si')[0]), 1)
-        h = round(float(h/2.326),1)   # kJ/kg => btu/lb
+        t_wb = round(float(units_converter(tmp=t_wb, from_units="si")[0]), 1)
+        t_dp = round(float(units_converter(tmp=t_dp, from_units="si")[0]), 1)
+        h = round(float(h / 2.326), 1)  # kJ/kg => btu/lb
         tdb = p_tdb
 
     traces.append(
         go.Scatter(
             x=[tdb],
             y=[hr],
-
             mode="markers",
             marker=dict(
                 color="red",
@@ -1679,7 +1698,12 @@ def psy_ashrae_pmv(
     rh_list = np.arange(0, 110, 10, dtype=float).tolist()
     tdb_list = np.linspace(10, 36, 500, dtype=float).tolist()
     if units == UnitSystem.IP.value:
-        tdb_list_conv = list(map(lambda x: round(float(units_converter(tmp=x, from_units='si')[0]), 1), tdb_list))
+        tdb_list_conv = list(
+            map(
+                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                tdb_list,
+            )
+        )
     else:
         tdb_list_conv = tdb_list
 
@@ -1698,7 +1722,6 @@ def psy_ashrae_pmv(
         )
         traces.append(trace)
 
-
     if units == UnitSystem.SI.value:
         temperature_unit = "°C"
         hr_unit = "g<sub>w</sub>/kg<sub>da</sub>"
@@ -1708,19 +1731,15 @@ def psy_ashrae_pmv(
         hr_unit = "lb<sub>w</sub>/klb<sub>da</sub>"
         h_unit = "btu/lb"
 
-
     # layout
     layout = go.Layout(
-        title="Psychrometric (air temperature)",
         xaxis=dict(
             title=(
                 "Dry-bulb Temperature [°C]"
                 if units == UnitSystem.SI.value
                 else "operative Temperature [°F]"
             ),
-
             range=[10, 36] if units == UnitSystem.SI.value else [50, 96.8],
-
             dtick=2,
             showgrid=True,
             showline=True,
@@ -1728,9 +1747,9 @@ def psy_ashrae_pmv(
             linecolor="lightgrey",
         ),
         yaxis=dict(
-            title= (
-                "Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]" 
-                if units == UnitSystem.SI.value 
+            title=(
+                "Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]"
+                if units == UnitSystem.SI.value
                 else "Humidity ratio [lb<sub>w</sub>/klb<sub>da</sub>]"
             ),
             range=[0, 30],
@@ -1749,7 +1768,7 @@ def psy_ashrae_pmv(
                 yref="y",
                 text=(
                     f"t<sub>db</sub>: {tdb:.1f} {temperature_unit}<br>"
-                    f"rh: {rh:.1f} %<br>"
+                    f"rh: {p_rh:.1f} %<br>"
                     f"W<sub>a</sub>: {hr} {hr_unit}<br>"
                     f"t<sub>wb</sub>: {t_wb} {temperature_unit}<br>"
                     f"t<sub>dp</sub>: {t_dp} {temperature_unit}<br>"
@@ -1805,7 +1824,8 @@ def SET_outputs_chart(
     met = float(inputs[ElementsIDs.met_input.value])  # Ensure met is scalar
     clo = float(
         clo_dynamic(  # Ensure clo is scalar
-            clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
+            clo=inputs[ElementsIDs.clo_input.value],
+            met=inputs[ElementsIDs.met_input.value],
         )
     )
 
