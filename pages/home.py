@@ -6,14 +6,14 @@ from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 from components.charts import (
     t_rh_pmv,
     chart_selector,
-    adaptive_chart,
+    #adaptive_chart,
     generate_tdb_hr_chart,
-    SET_outputs_chart,
-    speed_temp_pmv,
-    get_heat_losses,
+    #SET_outputs_chart,
+    #speed_temp_pmv,
+    #get_heat_losses,
     psy_ashrae_pmv,
-    generate_operative_chart,
-    psy_ashrae_pmv_operative,
+    #generate_operative_chart,
+    #psy_ashrae_pmv_operative,
 )
 
 from components.dropdowns import (
@@ -36,9 +36,8 @@ from utils.my_config_file import (
     Functionalities,
 )
 import plotly.graph_objects as go
-from pythermalcomfort.psychrometrics import psy_ta_rh
+from pythermalcomfort.psychrometrics import psy_ta_rh, p_sat
 from urllib.parse import parse_qs, urlencode
-from pythermalcomfort.psychrometrics import psy_ta_rh
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -266,15 +265,19 @@ def update_hover_annotation(hover_data, figure, inputs):
 
         # not show annotation for adaptive methods
         if chart_selected in [
-            Charts.psychrometric.value.name,
+            #Charts.psychrometric.value.name,
             Charts.t_rh.value.name,
             Charts.psychrometric_operative.value.name,
         ]:
             point = hover_data["points"][0]
 
             if "x" in point and "y" in point:
-                t_db = point["x"]
+                o_t_db = point["x"]
                 rh = point["y"]
+                if units == UnitSystem.IP.value:
+                    t_db = (o_t_db - 32)/1.8
+                else:
+                    t_db = o_t_db
                 # check if y <= 0
                 if rh <= 0:
                     if (
@@ -296,21 +299,79 @@ def update_hover_annotation(hover_data, figure, inputs):
                 # Added unit judgment logic
                 if units == UnitSystem.SI.value:
                     annotation_text = (
-                        f"t<sub>db</sub>: {t_db:.1f} °C<br>"
+                        f"t<sub>db</sub>: {o_t_db:.1f} °C<br>"
                         f"RH: {rh:.1f} %<br>"
-                        # f"W<sub>a</sub>: {wa:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
-                        f"W<sub>a</sub>: {psy_results.hr*1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                        f"W<sub>a</sub>: {wa:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
                         f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
                         f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
                         f"h: {h:.1f} kJ/kg<br>"
                     )
                 else:  # IP
                     annotation_text = (
-                        f"t<sub>db</sub>: {t_db:.1f} °F<br>"
+                        f"t<sub>db</sub>: {o_t_db:.1f} °F<br>"
                         f"RH: {rh:.1f} %<br>"
-                        f"W<sub>a</sub>: {psy_results.hr*1000:.1f} lb<sub>w</sub>/klb<sub>da</sub><br>"
-                        f"t<sub>wb</sub>: {t_wb_value:.1f} °F<br>"
-                        f"t<sub>dp</sub>: {(psy_results.t_dp-32)/1.8:.1f} °F<br>"
+                        f"W<sub>a</sub>: {wa:.1f} lb<sub>w</sub>/klb<sub>da</sub><br>"
+                        f"t<sub>wb</sub>: {t_wb_value*1.8+32:.1f} °F<br>"
+                        f"t<sub>dp</sub>: {t_dp_value*1.8+32:.1f} °F<br>"
+                        f"h: {h / 2.326:.1f} btu/lb<br>"  # kJ/kg to btu/lb
+                    )
+
+                if (
+                    "annotations" in figure["layout"]
+                    and len(figure["layout"]["annotations"]) > 0
+                ):
+                    figure["layout"]["annotations"][0]["text"] = annotation_text
+            else:
+                print("Unexpected hover data structure:", point)
+
+        elif chart_selected in [
+            Charts.psychrometric.value.name,
+        ]:
+            point = hover_data["points"][0]
+
+            if "x" in point and "y" in point:
+                o_t_db = point["x"]
+                hr = point["y"]
+                if units == UnitSystem.IP.value:
+                    t_db = (o_t_db - 32)/1.8
+                else:
+                    t_db = o_t_db
+                # check if y <= 0
+                if hr <= 0:
+                    if (
+                        last_valid_annotation is not None
+                        and "annotations" in figure["layout"]
+                    ):
+                        figure["layout"]["annotations"][0][
+                            "text"
+                        ] = last_valid_annotation
+                    return figure
+
+                # calculations
+                vp = (hr * 101325) / 1000 / (0.62198 + hr / 1000)
+                rh = (vp / p_sat(t_db)) * 100
+                psy_results = psy_ta_rh(t_db, rh)
+                t_wb_value = psy_results.t_wb
+                t_dp_value = psy_results.t_dp
+                h = psy_results.h / 1000  # convert to kj/kg
+
+                # Added unit judgment logic
+                if units == UnitSystem.SI.value:
+                    annotation_text = (
+                        f"t<sub>db</sub>: {o_t_db:.1f} °C<br>"
+                        f"RH: {rh:.1f} %<br>"
+                        f"W<sub>a</sub>: {hr:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                        f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
+                        f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
+                        f"h: {h:.1f} kJ/kg<br>"
+                    )
+                else:  # IP
+                    annotation_text = (
+                        f"t<sub>db</sub>: {o_t_db:.1f} °F<br>"
+                        f"RH: {rh:.1f} %<br>"
+                        f"W<sub>a</sub>: {hr:.1f} lb<sub>w</sub>/klb<sub>da</sub><br>"
+                        f"t<sub>wb</sub>: {t_wb_value*1.8+32:.1f} °F<br>"
+                        f"t<sub>dp</sub>: {t_dp_value*1.8+32:.1f} °F<br>"
                         f"h: {h / 2.326:.1f} btu/lb<br>"  # kJ/kg to btu/lb
                     )
 
