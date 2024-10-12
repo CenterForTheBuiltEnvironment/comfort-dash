@@ -21,7 +21,7 @@ from utils.my_config_file import (
 from utils.website_text import TextHome
 import matplotlib
 from pythermalcomfort.models import adaptive_en
-from pythermalcomfort.psychrometrics import t_o
+from pythermalcomfort.psychrometrics import t_o, psy_ta_rh
 
 matplotlib.use("Agg")
 
@@ -248,6 +248,162 @@ def adaptive_en_chart(inputs, units):
     return fig
 
 
+# def t_rh_pmv(
+#     inputs: dict = None,
+#     model: str = "iso",
+#     function_selection: str = Functionalities.Default,
+#     units: str = "SI",
+# ):
+#     results = []
+#     pmv_limits = [-0.5, 0.5]
+
+#     met, clo, tr, t_db, v, rh = get_inputs(inputs)
+#     clo_d = clo_dynamic(clo, met)
+#     vr = v_relative(v, met)
+
+#     def calculate_pmv_results(tr, vr, met, clo):
+#         results = []
+#         for pmv_limit in pmv_limits:
+#             for rh in np.arange(0, 110, 10):
+
+#                 def function(x):
+#                     return (
+#                         pmv(
+#                             x,
+#                             tr=tr,
+#                             vr=vr,
+#                             rh=rh,
+#                             met=met,
+#                             clo=clo,
+#                             wme=0,
+#                             standard=model,
+#                             units=units,
+#                             limit_inputs=False,
+#                         )
+#                         - pmv_limit
+#                     )
+
+#                 temp = optimize.brentq(function, 10, 120)
+#                 results.append(
+#                     {
+#                         "rh": rh,
+#                         "temp": temp,
+#                         "pmv_limit": pmv_limit,
+#                     }
+#                 )
+#         return pd.DataFrame(results)
+
+#     df = calculate_pmv_results(
+#         tr=tr,
+#         vr=vr,
+#         met=met,
+#         clo=clo_d,
+#     )
+
+#     # Create the Plotly figure
+#     fig = go.Figure()
+
+#     # Add the filled area between PMV limits
+#     t1 = df[df["pmv_limit"] == pmv_limits[0]]
+#     t2 = df[df["pmv_limit"] == pmv_limits[1]]
+#     fig.add_trace(
+#         go.Scatter(
+#             x=t1["temp"],
+#             y=t1["rh"],
+#             fill=None,
+#             mode="lines",
+#             line=dict(color="rgba(59, 189, 237, 0.7)"),
+#             name=f"{model} Lower Limit",
+#         )
+#     )
+#     fig.add_trace(
+#         go.Scatter(
+#             x=t2["temp"],
+#             y=t2["rh"],
+#             fill="tonexty",
+#             mode="lines",
+#             fillcolor="rgba(59, 189, 237, 0.7)",
+#             line=dict(color="rgba(59, 189, 237, 0.7)"),
+#             name=f"{model} Upper Limit",
+#         )
+#     )
+
+#     # Add scatter point for the current input
+#     fig.add_trace(
+#         go.Scatter(
+#             x=[t_db],
+#             y=[rh],
+#             mode="markers",
+#             marker=dict(color="red", size=8),
+#             name="Current Input",
+#         )
+#     )
+
+#     if function_selection == Functionalities.Compare.value:
+#         met_2, clo_2, tr_2, t_db_2, v_2, rh_2 = compare_get_inputs(inputs)
+#         clo_d_compare = clo_dynamic(clo_2, met_2)
+#         vr_compare = v_relative(v_2, met_2)
+
+#         df_compare = calculate_pmv_results(
+#             tr_2,
+#             vr_compare,
+#             met_2,
+#             clo_d_compare,
+#         )
+#         t1_compare = df_compare[df_compare["pmv_limit"] == pmv_limits[0]]
+#         t2_compare = df_compare[df_compare["pmv_limit"] == pmv_limits[1]]
+#         fig.add_trace(
+#             go.Scatter(
+#                 x=t1_compare["temp"],
+#                 y=t1_compare["rh"],
+#                 fill=None,
+#                 mode="lines",
+#                 line=dict(color="rgba(30,70,100,0.5)"),
+#                 name=f"{model} Compare Lower Limit",
+#             )
+#         )
+#         fig.add_trace(
+#             go.Scatter(
+#                 x=t2_compare["temp"],
+#                 y=t2_compare["rh"],
+#                 fill="tonexty",
+#                 mode="lines",
+#                 fillcolor="rgba(30,70,100,0.5)",
+#                 line=dict(color="rgba(30,70,100,0.5)"),
+#                 name=f"{model} Compare Upper Limit",
+#             )
+#         )
+#         fig.add_trace(
+#             go.Scatter(
+#                 x=[t_db_2],
+#                 y=[rh_2],
+#                 mode="markers",
+#                 marker=dict(color="blue", size=8),
+#                 name="Compare Input",
+#             )
+#         )
+
+#     # Update layout
+#     fig.update_layout(
+#         yaxis=dict(title="Relative Humidity [%]", range=[0, 100], dtick=10),
+#         xaxis=dict(title="Dry-bulb Temperature (°C)", range=[10, 36], dtick=2),
+#         showlegend=False,
+#         plot_bgcolor="white",
+#         margin=dict(l=40, r=40, t=40, b=40),
+#     )
+
+#     if units == UnitSystem.IP.value:
+#         fig.update_layout(
+#             xaxis=dict(title="Dry-bulb Temperature [°F]", range=[50, 100], dtick=5),
+#         )
+
+#     # Add grid lines and make the spines invisible
+#     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
+#     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
+
+#     return fig
+
+
 def t_rh_pmv(
     inputs: dict = None,
     model: str = "iso",
@@ -255,7 +411,18 @@ def t_rh_pmv(
     units: str = "SI",
 ):
     results = []
-    pmv_limits = [-0.5, 0.5]
+    if model == "iso":
+        pmv_limits = [-0.7, -0.5, -0.2, 0.2, 0.5, 0.7]
+        colors = [
+            "rgba(168,204,162,0.9)",
+            "rgba(114,174,106,0.9)",
+            "rgba(78,156,71,0.9)",
+            "rgba(114,174,106,0.9)",
+            "rgba(168,204,162,0.9)",
+        ]
+    else:  # ASHRAE
+        pmv_limits = [-0.5, 0.5]
+        colors = ["rgba(59, 189, 237, 0.7)"]
 
     met, clo, tr, t_db, v, rh = get_inputs(inputs)
     clo_d = clo_dynamic(clo, met)
@@ -283,14 +450,17 @@ def t_rh_pmv(
                         - pmv_limit
                     )
 
-                temp = optimize.brentq(function, 10, 120)
-                results.append(
-                    {
-                        "rh": rh,
-                        "temp": temp,
-                        "pmv_limit": pmv_limit,
-                    }
-                )
+                try:
+                    temp = optimize.brentq(function, 10, 120)
+                    results.append(
+                        {
+                            "rh": rh,
+                            "temp": temp,
+                            "pmv_limit": pmv_limit,
+                        }
+                    )
+                except ValueError:
+                    continue
         return pd.DataFrame(results)
 
     df = calculate_pmv_results(
@@ -300,33 +470,34 @@ def t_rh_pmv(
         clo=clo_d,
     )
 
-    # Create the Plotly figure
     fig = go.Figure()
 
-    # Add the filled area between PMV limits
-    t1 = df[df["pmv_limit"] == pmv_limits[0]]
-    t2 = df[df["pmv_limit"] == pmv_limits[1]]
-    fig.add_trace(
-        go.Scatter(
-            x=t1["temp"],
-            y=t1["rh"],
-            fill=None,
-            mode="lines",
-            line=dict(color="rgba(59, 189, 237, 0.7)"),
-            name=f"{model} Lower Limit",
+    for i in range(len(pmv_limits) - 1):
+        t1 = df[df["pmv_limit"] == pmv_limits[i]]
+        t2 = df[df["pmv_limit"] == pmv_limits[i + 1]]
+        fig.add_trace(
+            go.Scatter(
+                x=t1["temp"],
+                y=t1["rh"],
+                fill=None,
+                mode="lines",
+                line=dict(color=colors[i]),
+                name=f"{model} Lower Limit",
+                hoverinfo="skip",
+            )
         )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=t2["temp"],
-            y=t2["rh"],
-            fill="tonexty",
-            mode="lines",
-            fillcolor="rgba(59, 189, 237, 0.7)",
-            line=dict(color="rgba(59, 189, 237, 0.7)"),
-            name=f"{model} Upper Limit",
+        fig.add_trace(
+            go.Scatter(
+                x=t2["temp"],
+                y=t2["rh"],
+                fill="tonexty",
+                mode="lines",
+                fillcolor=colors[i],
+                line=dict(color=colors[i]),
+                name=f"{model} Upper Limit",
+                hoverinfo="skip",
+            )
         )
-    )
 
     # Add scatter point for the current input
     fig.add_trace(
@@ -336,10 +507,30 @@ def t_rh_pmv(
             mode="markers",
             marker=dict(color="red", size=8),
             name="Current Input",
+            # hoverinfo="skip",
+        )
+    )
+    # Add hover area to allow hover interaction
+
+    x_range = np.linspace(10, 40, 100)
+
+    if units == UnitSystem.IP.value:  # The X-axis range of gridlines in the IP state
+        x_range = np.linspace(50, 100, 100)
+
+    y_range = np.linspace(0, 100, 100)
+    xx, yy = np.meshgrid(x_range, y_range)
+    fig.add_trace(
+        go.Scatter(
+            x=xx.flatten(),
+            y=yy.flatten(),
+            mode="markers",
+            marker=dict(color="rgba(0,0,0,0)"),
+            hoverinfo="x+y",
+            name="Interactive Hover Area",
         )
     )
 
-    if function_selection == Functionalities.Compare.value:
+    if model == "ashrae" and function_selection == Functionalities.Compare.value:
         met_2, clo_2, tr_2, t_db_2, v_2, rh_2 = compare_get_inputs(inputs)
         clo_d_compare = clo_dynamic(clo_2, met_2)
         vr_compare = v_relative(v_2, met_2)
@@ -360,6 +551,7 @@ def t_rh_pmv(
                 mode="lines",
                 line=dict(color="rgba(30,70,100,0.5)"),
                 name=f"{model} Compare Lower Limit",
+                hoverinfo="skip",
             )
         )
         fig.add_trace(
@@ -371,6 +563,7 @@ def t_rh_pmv(
                 fillcolor="rgba(30,70,100,0.5)",
                 line=dict(color="rgba(30,70,100,0.5)"),
                 name=f"{model} Compare Upper Limit",
+                hoverinfo="skip",
             )
         )
         fig.add_trace(
@@ -380,24 +573,77 @@ def t_rh_pmv(
                 mode="markers",
                 marker=dict(color="blue", size=8),
                 name="Compare Input",
+                hoverinfo="skip",
             )
         )
 
-    # Update layout
-    fig.update_layout(
-        yaxis=dict(title="Relative Humidity [%]", range=[0, 100], dtick=10),
-        xaxis=dict(title="Dry-bulb Temperature (°C)", range=[10, 36], dtick=2),
-        showlegend=False,
-        plot_bgcolor="white",
-        margin=dict(l=40, r=40, t=40, b=40),
+    tdb = inputs[ElementsIDs.t_db_input.value]
+    rh = inputs[ElementsIDs.rh_input.value]
+    tr = inputs[ElementsIDs.t_r_input.value]
+    psy_results = psy_ta_rh(tdb, rh)
+
+    if units == UnitSystem.SI.value:
+        annotation_text = (
+            f"t<sub>db</sub>: {tdb:.1f} °C<br>"
+            f"rh: {rh:.1f} %<br>"
+            f"W<sub>a</sub>: {psy_results.hr*1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+            f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
+            f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
+            f"h: {psy_results.h / 1000:.1f} kJ/kg"
+        )
+        annotation_x = 32  # x coordinates in SI units
+        annotation_y = 86  # Y-coordinate of relative humidity
+    elif units == UnitSystem.IP.value:
+        t_db = (t_db - 32) / 1.8
+        psy_results = psy_ta_rh(t_db, rh)
+        hr = psy_results.hr * 1000  # convert to g/kgda
+        t_wb_value = psy_results.t_wb * 1.8 + 32
+        t_dp_value = psy_results.t_dp * 1.8 + 32
+        h = (psy_results.h / 1000) / 2.326  # convert to kj/kg
+        annotation_text = (
+            f"t<sub>db</sub>: {t_db * 1.8 + 32:.1f} °F<br>"
+            f"RH: {rh:.1f} %<br>"
+            f"W<sub>a</sub>: {hr:.1f} lb<sub>w</sub>/klb<sub>da</sub><br>"
+            f"t<sub>wb</sub>: {t_wb_value:.1f} °F<br>"
+            f"t<sub>dp</sub>: {t_dp_value:.1f} °F<br>"
+            f"h: {h:.1f} btu/lb<br>"  # kJ/kg to btu/lb
+        )
+        annotation_x = 90  # x coordinates in IP units
+        annotation_y = 86  # Y-coordinate of relative humidity (unchanged)
+
+    fig.add_annotation(
+        x=annotation_x,  # Dynamically adjust the x position of a comment
+        y=annotation_y,  # The y coordinates remain the same
+        xref="x",
+        yref="y",
+        text=annotation_text,
+        showarrow=False,
+        align="left",
+        bgcolor="rgba(0,0,0,0)",
+        bordercolor="rgba(0,0,0,0)",
+        font=dict(size=14),
     )
 
-    if units == UnitSystem.IP.value:
-        fig.update_layout(
-            xaxis=dict(title="Dry-bulb Temperature [°F]", range=[50, 100], dtick=5),
-        )
+    fig.update_layout(
+        yaxis=dict(title="Relative Humidity [%]", range=[0, 100], dtick=10),
+        xaxis=dict(
+            title=(
+                "Dry-bulb Temperature (°C)"
+                if units == UnitSystem.SI.value
+                else "Dry-bulb Temperature [°F]"
+            ),
+            range=[10, 36] if units == UnitSystem.SI.value else [50, 100],
+            dtick=2 if units == UnitSystem.SI.value else 5,
+        ),
+        showlegend=False,
+        plot_bgcolor="white",
+        margin=dict(l=10, t=0),
+        height=500,
+        width=680,
+        hovermode="closest",
+        hoverdistance=5,
+    )
 
-    # Add grid lines and make the spines invisible
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
 

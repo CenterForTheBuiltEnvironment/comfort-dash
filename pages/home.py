@@ -24,6 +24,7 @@ from utils.my_config_file import (
 )
 import plotly.graph_objects as go
 from urllib.parse import parse_qs, urlencode
+from pythermalcomfort.psychrometrics import psy_ta_rh
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -281,6 +282,91 @@ def update_chart(inputs: dict, function_selection: str):
         ]
     )
 
+@callback(
+Output(ElementsIDs.GRAPH_HOVER.value, "figure"),
+Input(ElementsIDs.GRAPH_HOVER.value, "hoverData"),
+State(ElementsIDs.GRAPH_HOVER.value, "figure"),
+State(MyStores.input_data.value, "data"),
+)
+def update_hover_annotation(hover_data, figure, inputs):
+    # For ensure tdp never shown as nan value
+    global last_valid_annotation
+
+    # import units
+    units = inputs[ElementsIDs.UNIT_TOGGLE.value]
+
+    if (
+        hover_data
+        and figure
+        and "points" in hover_data
+        and len(hover_data["points"]) > 0
+    ):
+        chart_selected = inputs[ElementsIDs.chart_selected.value]
+
+        # not show annotation for adaptive methods
+        if chart_selected in [
+            Charts.psychrometric.value.name,
+            Charts.t_rh.value.name,
+            Charts.psychrometric_operative.value.name,
+        ]:
+            point = hover_data["points"][0]
+
+            if "x" in point and "y" in point:
+                t_db = point["x"]
+                rh = point["y"]
+                # check if y <= 0
+                if rh <= 0:
+                    if (
+                        last_valid_annotation is not None
+                        and "annotations" in figure["layout"]
+                    ):
+                        figure["layout"]["annotations"][0][
+                            "text"
+                        ] = last_valid_annotation
+                    return figure
+
+                # calculations
+                psy_results = psy_ta_rh(t_db, rh)
+                hr = psy_results.hr * 1000  # convert to g/kgda
+                t_wb_value = psy_results.t_wb
+                t_dp_value = psy_results.t_dp
+                h = psy_results.h / 1000  # convert to kj/kg
+
+                # Added unit judgment logic
+                if units == UnitSystem.SI.value:
+                    annotation_text = (
+                        f"t<sub>db</sub>: {t_db:.1f} °C<br>"
+                        f"RH: {rh:.1f} %<br>"
+                        f"W<sub>a</sub>: {hr:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                        f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
+                        f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
+                        f"h: {h:.1f} kJ/kg<br>"
+                    )
+                else:  # IP
+                    t_db = (t_db - 32) / 1.8
+                    psy_results = psy_ta_rh(t_db, rh)
+                    hr = psy_results.hr * 1000  # convert to g/kgda
+                    t_wb_value = psy_results.t_wb * 1.8 + 32
+                    t_dp_value = psy_results.t_dp * 1.8 + 32
+                    h = (psy_results.h / 1000) / 2.326  # convert to kj/kg
+                    annotation_text = (
+                        f"t<sub>db</sub>: {t_db * 1.8 + 32:.1f} °F<br>"
+                        f"RH: {rh:.1f} %<br>"
+                        f"W<sub>a</sub>: {hr:.1f} lb<sub>w</sub>/klb<sub>da</sub><br>"
+                        f"t<sub>wb</sub>: {t_wb_value:.1f} °F<br>"
+                        f"t<sub>dp</sub>: {t_dp_value:.1f} °F<br>"
+                        f"h: {h:.1f} btu/lb<br>"  # kJ/kg to btu/lb
+                    )
+
+                if (
+                    "annotations" in figure["layout"]
+                    and len(figure["layout"]["annotations"]) > 0
+                ):
+                    figure["layout"]["annotations"][0]["text"] = annotation_text
+            else:
+                print("Unexpected hover data structure:", point)
+
+    return figure
 
 @callback(
     Output(ElementsIDs.RESULTS_SECTION.value, "children"),
