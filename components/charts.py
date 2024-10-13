@@ -20,7 +20,7 @@ from utils.my_config_file import (
 )
 from utils.website_text import TextHome
 import matplotlib
-from pythermalcomfort.models import adaptive_en
+from pythermalcomfort.models import adaptive_en, cooling_effect
 from pythermalcomfort.psychrometrics import t_o, psy_ta_rh
 
 matplotlib.use("Agg")
@@ -646,5 +646,203 @@ def t_rh_pmv(
 
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
+
+    return fig
+
+
+def speed_temp_pmv(
+    inputs: dict = None,
+    model: str = "iso",
+    units: str = "SI",
+):
+    results = []
+    met, clo, tr, t_db, v, rh = get_inputs(inputs)
+    clo_d = clo_dynamic(clo, met)
+    vr = v_relative(v, met)
+    pmv_limits = [-0.5, 0.5]
+    clo_d = clo_dynamic(
+        clo=inputs[ElementsIDs.clo_input.value], met=inputs[ElementsIDs.met_input.value]
+    )
+    if units == UnitSystem.SI.value:
+        for pmv_limit in pmv_limits:
+            for vr in np.arange(0.1, 0.9, 0.1):
+
+                def function(x):
+                    ce = cooling_effect(t_db, tr, vr, rh, met, clo_d, 0, units)
+
+                    if vr <= 0.1 or ce == 0:
+                        pmv_value = (
+                            pmv(
+                                x,
+                                tr=inputs[ElementsIDs.t_r_input.value],
+                                vr=vr,
+                                rh=inputs[ElementsIDs.rh_input.value],
+                                met=inputs[ElementsIDs.met_input.value],
+                                clo=clo_d,
+                                wme=0,
+                                standard=model,
+                                units=units,
+                                limit_inputs=False,
+                            )
+                            - pmv_limit
+                        )
+                    else:
+                        pmv_value = (
+                            pmv(
+                                x - ce,
+                                tr=inputs[ElementsIDs.t_r_input.value] - ce,
+                                vr=0.1,
+                                rh=inputs[ElementsIDs.rh_input.value],
+                                met=inputs[ElementsIDs.met_input.value],
+                                clo=clo_d,
+                                wme=0,
+                                standard=model,
+                                units=units,
+                                limit_inputs=False,
+                            )
+                            - pmv_limit
+                        )
+                    return pmv_value
+
+                try:
+                    temp = optimize.brentq(function, 10, 40)
+                    results.append(
+                        {
+                            "vr": vr,
+                            "temp": temp,
+                            "pmv_limit": pmv_limit,
+                        }
+                    )
+
+                except ValueError:
+                    continue
+    else:
+        for pmv_limit in pmv_limits:
+            for vr in np.arange(0.5, 3, 0.1):
+
+                def function(x):
+                    ce = cooling_effect(t_db, tr, vr, rh, met, clo_d, 0, units)
+                    if vr <= 0.33 or ce == 0:
+                        pmv_value = pmv(
+                            x,
+                            tr=inputs[ElementsIDs.t_r_input.value],
+                            vr=vr,
+                            rh=inputs[ElementsIDs.rh_input.value],
+                            met=inputs[ElementsIDs.met_input.value],
+                            clo=clo_d,
+                            wme=0,
+                            standard=model,
+                            units=units,
+                            limit_inputs=False,
+                        )
+                        -pmv_limit
+                    else:
+                        pmv_value = (
+                            pmv(
+                                x - ce,
+                                tr=inputs[ElementsIDs.t_r_input.value] - ce,
+                                vr=0.1,
+                                rh=inputs[ElementsIDs.rh_input.value],
+                                met=inputs[ElementsIDs.met_input.value],
+                                clo=clo_d,
+                                wme=0,
+                                standard=model,
+                                units=units,
+                                limit_inputs=False,
+                            )
+                            - pmv_limit
+                        )
+                    return pmv_value
+
+                try:
+                    temp = optimize.brentq(function, 10, 100)
+                    results.append(
+                        {
+                            "vr": vr,
+                            "temp": temp,
+                            "pmv_limit": pmv_limit,
+                        }
+                    )
+
+                except ValueError:
+                    continue
+
+    df = pd.DataFrame(results)
+    fig = go.Figure()
+    # Define trace1
+    fig.add_trace(
+        go.Scatter(
+            x=df[df["pmv_limit"] == pmv_limits[0]]["temp"],
+            y=df[df["pmv_limit"] == pmv_limits[0]]["vr"],
+            mode="lines",
+            name=f"PMV {pmv_limits[0]}",
+            showlegend=False,
+            line=dict(color="rgba(0,0,0,0)"),
+        )
+    )
+    # Define trace2
+    fig.add_trace(
+        go.Scatter(
+            x=df[df["pmv_limit"] == pmv_limits[1]]["temp"],
+            y=df[df["pmv_limit"] == pmv_limits[1]]["vr"],
+            mode="lines",
+            fill="tonextx",
+            fillcolor="rgba(59, 189, 237, 0.7)",
+            name=f"PMV {pmv_limits[1]}",
+            showlegend=False,
+            line=dict(color="rgba(0,0,0,0)"),
+        )
+    )
+
+    # Define input point
+    fig.add_trace(
+        go.Scatter(
+            x=[inputs[ElementsIDs.t_db_input.value]],
+            y=[inputs[ElementsIDs.v_input.value]],
+            mode="markers",
+            marker=dict(color="red"),
+            name="Input",
+            showlegend=False,
+        )
+    )
+
+    fig.update_layout(
+        xaxis_title=(
+            "Operative Temperature [°C]"
+            if units == UnitSystem.SI.value
+            else "Operative Temperature [°F]"
+        ),
+        # x title
+        yaxis_title=(
+            "Relative Air Speed [m/s]"
+            if units == UnitSystem.SI.value
+            else "Relative Air Speed [fp/s]"
+        ),
+        # y title
+        template="plotly_white",
+        margin=dict(l=10, t=0),
+        height=500,
+        width=680,
+        xaxis=dict(
+            range=[20, 40] if units == UnitSystem.SI.value else [65, 100],  # x range
+            tickmode="linear",
+            tick0=20 if units == UnitSystem.SI.value else 65,
+            dtick=2 if units == UnitSystem.SI.value else 5,
+            linecolor="lightgrey",
+            gridcolor="lightgray",
+            showgrid=True,
+            mirror=True,
+        ),
+        yaxis=dict(
+            range=[0.0, 1.2] if units == UnitSystem.SI.value else [0, 4],  # y range
+            tickmode="linear",
+            tick0=0.0,
+            dtick=0.1 if units == UnitSystem.SI.value else 0.5,
+            linecolor="lightgrey",
+            gridcolor="lightgray",
+            showgrid=True,
+            mirror=True,
+        ),
+    )
 
     return fig

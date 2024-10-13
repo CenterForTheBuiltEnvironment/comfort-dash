@@ -2,7 +2,12 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
-from components.charts import t_rh_pmv, chart_selector, adaptive_en_chart
+from components.charts import (
+    t_rh_pmv,
+    chart_selector,
+    adaptive_en_chart,
+    speed_temp_pmv,
+)
 from components.dropdowns import (
     model_selection,
 )
@@ -248,7 +253,12 @@ def update_chart(inputs: dict, function_selection: str):
                 function_selection=function_selection,
                 units=units,
             )
-
+    elif chart_selected == Charts.wind_temp_chart.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = speed_temp_pmv(inputs=inputs, model="ashrae", units=units)
     if (
         selected_model == Models.Adaptive_EN.name
         and function_selection == Functionalities.Default.value
