@@ -322,7 +322,7 @@ def input_environmental_personal(
             selected_model in [Models.PMV_ashrae.name]
             and function_selection == Functionalities.Default.value
         ):
-            for input_info in Models.PMV_ashrae.value.inputs2:
+            for input_info in Models.PMV_ashrae.value.inputs:
                 all_inputs.add(input_info.id)
 
     model_inputs = Models[selected_model].value.inputs
@@ -352,8 +352,8 @@ def input_environmental_personal(
             if input_id in {ElementsIDs.met_input.value, ElementsIDs.clo_input.value}:
                 default_input = create_autocomplete(values)
             elif (
-                selected_model == Models.Adaptive_EN.name
-                or selected_model == Models.Adaptive_ASHRAE.name
+                #selected_model == Models.Adaptive_EN.name or
+                 selected_model == Models.Adaptive_ASHRAE.name
             ) and input_id == ElementsIDs.v_input.value:
                 default_input = create_select_component(values)
             else:

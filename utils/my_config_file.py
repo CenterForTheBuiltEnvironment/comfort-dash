@@ -55,6 +55,16 @@ class ElementsIDs(Enum):
     ADAPTIVE_EN_SPEED_SELECTION = "id-adaptive-en-speed-selection"
     PMV_ASHRAE_SPEED_SELECTION = "id-pmv-ashrae-speed-method"
     UNIT_TOGGLE = "id-unit-toggle"  # FOR IP / SI Unit system switch
+    t_db_input_input2 = "id-dbt-input-input2"
+    t_r_input_input2 = "id-tr-input-input2"
+    t_rm_input_input2 = "id-trm-input-input2"
+    v_input_input2 = "id-v-input-input2"
+    rh_input_input2 = "id-rh-input-input2"
+    met_input_input2 = "id-met-input-input2"
+    clo_input_input2 = "id-clo-input-input2"
+    INITIAL_URL = "initial-url" 
+    GRAPH_HOVER = "graph-hover"
+
 
 
 class Config(Enum):
@@ -452,6 +462,51 @@ class Models(Enum):
             ModelInputsInfo(
                 unit=UnitSystem.m_s.value,
                 min=0.0,
+                max=2.0,
+                step=0.1,
+                value=0.1,
+                name="Air Speed",
+                id=ElementsIDs.v_input.value,
+            ),
+        ],
+    )
+    Adaptive_EN: ModelsInfo = ModelsInfo(
+        name="Adaptive - EN-16798",
+        description="Adaptive - EN-16798",
+        charts=[
+           # Charts.adaptive_en.value,
+        ],
+        inputs=[
+            ModelInputsInfo(
+                unit=UnitSystem.celsius.value,
+                min=10.0,
+                max=40.0,
+                step=0.5,
+                value=25.0,
+                name="Air Temperature",
+                id=ElementsIDs.t_db_input.value,
+            ),
+            ModelInputsInfo(
+                unit=UnitSystem.celsius.value,
+                min=10.0,
+                max=40.0,
+                step=0.5,
+                value=25.0,
+                name="Mean Radiant Temperature",
+                id=ElementsIDs.t_r_input.value,
+            ),
+            ModelInputsInfo(
+                unit=UnitSystem.celsius.value,
+                min=10.0,
+                max=33.5,
+                step=0.5,
+                value=25.0,
+                name="Outdoor running mean outdoor temperature",
+                id=ElementsIDs.t_rm_input.value,
+            ),
+            ModelInputsInfo(
+                unit=UnitSystem.m_s.value,
+                min=0.1,
                 max=2.0,
                 step=0.1,
                 value=0.1,
