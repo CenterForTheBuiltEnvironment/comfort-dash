@@ -93,14 +93,20 @@ def find_tdb_for_pmv(
         t_db_guess = (low + high) / 2
         try:
             pmv_value = pmv(
-                tdb=t_db_guess, tr=tr, vr=vr, rh=rh, met=met, clo=clo,
-                wme=wme, standard=standard, units=units, limit_inputs=False
+                tdb=t_db_guess,
+                tr=tr,
+                vr=vr,
+                rh=rh,
+                met=met,
+                clo=clo,
+                wme=wme,
+                standard=standard,
+                units=units,
+                limit_inputs=False,
             )
         except Exception as e:
             print(f"Error during PMV calculation: {e}")
             pmv_value = np.nan
-
-        print(f"Iteration {iterations}: t_db_guess={t_db_guess}, PMV={pmv_value}")
 
         if abs(pmv_value - target_pmv) < tol:
             return round(t_db_guess, 2)
@@ -111,7 +117,9 @@ def find_tdb_for_pmv(
 
         iterations += 1
 
-    raise ValueError("Unable to find suitable t_db value within maximum number of iterations")
+    raise ValueError(
+        "Unable to find suitable t_db value within maximum number of iterations"
+    )
 
 
 def psy_ashrae_pmv(
