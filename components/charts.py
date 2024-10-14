@@ -82,7 +82,7 @@ def find_tdb_for_pmv(
     tol=1e-2,
     max_iter=100,
 ):
-    """Find the t_db value for a given PMV using bisection method"""
+
     if units == UnitSystem.SI.value:
         low, high = 10, 40
     else:
@@ -91,17 +91,16 @@ def find_tdb_for_pmv(
 
     while iterations < max_iter:
         t_db_guess = (low + high) / 2
-        pmv_value = pmv(
-            tdb=t_db_guess,
-            tr=tr,
-            vr=vr,
-            rh=rh,
-            met=met,
-            clo=clo,
-            wme=wme,
-            standard=standard,
-            units=units,
-        )
+        try:
+            pmv_value = pmv(
+                tdb=t_db_guess, tr=tr, vr=vr, rh=rh, met=met, clo=clo,
+                wme=wme, standard=standard, units=units, limit_inputs=False
+            )
+        except Exception as e:
+            print(f"Error during PMV calculation: {e}")
+            pmv_value = np.nan
+
+        print(f"Iteration {iterations}: t_db_guess={t_db_guess}, PMV={pmv_value}")
 
         if abs(pmv_value - target_pmv) < tol:
             return round(t_db_guess, 2)
@@ -112,9 +111,7 @@ def find_tdb_for_pmv(
 
         iterations += 1
 
-    raise ValueError(
-        "Unable to find suitable t_db value within maximum number of iterations"
-    )
+    raise ValueError("Unable to find suitable t_db value within maximum number of iterations")
 
 
 def psy_ashrae_pmv(
@@ -359,64 +356,109 @@ def generate_tdb_hr_chart(
 ):
 
     p_tdb = inputs[ElementsIDs.t_db_input.value]
-    p_tr = inputs[ElementsIDs.t_r_input.value]
-    p_v = inputs[ElementsIDs.v_input.value]
-    p_rh = inputs[ElementsIDs.rh_input.value]
-    p_met = inputs[ElementsIDs.met_input.value]
-    p_clo_d = inputs[ElementsIDs.clo_input.value]
+    tr = float(inputs[ElementsIDs.t_r_input.value])
+    vr = float(
+        v_relative(  # Ensure vr is scalar
+            v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
+        )
+    )
+    p_rh = float(inputs[ElementsIDs.rh_input.value])
+    met = float(inputs[ElementsIDs.met_input.value])
+    clo = float(
+        clo_dynamic(  # Ensure clo is scalar
+            clo=inputs[ElementsIDs.clo_input.value],
+            met=inputs[ElementsIDs.met_input.value],
+        )
+    )
+    # save original values for plotting
+    if units == UnitSystem.IP.value:
+        tdb = round(float(units_converter(tdb=p_tdb)[0]), 1)
+        tr = round(float(units_converter(tr=tr)[0]), 1)
+        vr = round(float(units_converter(vr=vr)[0]), 1)
+    else:
+        tdb = p_tdb
 
     traces = []
 
     # green area
-    rh = np.arange(0, 101, 20)
-    pmv_list = [-0.7, -0.5, -0.2, 0.2, 0.5, 0.7]
-    v_r = v_relative(v=p_v, met=p_met)
-    tdb_dict = {}
-    for j in range(len(pmv_list)):
-        tdb_dict[j] = []
-        for i in range(len(rh)):
-            solution = fsolve(
-                lambda x: find_tdb_for_pmv(
-                    t_db_x=x,
-                    t_r=p_tr,
-                    v_r=v_r,
-                    r_h=rh[i],
-                    met=p_met,
-                    clo_d=p_clo_d,
-                    model=model,
-                    pmv_y=pmv_list[j],
-                ),
-                22,
+    rh_values = np.arange(0, 110, 10)
+    pmv_targets = [-0.7, -0.5, -0.2, 0.2, 0.5, 0.7]
+    tdb_array = np.zeros((len(pmv_targets), len(rh_values)))
+
+    for j, pmv_target in enumerate(pmv_targets):
+        for i, rh_value in enumerate(rh_values):
+            tdb_solution = find_tdb_for_pmv(
+                target_pmv=pmv_target,
+                tr=tr,
+                vr=vr,
+                rh=rh_value,
+                met=met,
+                clo=clo,
+                standard=model,
             )
-            tdb_solution = Decimal(solution[0]).quantize(
-                Decimal("0.0"), rounding=ROUND_HALF_UP
-            )  # ℃
-            tdb_dict[j].append(float(tdb_solution))
+            tdb_array[j, i] = tdb_solution
 
     # hr
-    iii_lower_upper_tdb = np.append(np.array(tdb_dict[0]), np.array(tdb_dict[5])[::-1])
-    ii_lower_upper_tdb = np.append(np.array(tdb_dict[1]), np.array(tdb_dict[4])[::-1])
-    i_lower_upper_tdb = np.append(np.array(tdb_dict[2]), np.array(tdb_dict[3])[::-1])
-    rh_list = np.append(np.arange(0, 101, 20), np.arange(100, -1, -20))
+    iii_lower_upper_tdb = np.append(tdb_array[0], tdb_array[5][::-1])
+    ii_lower_upper_tdb = np.append(tdb_array[1], tdb_array[4][::-1])
+    i_lower_upper_tdb = np.append(tdb_array[2], tdb_array[3][::-1])
+    iii_lower_upper_tdb = [
+        round(float(value), 1) for value in iii_lower_upper_tdb.tolist()
+    ]  # convert to list & round to 1 decimal
+    ii_lower_upper_tdb = [
+        round(float(value), 1) for value in ii_lower_upper_tdb.tolist()
+    ]  # convert to list & round to 1 decimal
+    i_lower_upper_tdb = [
+        round(float(value), 1) for value in i_lower_upper_tdb.tolist()
+    ]  # convert to list & round to 1 decimal
+
+    rh_list = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
     # define
     iii_lower_upper_hr = []
     ii_lower_upper_hr = []
     i_lower_upper_hr = []
     for i in range(len(rh_list)):
         iii_lower_upper_hr.append(
-            psy_ta_rh(tdb=iii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]
-            * 1000
+            psy_ta_rh(tdb=iii_lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
         )
         ii_lower_upper_hr.append(
-            psy_ta_rh(tdb=ii_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]
-            * 1000
+            psy_ta_rh(tdb=ii_lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
         )
         i_lower_upper_hr.append(
-            psy_ta_rh(tdb=i_lower_upper_tdb[i], rh=rh_list[i], p_atm=101325)["hr"]
-            * 1000
+            psy_ta_rh(tdb=i_lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
         )
 
-    # traces[0]
+    iii_lower_upper_hr = [
+        round(float(value), 1) for value in iii_lower_upper_hr
+    ]  # convert to list & round to 1 decimal
+    ii_lower_upper_hr = [
+        round(float(value), 1) for value in ii_lower_upper_hr
+    ]  # convert to list & round to 1 decimal
+    i_lower_upper_hr = [
+        round(float(value), 1) for value in i_lower_upper_hr
+    ]  # convert to list & round to 1 decimal
+
+    if units == UnitSystem.IP.value:
+        iii_lower_upper_tdb = list(
+            map(
+                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                iii_lower_upper_tdb,
+            )
+        )
+        ii_lower_upper_tdb = list(
+            map(
+                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                ii_lower_upper_tdb,
+            )
+        )
+        i_lower_upper_tdb = list(
+            map(
+                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                i_lower_upper_tdb,
+            )
+        )
+
+    # category III
     traces.append(
         go.Scatter(
             x=iii_lower_upper_tdb,
@@ -457,54 +499,100 @@ def generate_tdb_hr_chart(
     )
 
     # Red point
-    red_point_x = p_tdb
-    red_point_y = (
-        psy_ta_rh(tdb=p_tdb, rh=p_rh, p_atm=101325)["hr"] * 1000
-    )  # kg/kg => g/kg
+    psy_results = psy_ta_rh(tdb, p_rh)
+    hr = round(float(psy_results["hr"]) * 1000, 1)
+    t_wb = round(float(psy_results["t_wb"]), 1)
+    t_dp = round(float(psy_results["t_dp"]), 1)
+    h = round(float(psy_results["h"]) / 1000, 1)
+
+    if units == UnitSystem.IP.value:
+        t_wb = round(float(units_converter(tmp=t_wb, from_units="si")[0]), 1)
+        t_dp = round(float(units_converter(tmp=t_dp, from_units="si")[0]), 1)
+        h = round(float(h / 2.326), 1)  # kJ/kg => btu/lb
+        tdb = p_tdb
+
     traces.append(
         go.Scatter(
-            x=[red_point_x],
-            y=[red_point_y],
+            x=[tdb],
+            y=[hr],
             mode="markers",
             marker=dict(
                 color="red",
-                size=4,
+                size=6,
             ),
             showlegend=False,
+            hoverinfo="none",
         )
     )
 
     # line
-    rh_list = np.arange(0, 101, 10)
-    tdb = np.linspace(10, 36, 500)
+    rh_list = np.arange(0, 110, 10, dtype=float).tolist()
+    tdb_list = np.linspace(10, 36, 500, dtype=float).tolist()
+    if units == UnitSystem.IP.value:
+        tdb_list_conv = list(
+            map(
+                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                tdb_list,
+            )
+        )
+    else:
+        tdb_list_conv = tdb_list
+
     for rh in rh_list:
         hr_list = np.array(
-            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb]
+            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb_list]
         )  # kg/kg => g/kg
         trace = go.Scatter(
-            x=tdb,
+            x=tdb_list_conv,
             y=hr_list,
             mode="lines",
             line=dict(color="grey", width=1),
-            hoverinfo="x+y",
+            hoverinfo="none",
             name=f"{rh}% RH",
             showlegend=False,
         )
         traces.append(trace)
-    tdb = inputs[ElementsIDs.t_db_input.value]
-    rh = inputs[ElementsIDs.rh_input.value]
-    tr = inputs[ElementsIDs.t_r_input.value]
-    psy_results = psy_ta_rh(tdb, rh)
 
-    ##title
+    # add transparent grid
+    x_range = (
+        np.linspace(10, 36, 100)
+        if units == UnitSystem.SI.value
+        else np.linspace(50, 96.8, 100)
+    )
+    y_range = np.linspace(0, 30, 100)
+    xx, yy = np.meshgrid(x_range, y_range)
+
+    traces.append(
+        go.Scatter(
+            x=xx.flatten(),
+            y=yy.flatten(),
+            mode="markers",
+            marker=dict(size=2, color="rgba(0,0,0,0)"),
+            hoverinfo="x+y",
+            name="Interactive Hover Area",
+            showlegend=False,
+        )
+    )
+
+    if units == UnitSystem.SI.value:
+        temperature_unit = "°C"
+        hr_unit = "g<sub>w</sub>/kg<sub>da</sub>"
+        h_unit = "kJ/kg"
+    else:
+        temperature_unit = "°F"
+        hr_unit = "lb<sub>w</sub>/klb<sub>da</sub>"
+        h_unit = "btu/lb"
+
+    # layout
     layout = go.Layout(
+        hovermode="closest",
         xaxis=dict(
             title=(
                 "Dry-bulb Temperature [°C]"
                 if units == UnitSystem.SI.value
-                else "Dry-bulb Temperature [°F]"
+                else "operative Temperature [°F]"
             ),
-            range=[10, 36],
+            range=[10, 36] if units == UnitSystem.SI.value else [50, 96.8],
             dtick=2,
             showgrid=True,
             showline=True,
@@ -512,7 +600,11 @@ def generate_tdb_hr_chart(
             linecolor="lightgrey",
         ),
         yaxis=dict(
-            title="Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]",
+            title=(
+                "Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]"
+                if units == UnitSystem.SI.value
+                else "Humidity ratio [lb<sub>w</sub>/klb<sub>da</sub>]"
+            ),
             range=[0, 30],
             dtick=5,
             showgrid=True,
@@ -521,21 +613,19 @@ def generate_tdb_hr_chart(
             linecolor="lightgrey",
             side="right",
         ),
-        showlegend=True,
-        plot_bgcolor="white",
         annotations=[
             dict(
-                x=14,
+                x=14 if units == UnitSystem.SI.value else 57.2,
                 y=28,
                 xref="x",
                 yref="y",
                 text=(
-                    f"t<sub>db</sub>: {tdb:.1f} °C<br>"
-                    f"rh: {rh:.1f} %<br>"
-                    f"W<sub>a</sub>: {psy_results.hr * 1000:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
-                    f"t<sub>wb</sub>: {psy_results.t_wb:.1f} °C<br>"
-                    f"t<sub>dp</sub>: {psy_results.t_dp:.1f} °C<br>"
-                    f"h: {psy_results.h / 1000:.1f} kJ/kg"
+                    f"t<sub>db</sub>: {tdb:.1f} {temperature_unit}<br>"
+                    f"rh: {p_rh:.1f} %<br>"
+                    f"W<sub>a</sub>: {hr} {hr_unit}<br>"
+                    f"t<sub>wb</sub>: {t_wb} {temperature_unit}<br>"
+                    f"t<sub>dp</sub>: {t_dp} {temperature_unit}<br>"
+                    f"h: {h} {h_unit}"
                 ),
                 showarrow=False,
                 align="left",
@@ -544,6 +634,8 @@ def generate_tdb_hr_chart(
                 font=dict(size=14),
             )
         ],
+        showlegend=True,
+        plot_bgcolor="white",
     )
 
     fig = go.Figure(data=traces, layout=layout)

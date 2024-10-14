@@ -265,9 +265,7 @@ def update_hover_annotation(hover_data, figure, inputs):
 
         # not show annotation for adaptive methods
         if chart_selected in [
-            # Charts.psychrometric.value.name,
             Charts.t_rh.value.name,
-            Charts.psychrometric_operative.value.name,
         ]:
             point = hover_data["points"][0]
 
