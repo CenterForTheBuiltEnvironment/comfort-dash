@@ -195,7 +195,9 @@ def psy_pmv(
         if units == UnitSystem.IP.value:
             lower_upper_tdb = list(
                 map(
-                    lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                    lambda x: round(
+                        float(units_converter(tmp=x, from_units="si")[0]), 1
+                    ),
                     lower_upper_tdb,
                 )
             )
@@ -209,7 +211,7 @@ def psy_pmv(
                 fill="toself",
                 fillcolor="rgba(59, 189, 237, 0.7)",
                 showlegend=False,
-                hoverinfo="none",
+                hoverinfo="skip",
             )
         )
     else:
@@ -253,19 +255,25 @@ def psy_pmv(
         if units == UnitSystem.IP.value:
             iii_lower_upper_tdb = list(
                 map(
-                    lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                    lambda x: round(
+                        float(units_converter(tmp=x, from_units="si")[0]), 1
+                    ),
                     iii_lower_upper_tdb,
                 )
             )
             ii_lower_upper_tdb = list(
                 map(
-                    lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                    lambda x: round(
+                        float(units_converter(tmp=x, from_units="si")[0]), 1
+                    ),
                     ii_lower_upper_tdb,
                 )
             )
             i_lower_upper_tdb = list(
                 map(
-                    lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                    lambda x: round(
+                        float(units_converter(tmp=x, from_units="si")[0]), 1
+                    ),
                     i_lower_upper_tdb,
                 )
             )
@@ -280,7 +288,7 @@ def psy_pmv(
                 fill="toself",
                 fillcolor="rgba(28,128,28,0.2)",
                 showlegend=False,
-                hoverinfo="none",
+                hoverinfo="skip",
             )
         )
         # category II
@@ -293,7 +301,7 @@ def psy_pmv(
                 fill="toself",
                 fillcolor="rgba(28,128,28,0.3)",
                 showlegend=False,
-                hoverinfo="none",
+                hoverinfo="skip",
             )
         )
         # category I
@@ -306,7 +314,7 @@ def psy_pmv(
                 fill="toself",
                 fillcolor="rgba(28,128,28,0.4)",
                 showlegend=False,
-                hoverinfo="none",
+                hoverinfo="skip",
             )
         )
 
@@ -334,7 +342,7 @@ def psy_pmv(
                 size=6,
             ),
             showlegend=False,
-            hoverinfo="none",
+            hoverinfo="skip",
         )
     )
 
@@ -361,7 +369,7 @@ def psy_pmv(
             y=hr_list,
             mode="lines",
             line=dict(color="grey", width=1),
-            hoverinfo="none",
+            hoverinfo="skip",
             name=f"{rh}% RH",
             showlegend=False,
         )
@@ -382,7 +390,7 @@ def psy_pmv(
             y=yy.flatten(),
             mode="markers",
             marker=dict(size=2, color="rgba(0,0,0,0)"),
-            hoverinfo="x+y",
+            hoverinfo="none",
             name="Interactive Hover Area",
             showlegend=False,
         )
@@ -430,7 +438,7 @@ def psy_pmv(
         annotations=[
             dict(
                 x=14 if units == UnitSystem.SI.value else 57.2,
-                y=28,
+                y=25,
                 xref="x",
                 yref="y",
                 text=(
@@ -450,6 +458,9 @@ def psy_pmv(
         ],
         showlegend=True,
         plot_bgcolor="white",
+        margin=dict(l=0, t=10),
+        height=500,
+        width=680,
     )
 
     fig = go.Figure(data=traces, layout=layout)

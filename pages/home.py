@@ -150,9 +150,7 @@ def update_inputs(selected_model, units_selection, function_selection):
     if selected_model is None:
         return no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    return (
-        input_environmental_personal(selected_model, units, function_selection),
-    )
+    return (input_environmental_personal(selected_model, units, function_selection),)
 
 
 # once function: update_inputs via URL, update the value of the model dropdown, unit toggle and functionality dropdown and chart dropdown, and inputs, it only use once when the page is loaded
