@@ -1,6 +1,6 @@
 import platform
 from enum import Enum
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -27,7 +27,6 @@ class ElementsIDs(Enum):
     charts_dropdown = "id-charts-dropdown"
     CHART_CONTAINER = "id-chart-container"
     URL = "url"
-    INITIAL_URL = "initial-url"
     FOOTER = "id-footer"
     INPUT_SECTION = "id-input-section"
     inputs_form = "id-inputs-form"
@@ -38,13 +37,6 @@ class ElementsIDs(Enum):
     rh_input = "id-rh-input"
     met_input = "id-met-input"
     clo_input = "id-clo-input"
-    t_db_input_input2 = "id-dbt-input-input2"
-    t_r_input_input2 = "id-tr-input-input2"
-    t_rm_input_input2 = "id-trm-input-input2"
-    v_input_input2 = "id-v-input-input2"
-    rh_input_input2 = "id-rh-input-input2"
-    met_input_input2 = "id-met-input-input2"
-    clo_input_input2 = "id-clo-input-input2"
     note_model = "id-model-note"
     modal_custom_ensemble = "id-modal-custom-ensemble"
     modal_custom_ensemble_open = "id-modal-custom-ensemble-open"
@@ -63,7 +55,6 @@ class ElementsIDs(Enum):
     ADAPTIVE_EN_SPEED_SELECTION = "id-adaptive-en-speed-selection"
     PMV_ASHRAE_SPEED_SELECTION = "id-pmv-ashrae-speed-method"
     UNIT_TOGGLE = "id-unit-toggle"  # FOR IP / SI Unit system switch
-    GRAPH_HOVER = "id-graph-hover"
 
 
 class Config(Enum):
@@ -75,11 +66,6 @@ class Functionalities(Enum):
     Default: str = "Default"
     Compare: str = "Compare"
     Ranges: str = "Ranges"
-
-
-class CompareInputColor(Enum):
-    InputColor1: str = "#ff0000"
-    InputColor2: str = "#0000ff"
 
 
 class URLS(Enum):
@@ -112,32 +98,11 @@ class ChartsInfo(BaseModel):
     note_chart: str = None
 
 
-class ComfortLevel(Enum):
-    COMFORTABLE = ("Comfortable", "Gray")
-    TOO_COOL = ("Too cool", "Blue")
-    TOO_WARM = ("Too warm", "Red")
-
-    def __init__(self, description: str, color: str):
-        self.description = description
-        self.color = color
-
-    def get_color(self):
-        return self.color
-
-    def __str__(self):
-        return self.description
-
-
 class Charts(Enum):
     t_rh: ChartsInfo = ChartsInfo(
         name="Temperature vs. Relative Humidity",
         id="id_t_rh_chart",
         note_chart="This chart represents only two variables, dry-bulb temperature and relative humidity. The PMV calculations are still based on all the psychrometric variables, but the visualization becomes easier to understand.",
-    )
-    adaptive_en: ChartsInfo = ChartsInfo(
-        name="Adaptive - EN-16798",
-        id="id_adaptive_en_chart",
-        note_chart="Method is applicable only for buildings without mechanical cooling systems and where there is easy access to operable windows and occupants may freely adapt their clothing to the indoor and/or outdoor thermal conditions. The criteria for the spaces are the following: (a) There is no mechanical cooling or heating system in operation; (b) Metabolic rates ranging from 1.0 to 1.3 met; (c) Occupants are allowed to freely adapt their clothing insulation.",
     )
     psychrometric: ChartsInfo = ChartsInfo(
         name="Psychrometric (air temperature)",
@@ -163,6 +128,11 @@ class Charts(Enum):
         name="SET outputs chart",
         id="id_set_outputs_chart",
         note_chart="This chart shows how some variables, calculated using the SET model, vary as a function of the input parameters you selected. You can toggle on and off the lines by clicking on the relative variable in the legend.",
+    )
+    pmot_ot: ChartsInfo = ChartsInfo(
+        name="Adaptive chart",
+        id="id_pmot_ot_chart",
+        note_chart="Method is applicable only for occupant-controlled naturally conditioned spaces that meet all of the following criteria:",
     )
 
 
@@ -192,7 +162,7 @@ class UnitSystem(Enum):
 class UnitConverter:
     @staticmethod
     def celsius_to_fahrenheit(celsius):
-        return round(celsius * 9 / 5 + 32, 2)
+        return round(celsius * 9 / 5 + 32)
 
     @staticmethod
     def fahrenheit_to_celsius(fahrenheit):
@@ -302,11 +272,9 @@ class ModelsInfo(BaseModel):
     name: str
     description: str
     inputs: List[ModelInputsInfo]
-    inputs2: Optional[List[ModelInputsInfo]] = None
     pythermalcomfort_models: str = None
     note_model: str = None
     charts: List[ChartsInfo] = None
-    charts_compare: Optional[List[ChartsInfo]] = None
 
 
 class Models(Enum):
@@ -321,11 +289,6 @@ class Models(Enum):
             Charts.wind_temp_chart.value,
             Charts.thl_psychrometric.value,
             Charts.set_outputs.value,
-        ],
-        charts_compare=[
-            Charts.t_rh.value,
-            Charts.psychrometric.value,
-            Charts.psychrometric_operative.value,
         ],
         inputs=[
             ModelInputsInfo(
@@ -383,62 +346,6 @@ class Models(Enum):
                 id=ElementsIDs.clo_input.value,
             ),
         ],
-        inputs2=[
-            ModelInputsInfo(
-                unit=UnitSystem.celsius.value,
-                min=10.0,
-                max=40.0,
-                step=0.5,
-                value=30.0,
-                name="Air Temperature",
-                id=ElementsIDs.t_db_input_input2.value,
-            ),
-            ModelInputsInfo(
-                unit=UnitSystem.celsius.value,
-                min=10.0,
-                max=40.0,
-                step=0.5,
-                value=30.0,
-                name="Mean Radiant Temperature",
-                id=ElementsIDs.t_r_input_input2.value,
-            ),
-            ModelInputsInfo(
-                unit=UnitSystem.m_s.value,
-                min=0.0,
-                max=2.0,
-                step=0.1,
-                value=0.1,
-                name="Air Speed",
-                id=ElementsIDs.v_input_input2.value,
-            ),
-            ModelInputsInfo(
-                unit="%",
-                min=0.0,
-                max=100.0,
-                step=1.0,
-                value=50.0,
-                name="Relative Humidity",
-                id=ElementsIDs.rh_input_input2.value,
-            ),
-            ModelInputsInfo(
-                unit="met",
-                min=1,
-                max=4.0,
-                step=0.1,
-                value=1.0,
-                name="Metabolic Rate",
-                id=ElementsIDs.met_input_input2.value,
-            ),
-            ModelInputsInfo(
-                unit="clo",
-                min=0.0,
-                max=1.5,
-                step=0.1,
-                value=0.61,
-                name="Clothing Level",
-                id=ElementsIDs.clo_input_input2.value,
-            ),
-        ],
     )
     PMV_EN: ModelsInfo = ModelsInfo(
         name="PMV - EN",
@@ -447,7 +354,7 @@ class Models(Enum):
         charts=[
             # todo add the right charts
             Charts.psychrometric.value,
-            Charts.t_rh.value,
+            Charts.psychrometric_operative.value,
         ],
         inputs=[
             ModelInputsInfo(
@@ -512,6 +419,7 @@ class Models(Enum):
         charts=[
             # todo add the right charts
             Charts.t_rh.value,
+            Charts.pmot_ot.value,
         ],
         inputs=[
             ModelInputsInfo(
@@ -543,53 +451,7 @@ class Models(Enum):
             ),
             ModelInputsInfo(
                 unit=UnitSystem.m_s.value,
-                min=0.1,
-                max=2.0,
-                step=0.1,
-                value=0.1,
-                name="Air Speed",
-                id=ElementsIDs.v_input.value,
-            ),
-        ],
-    )
-    # Adaptive_EN
-    Adaptive_EN: ModelsInfo = ModelsInfo(
-        name="Adaptive - EN-16798",
-        description="Adaptive - EN-16798",
-        charts=[
-            Charts.adaptive_en.value,
-        ],
-        inputs=[
-            ModelInputsInfo(
-                unit=UnitSystem.celsius.value,
-                min=10.0,
-                max=40.0,
-                step=0.5,
-                value=25.0,
-                name="Air Temperature",
-                id=ElementsIDs.t_db_input.value,
-            ),
-            ModelInputsInfo(
-                unit=UnitSystem.celsius.value,
-                min=10.0,
-                max=40.0,
-                step=0.5,
-                value=25.0,
-                name="Mean Radiant Temperature",
-                id=ElementsIDs.t_r_input.value,
-            ),
-            ModelInputsInfo(
-                unit=UnitSystem.celsius.value,
-                min=10.0,
-                max=33.5,
-                step=0.5,
-                value=25.0,
-                name="Outdoor running mean outdoor temperature",
-                id=ElementsIDs.t_rm_input.value,
-            ),
-            ModelInputsInfo(
-                unit=UnitSystem.m_s.value,
-                min=0.1,
+                min=0.0,
                 max=2.0,
                 step=0.1,
                 value=0.1,
@@ -615,6 +477,8 @@ class HumiditySelection(Enum):
 
 
 class MetabolicRateSelection(Enum):
+    sleeping: str = "Sleeping: 0.7"
+    reclining: str = "Reclining: 0.8"
     seated_quiet: str = "Seated, quite: 1.0"
     reading_seated: str = "Reading, seated: 1.0"
     writing: str = "Writing: 1.0"

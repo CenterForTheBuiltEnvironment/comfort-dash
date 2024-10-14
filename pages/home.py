@@ -2,7 +2,12 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
-from components.charts import t_rh_pmv, chart_selector, adaptive_en_chart
+from components.charts import (
+    t_rh_pmv,
+    chart_selector,
+    SET_outputs_chart,
+    pmot_ot_adaptive_ashrae,
+)
 from components.dropdowns import (
     model_selection,
 )
@@ -20,10 +25,10 @@ from utils.my_config_file import (
     Charts,
     ChartsInfo,
     MyStores,
-    Functionalities,
 )
-import plotly.graph_objects as go
+
 from urllib.parse import parse_qs, urlencode
+
 
 dash.register_page(__name__, path=URLS.HOME.value)
 
@@ -66,7 +71,6 @@ layout = dmc.Stack(
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
                             dcc.Location(id=ElementsIDs.URL.value, refresh=False),
-                            dcc.Store(id=ElementsIDs.INITIAL_URL.value, storage_type="memory"),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -78,8 +82,6 @@ layout = dmc.Stack(
 )
 
 
-# Todo adding reflecting value to the url
-# done
 @callback(
     Output(MyStores.input_data.value, "data"),
     Output(ElementsIDs.URL.value, "search", allow_duplicate=True),
@@ -93,6 +95,7 @@ layout = dmc.Stack(
     State(ElementsIDs.MODEL_SELECTION.value, "value"),
     prevent_initial_call=True,
 )
+# save the inputs in the store, and update the URL
 def update_store_inputs(
     form_clicks: int,
     form_content: dict,
@@ -103,74 +106,69 @@ def update_store_inputs(
     functionality_selection: str,
     selected_model: str,
 ):
+    if form_clicks is None:
+        return no_update, no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    inputs = get_inputs(
-        selected_model, form_content, units, functionality_selection, type="input"
-    )
+    inputs = get_inputs(selected_model, form_content, units)
+
+    if ctx.triggered:
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if triggered_id == ElementsIDs.clo_input.value:
+            inputs[ElementsIDs.clo_input.value] = float(clo_value)
+        if triggered_id == ElementsIDs.met_input.value:
+            inputs[ElementsIDs.met_input.value] = float(met_value)
 
     inputs[ElementsIDs.UNIT_TOGGLE.value] = units
     inputs[ElementsIDs.MODEL_SELECTION.value] = selected_model
     inputs[ElementsIDs.chart_selected.value] = chart_selected
     inputs[ElementsIDs.functionality_selection.value] = functionality_selection
 
+    # encode the inputs to be used in the URL
     url_search = f"?{urlencode(inputs)}"
+    # print(f"url_params: {url_data}")
 
     return inputs, url_search
 
 
-# keep data persistent in the store
-@callback(
-    Output(ElementsIDs.INPUT_SECTION.value, "children"),
-    Input(ElementsIDs.MODEL_SELECTION.value, "value"),
-    Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
-    Input(ElementsIDs.functionality_selection.value, "value"),
-)
-def update_inputs(selected_model, units_selection, function_selection):
-    if selected_model is None:
-        return no_update
-    units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    return (
-        input_environmental_personal(selected_model, units, function_selection),
-    )
-
-
-# once function: update_inputs via URL, update the value of the model dropdown, unit toggle and functionality dropdown and chart dropdown, and inputs, it only use once when the page is loaded
 @callback(
     Output(ElementsIDs.MODEL_SELECTION.value, "value"),
-    Output(ElementsIDs.INPUT_SECTION.value, "children", allow_duplicate=True),
-    Output(ElementsIDs.chart_selected.value, "value"),
-    Output(ElementsIDs.functionality_selection.value, "value"),
-    Output(ElementsIDs.UNIT_TOGGLE.value, "checked"),
-    Output(ElementsIDs.INITIAL_URL.value, "data"),
+    Output(ElementsIDs.INPUT_SECTION.value, "children"),
     Input(ElementsIDs.URL.value, "search"),
-    State(ElementsIDs.INITIAL_URL.value, "data"),
-    prevent_initial_call=True,
+    State(MyStores.input_data.value, "data"),
+    State(ElementsIDs.UNIT_TOGGLE.value, "checked"),
 )
-def update_page_from_url(url_search, url_initialized):
-    if url_initialized or url_search is None:
-        return no_update, no_update, no_update, no_update, no_update, no_update
-
+def update_model_and_inputs(url_search, stored_data, units_selection):
+    # Parse URL parameters
     url_params = parse_qs(url_search.lstrip("?"))
     url_params = {k: v[0] if len(v) == 1 else v for k, v in url_params.items()}
 
-    selected_model = url_params.get(ElementsIDs.MODEL_SELECTION.value)
-    if selected_model is None:
-        return no_update, no_update, no_update, no_update, no_update, no_update
-    units = url_params.get(ElementsIDs.UNIT_TOGGLE.value)
-    function_selection = url_params.get(ElementsIDs.functionality_selection.value)
-    chart_selected = url_params.get(ElementsIDs.chart_selected.value)
-    inputs = get_inputs(
-        selected_model, url_params, units, function_selection, type="url"
+    # If URL parameters exist, use them; otherwise, fall back to stored data
+    params = url_params if url_params else (stored_data or {})
+
+    # Get the selected model from params, or use the default if not found
+    selected_model = params.get(
+        ElementsIDs.MODEL_SELECTION.value, Models.PMV_ashrae.name
     )
 
-    return (
-        selected_model,
-        input_environmental_personal(selected_model, units, function_selection),
-        chart_selected,
-        function_selection,
-        units == UnitSystem.IP.value,
-        True,  # Mark URL as initialized
+    units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
+
+    # Convert numeric strings to float
+    for key, value in params.items():
+        try:
+            params[key] = float(value)
+        except (ValueError, TypeError):
+            pass
+
+    # Ensure that the unit toggle and model selection are always respected
+    params[ElementsIDs.UNIT_TOGGLE.value] = units
+    params[ElementsIDs.MODEL_SELECTION.value] = selected_model
+
+    # Update the input section
+    input_section = input_environmental_personal(
+        selected_model, units, url_params=params
     )
+
+    return selected_model, input_section
 
 
 @callback(
@@ -192,31 +190,25 @@ def update_note_model(selected_model):
 @callback(
     Output(ElementsIDs.charts_dropdown.value, "children"),
     Input(ElementsIDs.MODEL_SELECTION.value, "value"),
-    Input(ElementsIDs.functionality_selection.value, "value"),
-    Input(ElementsIDs.chart_selected.value, "value"),
 )
-def update_note_model(selected_model, function_selection, chart_selected):
+def update_note_model(selected_model):
     if selected_model is None:
         return no_update
-    return chart_selector(
-        selected_model=selected_model,
-        function_selection=function_selection,
-        chart_selected=chart_selected,
-    )
+    return chart_selector(selected_model=selected_model)
 
 
 @callback(
     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
     Input(MyStores.input_data.value, "data"),
-    Input(ElementsIDs.functionality_selection.value, "value"),
 )
-def update_chart(inputs: dict, function_selection: str):
+def update_chart(
+    inputs: dict,
+):
     selected_model: str = inputs[ElementsIDs.MODEL_SELECTION.value]
     units: str = inputs[ElementsIDs.UNIT_TOGGLE.value]
     chart_selected = inputs[ElementsIDs.chart_selected.value]
-    function_selection = inputs[ElementsIDs.functionality_selection.value]
 
-    placeholder = html.Div(
+    image = html.Div(
         [
             dmc.Title("Unfortunately this chart has not been implemented yet", order=4),
             dmc.Image(
@@ -224,35 +216,17 @@ def update_chart(inputs: dict, function_selection: str):
             ),
         ]
     )
-    image = go.Figure()
 
     if chart_selected == Charts.t_rh.value.name:
-        if (
-            selected_model == Models.PMV_EN.name
-            and function_selection != Functionalities.Ranges.value
-        ):
-            image = t_rh_pmv(
-                inputs=inputs,
-                model="iso",
-                function_selection=function_selection,
-                units=units,
-            )
-        elif (
-            selected_model == Models.PMV_ashrae.name
-            and function_selection != Functionalities.Ranges.value
-        ):
-            image = t_rh_pmv(
-                inputs=inputs,
-                model="ashrae",
-                function_selection=function_selection,
-                units=units,
-            )
-
-    if (
-        selected_model == Models.Adaptive_EN.name
-        and function_selection == Functionalities.Default.value
-    ):
-        image = adaptive_en_chart(inputs=inputs, units=units)
+        if selected_model == Models.PMV_EN.name:
+            image = t_rh_pmv(inputs=inputs, model="iso")
+        elif selected_model == Models.PMV_ashrae.name:
+            image = t_rh_pmv(inputs=inputs, model="ashrae")
+    if chart_selected == Charts.set_outputs.value.name:
+        image = SET_outputs_chart(inputs=inputs)
+    if chart_selected == Charts.pmot_ot.value.name:
+        if selected_model == Models.Adaptive_ASHRAE.name:
+            image = pmot_ot_adaptive_ashrae(inputs=inputs, model="ashrae")
 
     note = ""
     chart: ChartsInfo
@@ -260,18 +234,9 @@ def update_chart(inputs: dict, function_selection: str):
         if chart.name == chart_selected:
             note = chart.note_chart
 
-    graph_component = (
-        placeholder
-        if not image.data
-        else dcc.Graph(
-            id=ElementsIDs.GRAPH_HOVER.value,
-            figure=image,  # Pass the Plotly figure object here
-        )
-    )
-
     return dmc.Stack(
         [
-            graph_component,
+            image,
             html.Div(
                 [
                     dmc.Text("Note: ", size="sm", fw=700, span=True),
