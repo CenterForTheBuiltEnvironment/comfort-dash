@@ -1,7 +1,8 @@
 import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, State
-
+from components.drop_down_inline import generate_dropdown_selection
+from components.dropdowns import options
 from utils.my_config_file import (
     ModelInputsInfo,
     Models,
@@ -10,12 +11,16 @@ from utils.my_config_file import (
     UnitSystem,
     MetabolicRateSelection,
     ClothingSelection,
+    Functionalities,
+    AdaptiveENSpeeds,
 )
 from utils.website_text import (
     TextWarning,
 )
 import dash
 from components.show_results import display_results
+import time
+
 
 
 def modal_custom_ensemble():
@@ -305,7 +310,7 @@ def modal_custom_ensemble():
 def input_environmental_personal(
     selected_model: str = "PMV_ashrae",
     units: str = UnitSystem.SI.value,
-    url_params: dict = None,
+    function_selection: str = Functionalities.Default.value,
 ):
     inputs = []
     all_inputs = set()
@@ -313,34 +318,109 @@ def input_environmental_personal(
     for model in Models:
         for input_info in model.value.inputs:
             all_inputs.add(input_info.id)
+        if (
+            selected_model in [Models.PMV_ashrae.name]
+            and function_selection == Functionalities.Default.value
+        ):
+            for input_info in Models.PMV_ashrae.value.inputs2:
+                all_inputs.add(input_info.id)
 
     model_inputs = Models[selected_model].value.inputs
     model_inputs = convert_units(model_inputs, units)
 
-    values: ModelInputsInfo
-    for values in model_inputs:
-        # print(f"input_values: {values}")
-        if (
-            values.id == ElementsIDs.met_input.value
-            or values.id == ElementsIDs.clo_input.value
-        ):
-            inputs.append(create_autocomplete(values, url_params))
-        else:
-            # if the value is not in the URL params, use the default value
-            default_value = (
-                url_params.get(values.id, values.value) if url_params else values.value
-            )
+    def shared_label_and_description(values):
+        return dmc.Stack(
+            [
+                dmc.Text(f"{values.name} ({values.unit})", size="sm"),
+                dmc.Text(f"From {values.min} to {values.max}", size="xs", c="gray"),
+            ],
+            gap=0,
+        )
 
-            input_filed = dmc.NumberInput(
-                label=values.name + " (" + values.unit + ")",
-                description=f"From {values.min} to {values.max}",
-                value=default_value,
-                min=values.min,
-                max=values.max,
-                step=values.step,
-                id=values.id,
-            )
-            inputs.append(input_filed)
+    model_inputs2 = (
+        convert_units(Models[selected_model].value.inputs2, units)
+        if function_selection == Functionalities.Compare.value
+        and selected_model in [Models.PMV_ashrae.name]
+        else None
+    )
+
+    for idx, values in enumerate(model_inputs):
+        input_id = values.id
+        if input_id in all_inputs:
+            default_input = None
+            input_stack = None
+            if input_id in {ElementsIDs.met_input.value, ElementsIDs.clo_input.value}:
+                default_input = create_autocomplete(values)
+            elif (
+                selected_model == Models.Adaptive_EN.name
+                or selected_model == Models.Adaptive_ASHRAE.name
+            ) and input_id == ElementsIDs.v_input.value:
+                default_input = create_select_component(values)
+            else:
+                default_input = dmc.NumberInput(
+                    value=values.value,
+                    min=values.min,
+                    max=values.max,
+                    step=values.step,
+                    id=values.id,
+                    debounce=True,
+                )
+
+            if function_selection == Functionalities.Compare.value and model_inputs2:
+                comparison_values = model_inputs2[idx]
+
+                if comparison_values.id in {
+                    ElementsIDs.met_input_input2.value,
+                    ElementsIDs.clo_input_input2.value,
+                }:
+                    comparision_input = create_autocomplete(comparison_values)
+                    input_stack = dmc.Stack(
+                        [
+                            shared_label_and_description(values),
+                            dmc.Grid(
+                                children=[
+                                    dmc.GridCol(default_input, span={"base": 6}),
+                                    dmc.GridCol(comparision_input, span={"base": 6}),
+                                ],
+                                gutter="xs",
+                            ),
+                        ],
+                        gap=0,
+                    )
+                else:
+                    right_input = dmc.NumberInput(
+                        value=comparison_values.value,
+                        min=comparison_values.min,
+                        max=comparison_values.max,
+                        step=comparison_values.step,
+                        id=comparison_values.id,
+                    )
+                    input_stack = dmc.Stack(
+                        [
+                            shared_label_and_description(values),
+                            dmc.Grid(
+                                children=[
+                                    dmc.GridCol(default_input, span={"base": 6}),
+                                    dmc.GridCol(right_input, span={"base": 6}),
+                                ],
+                                gutter="xs",
+                            ),
+                        ],
+                        gap=0,
+                    )
+            else:
+                input_stack = dmc.Stack(
+                    [
+                        shared_label_and_description(values),
+                        default_input,
+                    ],
+                    gap=0,
+                )
+            inputs.append(input_stack)
+
+    for input_id in all_inputs:
+        if input_id not in [input_info.id for input_info in model_inputs]:
+            inputs.append(html.Div(style={"display": "none"}, id=input_id))
 
     unit_toggle = dmc.Center(
         dmc.Switch(
@@ -349,11 +429,13 @@ def input_environmental_personal(
             checked=units == UnitSystem.IP.value,
         )
     )
-
     inputs.append(unit_toggle)
-    # show custom ensemble button
+
     custom_ensemble_button = None
-    if selected_model in [Models.PMV_EN.name, Models.PMV_ashrae.name]:
+    if (
+        selected_model in [Models.PMV_EN.name, Models.PMV_ashrae.name]
+        and function_selection == Functionalities.Default.value
+    ):
         custom_ensemble_button = dmc.Button(
             "Custom Ensemble",
             id=ElementsIDs.modal_custom_ensemble_open.value,
@@ -366,6 +448,9 @@ def input_environmental_personal(
                     html.Form(
                         dmc.Grid(
                             children=[
+                                dmc.GridCol(
+                                    dmc.Text("Inputs", fw=700),
+                                ),
                                 dmc.GridCol(
                                     dmc.Stack(inputs, gap="xs"), span={"base": 12}
                                 ),
@@ -400,7 +485,6 @@ def input_environmental_personal(
     prevent_initial_call=True,
 )
 def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened, selected_model):
-
     ctx = dash.callback_context.triggered_id
 
     if ctx == ElementsIDs.modal_custom_ensemble_open.value:
@@ -441,23 +525,52 @@ def handle_modal(clo_value, _nc_open, _nc_close, _nc_submit, opened, selected_mo
     return opened, dash.no_update, "none", dash.no_update
 
 
-def create_autocomplete(values: ModelInputsInfo, url_params: dict):
-    default_value = (
-        url_params.get(values.id, values.value) if url_params else values.value
-    )
+def create_autocomplete(values: ModelInputsInfo):
     return dmc.Autocomplete(
         id=values.id,
-        label=f"{values.name} ({values.unit})",
+        # label=f"{values.name} ({values.unit})",
         placeholder=f"Enter a value or select a {values.name}",
         data=[],
-        value=str(default_value),
-        description=f"From {values.min} to {values.max}",
+        value=str(values.value),
+        # description=f"From {values.min} to {values.max}",
     )
 
 
-def update_options(input_value, options, selection_enum):
-    if input_value is None or input_value == "":
+def create_select_component(values: ModelInputsInfo):
+    air_speed_box = {
+        "id": ElementsIDs.v_input.value,
+        "question": None,
+        "options": [speed.value for speed in AdaptiveENSpeeds],
+        "multi": False,
+        "default": values.value,
+    }
+    return generate_dropdown_selection(
+        air_speed_box, clearable=False, only_dropdown=True
+    )
+
+
+
+def get_min_max_range(model, input_type):
+    model_info = Models[model].value
+    for input_info in model_info.inputs:
+        if input_type == "metabolic_rate" and input_info.id == ElementsIDs.met_input.value:
+            return input_info.min, input_info.max
+        elif input_type == "clothing_level" and input_info.id == ElementsIDs.clo_input.value:
+            return input_info.min, input_info.max
+    return None
+
+
+def update_options(input_value, selection_enum, model, input_type):
+    range_result = get_min_max_range(model, input_type)
+
+    # If range_result is None, it means the input type is not applicable for this model
+    if range_result is None:
         return [], ""
+
+    min_value, max_value = range_result
+
+    if input_value is None or input_value == "":
+        return [option.value for option in selection_enum], ""
 
     option_values = [option.value for option in selection_enum]
 
@@ -466,11 +579,14 @@ def update_options(input_value, options, selection_enum):
 
     try:
         input_number = float(input_value)
+        if input_number < min_value:
+            return option_values, min_value
+        elif input_number > max_value:
+            return option_values, max_value
+
         filtered_options = []
         for option in selection_enum:
-            # Extract the value
             option_value = float(option.value.split(":")[-1].strip().split()[0])
-            # Perform comparison
             if abs(option_value - input_number) < 1:
                 filtered_options.append(option.value)
 
@@ -486,21 +602,31 @@ def update_options(input_value, options, selection_enum):
     return filtered_options, input_value
 
 
-@callback(
-    Output(ElementsIDs.met_input.value, "data"),
-    Output(ElementsIDs.met_input.value, "value"),
-    Input(ElementsIDs.met_input.value, "value"),
-    State(ElementsIDs.met_input.value, "data"),
-)
-def update_metabolic_rate_options(input_value, _):
-    return update_options(input_value, MetabolicRateSelection, MetabolicRateSelection)
+def create_and_update_callback(element_id, selection_enum, input_type):
+    @callback(
+        Output(element_id, "data"),
+        Output(element_id, "value"),
+        Input(element_id, "value"),
+        State(element_id, "data"),
+        State(ElementsIDs.MODEL_SELECTION.value, "value"),
+    )
+    def callback_function(input_value, _, selected_model):
+        return update_options(input_value, selection_enum, selected_model, input_type)
+
+    return callback_function
 
 
-@callback(
-    Output(ElementsIDs.clo_input.value, "data"),
-    Output(ElementsIDs.clo_input.value, "value"),
-    Input(ElementsIDs.clo_input.value, "value"),
-    State(ElementsIDs.clo_input.value, "data"),
+update_metabolic_rate_options = create_and_update_callback(
+    ElementsIDs.met_input.value, MetabolicRateSelection, "metabolic_rate"
 )
-def update_clothing_level_options(input_value, _):
-    return update_options(input_value, ClothingSelection, ClothingSelection)
+update_clothing_level_options = create_and_update_callback(
+    ElementsIDs.clo_input.value, ClothingSelection, "clothing_level"
+)
+update_metabolic_rate_options_input2 = create_and_update_callback(
+    ElementsIDs.met_input_input2.value, MetabolicRateSelection, "metabolic_rate"
+)
+update_clothing_level_options_input2 = create_and_update_callback(
+    ElementsIDs.clo_input_input2.value, ClothingSelection, "clothing_level"
+)
+
+
