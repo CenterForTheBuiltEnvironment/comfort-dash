@@ -122,7 +122,7 @@ def find_tdb_for_pmv(
     )
 
 
-def psy_ashrae_pmv(
+def psy_pmv(
     inputs: dict = None,
     model: str = "ASHRAE",
     units: str = "SI",
@@ -153,9 +153,12 @@ def psy_ashrae_pmv(
 
     traces = []
 
-    # blue area
+    # if model is PMV-ASHRAE plot blue area, else plot green areas
     rh_values = np.arange(0, 110, 10)
-    pmv_targets = [-0.5, 0.5]
+    if model == "ASHRAE":
+        pmv_targets = [-0.5, 0.5]
+    else:
+        pmv_targets = [-0.7, -0.5, -0.2, 0.2, 0.5, 0.7]
     tdb_array = np.zeros((len(pmv_targets), len(rh_values)))
 
     for j, pmv_target in enumerate(pmv_targets):
@@ -172,44 +175,140 @@ def psy_ashrae_pmv(
             tdb_array[j, i] = tdb_solution
 
     # calculate hr
-
-    lower_upper_tdb = np.append(tdb_array[0], tdb_array[1][::-1])
-    lower_upper_tdb = [
-        round(float(value), 1) for value in lower_upper_tdb.tolist()
-    ]  # convert to list & round to 1 decimal
-
     rh_list = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
-    # define
-    lower_upper_hr = []
-    for i in range(len(rh_list)):
-        lower_upper_hr.append(
-            psy_ta_rh(tdb=lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
-        )
+    if model == "ASHRAE":
+        lower_upper_tdb = np.append(tdb_array[0], tdb_array[1][::-1])
+        lower_upper_tdb = [
+            round(float(value), 1) for value in lower_upper_tdb.tolist()
+        ]  # convert to list & round to 1 decimal
+        # define
+        lower_upper_hr = []
+        for i in range(len(rh_list)):
+            lower_upper_hr.append(
+                psy_ta_rh(tdb=lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
+            )
 
-    lower_upper_hr = [
-        round(float(value), 1) for value in lower_upper_hr
-    ]  # convert to list & round to 1 decimal
+        lower_upper_hr = [
+            round(float(value), 1) for value in lower_upper_hr
+        ]  # convert to list & round to 1 decimal
 
-    if units == UnitSystem.IP.value:
-        lower_upper_tdb = list(
-            map(
-                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
-                lower_upper_tdb,
+        if units == UnitSystem.IP.value:
+            lower_upper_tdb = list(
+                map(
+                    lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                    lower_upper_tdb,
+                )
+            )
+
+        traces.append(
+            go.Scatter(
+                x=lower_upper_tdb,
+                y=lower_upper_hr,
+                mode="lines",
+                line=dict(color="rgba(0,0,0,0)"),
+                fill="toself",
+                fillcolor="rgba(59, 189, 237, 0.7)",
+                showlegend=False,
+                hoverinfo="none",
             )
         )
+    else:
+        iii_lower_upper_tdb = np.append(tdb_array[0], tdb_array[5][::-1])
+        ii_lower_upper_tdb = np.append(tdb_array[1], tdb_array[4][::-1])
+        i_lower_upper_tdb = np.append(tdb_array[2], tdb_array[3][::-1])
+        iii_lower_upper_tdb = [
+            round(float(value), 1) for value in iii_lower_upper_tdb.tolist()
+        ]  # convert to list & round to 1 decimal
+        ii_lower_upper_tdb = [
+            round(float(value), 1) for value in ii_lower_upper_tdb.tolist()
+        ]  # convert to list & round to 1 decimal
+        i_lower_upper_tdb = [
+            round(float(value), 1) for value in i_lower_upper_tdb.tolist()
+        ]  # convert to list & round to 1 decimal
+        # define
+        iii_lower_upper_hr = []
+        ii_lower_upper_hr = []
+        i_lower_upper_hr = []
+        for i in range(len(rh_list)):
+            iii_lower_upper_hr.append(
+                psy_ta_rh(tdb=iii_lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
+            )
+            ii_lower_upper_hr.append(
+                psy_ta_rh(tdb=ii_lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
+            )
+            i_lower_upper_hr.append(
+                psy_ta_rh(tdb=i_lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
+            )
 
-    traces.append(
-        go.Scatter(
-            x=lower_upper_tdb,
-            y=lower_upper_hr,
-            mode="lines",
-            line=dict(color="rgba(0,0,0,0)"),
-            fill="toself",
-            fillcolor="rgba(59, 189, 237, 0.7)",
-            showlegend=False,
-            hoverinfo="none",
+        iii_lower_upper_hr = [
+            round(float(value), 1) for value in iii_lower_upper_hr
+        ]  # convert to list & round to 1 decimal
+        ii_lower_upper_hr = [
+            round(float(value), 1) for value in ii_lower_upper_hr
+        ]  # convert to list & round to 1 decimal
+        i_lower_upper_hr = [
+            round(float(value), 1) for value in i_lower_upper_hr
+        ]  # convert to list & round to 1 decimal
+
+        if units == UnitSystem.IP.value:
+            iii_lower_upper_tdb = list(
+                map(
+                    lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                    iii_lower_upper_tdb,
+                )
+            )
+            ii_lower_upper_tdb = list(
+                map(
+                    lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                    ii_lower_upper_tdb,
+                )
+            )
+            i_lower_upper_tdb = list(
+                map(
+                    lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                    i_lower_upper_tdb,
+                )
+            )
+
+        # category III
+        traces.append(
+            go.Scatter(
+                x=iii_lower_upper_tdb,
+                y=iii_lower_upper_hr,
+                mode="lines",
+                line=dict(color="rgba(0,0,0,0)"),
+                fill="toself",
+                fillcolor="rgba(28,128,28,0.2)",
+                showlegend=False,
+                hoverinfo="none",
+            )
         )
-    )
+        # category II
+        traces.append(
+            go.Scatter(
+                x=ii_lower_upper_tdb,
+                y=ii_lower_upper_hr,
+                mode="lines",
+                line=dict(color="rgba(0,0,0,0)"),
+                fill="toself",
+                fillcolor="rgba(28,128,28,0.3)",
+                showlegend=False,
+                hoverinfo="none",
+            )
+        )
+        # category I
+        traces.append(
+            go.Scatter(
+                x=i_lower_upper_tdb,
+                y=i_lower_upper_hr,
+                mode="lines",
+                line=dict(color="rgba(0,0,0,0)"),
+                fill="toself",
+                fillcolor="rgba(28,128,28,0.4)",
+                showlegend=False,
+                hoverinfo="none",
+            )
+        )
 
     # current point
     # Red point
@@ -241,299 +340,6 @@ def psy_ashrae_pmv(
 
     # lines
 
-    rh_list = np.arange(0, 110, 10, dtype=float).tolist()
-    tdb_list = np.linspace(10, 36, 500, dtype=float).tolist()
-    if units == UnitSystem.IP.value:
-        tdb_list_conv = list(
-            map(
-                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
-                tdb_list,
-            )
-        )
-    else:
-        tdb_list_conv = tdb_list
-
-    for rh in rh_list:
-        hr_list = np.array(
-            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb_list]
-        )  # kg/kg => g/kg
-        trace = go.Scatter(
-            x=tdb_list_conv,
-            y=hr_list,
-            mode="lines",
-            line=dict(color="grey", width=1),
-            hoverinfo="none",
-            name=f"{rh}% RH",
-            showlegend=False,
-        )
-        traces.append(trace)
-
-    # add transparent grid
-    x_range = (
-        np.linspace(10, 36, 100)
-        if units == UnitSystem.SI.value
-        else np.linspace(50, 96.8, 100)
-    )
-    y_range = np.linspace(0, 30, 100)
-    xx, yy = np.meshgrid(x_range, y_range)
-
-    traces.append(
-        go.Scatter(
-            x=xx.flatten(),
-            y=yy.flatten(),
-            mode="markers",
-            marker=dict(size=2, color="rgba(0,0,0,0)"),
-            hoverinfo="x+y",
-            name="Interactive Hover Area",
-            showlegend=False,
-        )
-    )
-
-    if units == UnitSystem.SI.value:
-        temperature_unit = "°C"
-        hr_unit = "g<sub>w</sub>/kg<sub>da</sub>"
-        h_unit = "kJ/kg"
-    else:
-        temperature_unit = "°F"
-        hr_unit = "lb<sub>w</sub>/klb<sub>da</sub>"
-        h_unit = "btu/lb"
-
-    # layout
-    layout = go.Layout(
-        hovermode="closest",
-        xaxis=dict(
-            title=(
-                "Dry-bulb Temperature [°C]"
-                if units == UnitSystem.SI.value
-                else "operative Temperature [°F]"
-            ),
-            range=[10, 36] if units == UnitSystem.SI.value else [50, 96.8],
-            dtick=2,
-            showgrid=True,
-            showline=True,
-            linewidth=1.5,
-            linecolor="lightgrey",
-        ),
-        yaxis=dict(
-            title=(
-                "Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]"
-                if units == UnitSystem.SI.value
-                else "Humidity ratio [lb<sub>w</sub>/klb<sub>da</sub>]"
-            ),
-            range=[0, 30],
-            dtick=5,
-            showgrid=True,
-            showline=True,
-            linewidth=1.5,
-            linecolor="lightgrey",
-            side="right",
-        ),
-        annotations=[
-            dict(
-                x=14 if units == UnitSystem.SI.value else 57.2,
-                y=28,
-                xref="x",
-                yref="y",
-                text=(
-                    f"t<sub>db</sub>: {tdb:.1f} {temperature_unit}<br>"
-                    f"rh: {p_rh:.1f} %<br>"
-                    f"W<sub>a</sub>: {hr} {hr_unit}<br>"
-                    f"t<sub>wb</sub>: {t_wb} {temperature_unit}<br>"
-                    f"t<sub>dp</sub>: {t_dp} {temperature_unit}<br>"
-                    f"h: {h} {h_unit}"
-                ),
-                showarrow=False,
-                align="left",
-                bgcolor="rgba(255,255,255,0.8)",
-                bordercolor="rgba(0,0,0,0)",
-                font=dict(size=14),
-            )
-        ],
-        showlegend=True,
-        plot_bgcolor="white",
-    )
-
-    fig = go.Figure(data=traces, layout=layout)
-    return fig
-
-
-def generate_tdb_hr_chart(
-    inputs: dict = None,
-    model: str = "ISO",
-    units: str = "SI",
-):
-
-    p_tdb = inputs[ElementsIDs.t_db_input.value]
-    tr = float(inputs[ElementsIDs.t_r_input.value])
-    vr = float(
-        v_relative(  # Ensure vr is scalar
-            v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
-        )
-    )
-    p_rh = float(inputs[ElementsIDs.rh_input.value])
-    met = float(inputs[ElementsIDs.met_input.value])
-    clo = float(
-        clo_dynamic(  # Ensure clo is scalar
-            clo=inputs[ElementsIDs.clo_input.value],
-            met=inputs[ElementsIDs.met_input.value],
-        )
-    )
-    # save original values for plotting
-    if units == UnitSystem.IP.value:
-        tdb = round(float(units_converter(tdb=p_tdb)[0]), 1)
-        tr = round(float(units_converter(tr=tr)[0]), 1)
-        vr = round(float(units_converter(vr=vr)[0]), 1)
-    else:
-        tdb = p_tdb
-
-    traces = []
-
-    # green area
-    rh_values = np.arange(0, 110, 10)
-    pmv_targets = [-0.7, -0.5, -0.2, 0.2, 0.5, 0.7]
-    tdb_array = np.zeros((len(pmv_targets), len(rh_values)))
-
-    for j, pmv_target in enumerate(pmv_targets):
-        for i, rh_value in enumerate(rh_values):
-            tdb_solution = find_tdb_for_pmv(
-                target_pmv=pmv_target,
-                tr=tr,
-                vr=vr,
-                rh=rh_value,
-                met=met,
-                clo=clo,
-                standard=model,
-            )
-            tdb_array[j, i] = tdb_solution
-
-    # hr
-    iii_lower_upper_tdb = np.append(tdb_array[0], tdb_array[5][::-1])
-    ii_lower_upper_tdb = np.append(tdb_array[1], tdb_array[4][::-1])
-    i_lower_upper_tdb = np.append(tdb_array[2], tdb_array[3][::-1])
-    iii_lower_upper_tdb = [
-        round(float(value), 1) for value in iii_lower_upper_tdb.tolist()
-    ]  # convert to list & round to 1 decimal
-    ii_lower_upper_tdb = [
-        round(float(value), 1) for value in ii_lower_upper_tdb.tolist()
-    ]  # convert to list & round to 1 decimal
-    i_lower_upper_tdb = [
-        round(float(value), 1) for value in i_lower_upper_tdb.tolist()
-    ]  # convert to list & round to 1 decimal
-
-    rh_list = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
-    # define
-    iii_lower_upper_hr = []
-    ii_lower_upper_hr = []
-    i_lower_upper_hr = []
-    for i in range(len(rh_list)):
-        iii_lower_upper_hr.append(
-            psy_ta_rh(tdb=iii_lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
-        )
-        ii_lower_upper_hr.append(
-            psy_ta_rh(tdb=ii_lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
-        )
-        i_lower_upper_hr.append(
-            psy_ta_rh(tdb=i_lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
-        )
-
-    iii_lower_upper_hr = [
-        round(float(value), 1) for value in iii_lower_upper_hr
-    ]  # convert to list & round to 1 decimal
-    ii_lower_upper_hr = [
-        round(float(value), 1) for value in ii_lower_upper_hr
-    ]  # convert to list & round to 1 decimal
-    i_lower_upper_hr = [
-        round(float(value), 1) for value in i_lower_upper_hr
-    ]  # convert to list & round to 1 decimal
-
-    if units == UnitSystem.IP.value:
-        iii_lower_upper_tdb = list(
-            map(
-                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
-                iii_lower_upper_tdb,
-            )
-        )
-        ii_lower_upper_tdb = list(
-            map(
-                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
-                ii_lower_upper_tdb,
-            )
-        )
-        i_lower_upper_tdb = list(
-            map(
-                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
-                i_lower_upper_tdb,
-            )
-        )
-
-    # category III
-    traces.append(
-        go.Scatter(
-            x=iii_lower_upper_tdb,
-            y=iii_lower_upper_hr,
-            mode="lines",
-            line=dict(color="rgba(0,0,0,0)"),
-            fill="toself",
-            fillcolor="rgba(28,128,28,0.2)",
-            showlegend=False,
-            hoverinfo="none",
-        )
-    )
-    # category II
-    traces.append(
-        go.Scatter(
-            x=ii_lower_upper_tdb,
-            y=ii_lower_upper_hr,
-            mode="lines",
-            line=dict(color="rgba(0,0,0,0)"),
-            fill="toself",
-            fillcolor="rgba(28,128,28,0.3)",
-            showlegend=False,
-            hoverinfo="none",
-        )
-    )
-    # category I
-    traces.append(
-        go.Scatter(
-            x=i_lower_upper_tdb,
-            y=i_lower_upper_hr,
-            mode="lines",
-            line=dict(color="rgba(0,0,0,0)"),
-            fill="toself",
-            fillcolor="rgba(28,128,28,0.4)",
-            showlegend=False,
-            hoverinfo="none",
-        )
-    )
-
-    # Red point
-    psy_results = psy_ta_rh(tdb, p_rh)
-    hr = round(float(psy_results["hr"]) * 1000, 1)
-    t_wb = round(float(psy_results["t_wb"]), 1)
-    t_dp = round(float(psy_results["t_dp"]), 1)
-    h = round(float(psy_results["h"]) / 1000, 1)
-
-    if units == UnitSystem.IP.value:
-        t_wb = round(float(units_converter(tmp=t_wb, from_units="si")[0]), 1)
-        t_dp = round(float(units_converter(tmp=t_dp, from_units="si")[0]), 1)
-        h = round(float(h / 2.326), 1)  # kJ/kg => btu/lb
-        tdb = p_tdb
-
-    traces.append(
-        go.Scatter(
-            x=[tdb],
-            y=[hr],
-            mode="markers",
-            marker=dict(
-                color="red",
-                size=6,
-            ),
-            showlegend=False,
-            hoverinfo="none",
-        )
-    )
-
-    # line
     rh_list = np.arange(0, 110, 10, dtype=float).tolist()
     tdb_list = np.linspace(10, 36, 500, dtype=float).tolist()
     if units == UnitSystem.IP.value:
