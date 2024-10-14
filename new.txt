@@ -1,0 +1,183 @@
+def t_ra_pmv(inputs: dict = None, model: str = "iso"):
+    results = []
+    pmv_limits = [-0.5, 0.5]  # PMV upper and lower limits
+    pmv_value = 0
+    ppd_value = 0
+    cooling_effect_value = 0
+    a_pmv_value = 0
+    t_dp_value = 0
+    set_value = 0
+    t_sens_value = 0
+    
+    met = float(inputs[ElementsIDs.met_input.value])
+    clo = float(inputs[ElementsIDs.clo_input.value])
+    v = float(inputs[ElementsIDs.v_input.value])
+
+    clo_d = clo_dynamic(
+        clo = clo, met = met
+    )
+
+    vr_d = v_relative(
+        v = v, met = met
+    )
+
+    current_tr = float(inputs[ElementsIDs.t_r_input.value])
+    current_tdb = float(inputs[ElementsIDs.t_db_input.value])
+    current_rh = float(inputs[ElementsIDs.rh_input.value])
+    
+    
+    
+
+    psy_data = psy_ta_rh(tdb=current_tdb, rh=current_rh, p_atm=101325)["hr"] * 1000  
+    psy_data_rh = psy_data
+    print(f"current_tdb: {current_tdb}")
+    print(f"current_tr: {current_tr}")
+    print(f"vr_d: {vr_d}")
+    print(f"current_rh: {current_rh}")
+    print(f"met_d: {met}")
+    print(f"clo_d: {clo_d}")
+
+    
+    # Traverse the upper and lower limits of PMV and calculate different rh
+    for pmv_limit in pmv_limits:
+        for rh in np.arange(10, 110, 10):  # rh increases by 10% each time
+            
+            # Use optimize.brentq to calculate the temperature at a given rh
+            print("Function called")
+            def function(x):
+                print("Entered function")  # 确认函数是否被调用
+            
+                # Create a dictionary to store return values
+                intermediate_values = {
+                    "tdb": current_tdb,
+                    "tr": current_tr,
+                    "vr": vr_d,
+                    "rh": current_rh,
+                    "met": met,
+                    "clo": clo_d,
+                    "valid": True  # Initial assumption is that all values ​​are valid
+                }
+            
+                # Convert vr and clo to scalar values
+                intermediate_values["vr"] = intermediate_values["vr"].item() if hasattr(intermediate_values["vr"], 'item') else intermediate_values["vr"]
+                intermediate_values["clo"] = intermediate_values["clo"].item() if hasattr(intermediate_values["clo"], 'item') else intermediate_values["clo"]
+                print(f"Intermediate values: {intermediate_values}")  # 查看初始中间值
+            
+                # Check if the input is in the effective area
+                if not (10 < intermediate_values["tdb"] < 40):
+                    print(f"tdb {intermediate_values['tdb']} is out of range for ASHRAE limits.")
+                    intermediate_values["tdb"] = 11
+                    intermediate_values["valid"] = True
+                    
+                if not (10 < intermediate_values["tr"] < 40):
+                    print(f"tr {intermediate_values['tr']} is out of range for ASHRAE limits.")
+                    intermediate_values["tr"] = 11
+                    intermediate_values["valid"] = True
+            
+                if not (0 < intermediate_values["vr"] < 2):
+                    print(f"vr {intermediate_values['vr']} is out of range for ASHRAE limits.")
+                    intermediate_values["vr"] = 0.1
+                    intermediate_values["valid"] = True
+            
+                if not (1 < intermediate_values["met"] < 4):
+                    print(f"met {intermediate_values['met']} is out of range for ASHRAE limits.")
+                    intermediate_values["met"] = 1.1
+                    intermediate_values["valid"] = True
+            
+                if not (0 < intermediate_values["clo"] < 1.5):
+                    print(f"clo {intermediate_values['clo']} is out of range for ASHRAE limits.")
+                    intermediate_values["clo"] = 0.1
+                    intermediate_values["valid"] = True
+            
+                print("After range checks")  # 确保所有范围检查后继续执行
+            
+                # PMV/PPD with elevated air speed     
+                try:
+                    result = pmv_ppd(
+                        tdb=intermediate_values["tdb"],
+                        tr=intermediate_values["tr"],
+                        vr=intermediate_values["vr"],
+                        rh=intermediate_values["rh"],
+                        met=intermediate_values["met"],
+                        clo=intermediate_values["clo"]
+                    )
+                    pmv_value = result.get("pmv", None)
+                    ppd_value = result.get("ppd", None)
+                    print(f"PMV/PPD Result -> pmv_value: {pmv_value}, ppd_value: {ppd_value}")  # 打印PMV/PPD结果
+                except Exception as e:
+                    print(f"Error in pmv_ppd: {e}")
+            
+                # Cooling effect
+                try:
+                    result = cooling_effect(
+                        tdb=intermediate_values["tdb"],
+                        tr=intermediate_values["tr"],
+                        vr=intermediate_values["vr"],
+                        rh=intermediate_values["rh"],
+                        met=intermediate_values["met"],
+                        clo=intermediate_values["clo"]
+                    )
+                    cooling_effect_value = result.get("cooling_effect", None)
+                    print(f"Cooling effect result: {cooling_effect_value}")  # 打印Cooling effect结果
+                except Exception as e:
+                    print(f"Error in cooling_effect: {e}")
+            
+                # Relative air speed 
+                try:
+                    result = a_pmv(
+                        tdb=intermediate_values["tdb"],
+                        tr=intermediate_values["tr"],
+                        vr=intermediate_values["vr"],
+                        rh=intermediate_values["rh"],
+                        met=intermediate_values["met"],
+                        clo=intermediate_values["clo"]
+                    )
+                    a_pmv_value = result.get("a_pmv", None)
+                    print(f"Relative air speed result: {a_pmv_value}")  # 打印Relative air speed结果
+                except Exception as e:
+                    print(f"Error in a_pmv: {e}")
+            
+                # t_dp (Dry-bulb temperature at still air)
+                try:
+                    result = t_dp(
+                        tdb=intermediate_values["tdb"],
+                        rh=intermediate_values["rh"]
+                    )
+                    t_dp_value = result.get("t_dp", None)
+                    print(f"Dry-bulb temperature result: {t_dp_value}")  # 打印Dry-bulb temperature结果
+                except Exception as e:
+                    print(f"Error in t_dp: {e}")
+            
+                # Two nodes for sensation and SET
+                try:
+                    result = two_nodes(
+                        tdb=intermediate_values["tdb"],
+                        tr=intermediate_values["tr"],
+                        vr=intermediate_values["vr"],
+                        rh=intermediate_values["rh"],
+                        met=intermediate_values["met"],
+                        clo=intermediate_values["clo"]
+                    )
+                    set_value = result.get("set", None)
+                    t_sens_value = result.get("t_sens", None)
+                    print(f"Two nodes result -> SET: {set_value}, Sensation: {t_sens_value}")  # 打印Two nodes结果
+                except Exception as e:
+                    print(f"Error in two_nodes: {e}")
+            
+                print("Function completed")  # 确认函数的执行完成
+            
+            
+
+
+            results.append({
+                    
+                "PMV with elevated air speed" : pmv_value,
+                "PPD with elevated air speed" : ppd_value,
+                "Sensation" : t_sens_value,
+                "SET" : set_value,
+                "Relative air speed" : a_pmv_value,
+                "Dynamic clothing" : clo_d,
+                "Dry-bulb Tmp at still air" : t_dp_value,
+                "Cooling effect" : cooling_effect_value
+            })
+    return result

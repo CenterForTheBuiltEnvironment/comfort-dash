@@ -1,0 +1,30 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+dash = "*"
+pandas = "*"
+dash-bootstrap-components = "*"
+dash-mantine-components = "*"
+dash-iconify = "*"
+numpy = "*"
+psychrolib = "*"
+pythermalcomfort = "*"
+icecream = "*"
+pydantic = "*"
+plotly = "*"
+scipy = "*"
+typing-extensions = "*"
+packaging = "*"
+matplotlib = "*"
+
+[dev-packages]
+pytest-playwright = "*"
+pytest-xdist = "*"
+bump-my-version = "*"
+black = "*"
+
+[requires]
+python_version = "3.11"

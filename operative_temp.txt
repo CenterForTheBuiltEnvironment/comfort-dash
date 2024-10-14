@@ -1,0 +1,129 @@
+  # calculation part end    
+         # Initialize figure and axis
+    p_tdb = current_tdb
+    p_rh = current_rh
+    
+    air_speed = vr_d
+    met = met
+    clo = clo_d
+    
+    # Create an empty figure
+    fig = go.Figure()
+    
+    print("Create psychrometric chart")
+    
+    # Define adjustments
+    air_speed_adjustment = a_pmv_value  # Increment/decrement for air speed
+    met_adjustment =  1 # Increment/decrement for metabolic rate
+    clo_adjustment = 1  # Increment/decrement for clothing value
+    
+    
+    
+    # Category II
+    offset = (air_speed - air_speed_adjustment) * 1 - (met - met_adjustment) * 2 - (clo - clo_adjustment) * 2
+    category_2_up = np.linspace(21.4 + offset, 26.2 + offset, 100)
+    category_2_low = np.array([32 + offset, 25.5 + offset])
+    category_2_x = np.concatenate((category_2_up, category_2_low))
+    category_2_y = np.concatenate(
+        (
+            [psy_ta_rh(tdb=t, rh=100, p_atm=101325)["hr"] * 1000 for t in category_2_up],
+            [0, 0],
+        )
+    )
+    fig.add_trace(go.Scatter(
+        x=category_2_x,
+        y=category_2_y,
+        fill='toself',
+        fillcolor='green',
+        mode='lines',
+        line=dict(color='green'),
+        name="Category II",
+        hoverinfo='x+y'
+    ))
+    
+    
+    # Red point update
+    red_point = [p_tdb, psy_ta_rh(p_tdb, p_rh, p_atm=101325)["hr"] * 1000]
+    fig.add_trace(go.Scatter(
+        x=[red_point[0]],
+        y=[red_point[1]],
+        mode='markers',
+        marker=dict(color='red', size=10),
+        name="Current Condition",
+        hoverinfo='x+y'
+    ))
+    
+        # Check if the red point is within the filled area
+    tolerance = 0.1
+
+# Check if the red point is outside the filled green area (Category II)
+    if (red_point[0] > max(category_2_x) + tolerance or red_point[0] < min(category_2_x) - tolerance) or \
+       (red_point[1] > max(category_2_y) + tolerance or red_point[1] < min(category_2_y) - tolerance):
+        
+        fig.add_annotation(
+            x=red_point[0],
+            y=red_point[1],
+            text="Current condition is outside the acceptable range!",
+            showarrow=True,
+            arrowhead=2,
+            ax=0,
+            ay=-40,
+            font=dict(color='red', size=12),
+            bgcolor='white',
+            bordercolor='red',
+            borderwidth=1,
+            opacity=0.8
+        )
+     
+    # Circle around the red point
+    theta = np.linspace(0, 2 * np.pi, 100)
+    circle_x = red_point[0] + 0.6 * np.cos(theta)
+    circle_y = red_point[1] + 1.2 * np.sin(theta)
+    fig.add_trace(go.Scatter(
+        x=circle_x,
+        y=circle_y,
+        mode='lines',
+        line=dict(color='red', dash='dash'),
+        showlegend=False,
+        hoverinfo='skip'
+    ))
+
+    # Plot humidity ratio lines
+    rh_list = np.arange(0, 101, 10)
+    tdb = np.linspace(10, 36, 500)
+    for rh in rh_list:
+        hr_list = np.array(
+            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb]
+        )
+        fig.add_trace(go.Scatter(
+            x=tdb,
+            y=hr_list,
+            mode='lines',
+            line=dict(color='black', width=1),
+            name=f"{rh}% RH",
+            hoverinfo='x+y'
+        ))
+        #hoverdata?
+        
+   
+    fig.update_layout(
+        title="Interactive Psychrometric Chart",
+        xaxis_title="Dry-bulb Temperature (°C)",
+        yaxis_title="Humidity Ratio (g_w/kg_da)",
+        legend_title="Categories",
+        hovermode="closest",  # Ensures that hover will be interactive
+        legend=dict(
+            x=1.05,  # Move legend to the right
+            y=1,  # Align legend to the top
+            traceorder="normal",
+            font=dict(
+                size=12,
+            ),
+            bgcolor="White",  # Set the background of the legend to white
+            bordercolor="Black",
+            borderwidth=1
+        )
+    )
+    
+    # Final plot
+    return dcc.Graph(figure=fig)
