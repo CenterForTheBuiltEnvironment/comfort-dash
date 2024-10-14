@@ -227,15 +227,6 @@ def update_note_model(selected_model, function_selection, chart_selected):
 #  double check the calculating method from pythermalcomfort lib, especially the units
 last_valid_annotation = None
 
-
-# @callback(
-#     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
-#     Input(MyStores.input_data.value, "data"),
-#     Input(ElementsIDs.GRAPH_HOVER.value, "hoverData"),
-#     State(ElementsIDs.GRAPH_HOVER.value, "figure"),
-#     Input(ElementsIDs.functionality_selection.value, "value"),
-#     State(MyStores.input_data.value, "data"),
-# )
 @callback(
     Output(ElementsIDs.GRAPH_HOVER.value, "figure"),
     Input(ElementsIDs.GRAPH_HOVER.value, "hoverData"),
@@ -250,130 +241,79 @@ def update_hover_annotation(hover_data, figure, inputs):
     units = inputs[ElementsIDs.UNIT_TOGGLE.value]
 
     if (
-        hover_data
-        and figure
-        and "points" in hover_data
-        and len(hover_data["points"]) > 0
+        not hover_data
+        or "points" not in hover_data
+        or not hover_data["points"]
     ):
-        chart_selected = inputs[ElementsIDs.chart_selected.value]
+        return figure
+    
+    chart_selected = inputs[ElementsIDs.chart_selected.value]
 
-        # not show annotation for adaptive methods
+    point = hover_data["points"][0]
+
+    if "x" in point and "y" in point:
+        o_t_db = point["x"]
+        y_value = point["y"]
+        if units == UnitSystem.IP.value:
+            t_db = (o_t_db - 32) / 1.8
+        else:
+            t_db = o_t_db
+        # check if y <= 0
+        if y_value <= 0:
+            if (
+                last_valid_annotation is not None
+                and "annotations" in figure["layout"]
+            ):
+                figure["layout"]["annotations"][0][
+                    "text"
+                ] = last_valid_annotation
+            return figure
+
         if chart_selected in [
             Charts.t_rh.value.name,
         ]:
-            point = hover_data["points"][0]
-
-            if "x" in point and "y" in point:
-                o_t_db = point["x"]
-                rh = point["y"]
-                if units == UnitSystem.IP.value:
-                    t_db = (o_t_db - 32) / 1.8
-                else:
-                    t_db = o_t_db
-                # check if y <= 0
-                if rh <= 0:
-                    if (
-                        last_valid_annotation is not None
-                        and "annotations" in figure["layout"]
-                    ):
-                        figure["layout"]["annotations"][0][
-                            "text"
-                        ] = last_valid_annotation
-                    return figure
-
-                # calculations
-                psy_results = psy_ta_rh(t_db, rh)
-                t_wb_value = psy_results.t_wb
-                t_dp_value = psy_results.t_dp
-                wa = psy_results.hr * 1000  # convert to g/kgda
-                h = psy_results.h / 1000  # convert to kj/kg
-
-                # Added unit judgment logic
-                if units == UnitSystem.SI.value:
-                    annotation_text = (
-                        f"t<sub>db</sub>: {o_t_db:.1f} °C<br>"
-                        f"rh: {rh:.1f} %<br>"
-                        f"W<sub>a</sub>: {wa:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
-                        f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
-                        f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
-                        f"h: {h:.1f} kJ/kg<br>"
-                    )
-                else:  # IP
-                    annotation_text = (
-                        f"t<sub>db</sub>: {o_t_db:.1f} °F<br>"
-                        f"rh: {rh:.1f} %<br>"
-                        f"W<sub>a</sub>: {wa:.1f} lb<sub>w</sub>/klb<sub>da</sub><br>"
-                        f"t<sub>wb</sub>: {t_wb_value*1.8+32:.1f} °F<br>"
-                        f"t<sub>dp</sub>: {t_dp_value*1.8+32:.1f} °F<br>"
-                        f"h: {h / 2.326:.1f} btu/lb<br>"  # kJ/kg to btu/lb
-                    )
-
-                if (
-                    "annotations" in figure["layout"]
-                    and len(figure["layout"]["annotations"]) > 0
-                ):
-                    figure["layout"]["annotations"][0]["text"] = annotation_text
-            else:
-                print("Unexpected hover data structure:", point)
-
+            rh = y_value
         elif chart_selected in [
             Charts.psychrometric.value.name,
-        ]:
-            point = hover_data["points"][0]
+        ]:  
+            hr = y_value
+            vp = (hr * 101325) / 1000 / (0.62198 + hr / 1000)
+            rh = (vp / p_sat(t_db)) * 100
 
-            if "x" in point and "y" in point:
-                o_t_db = point["x"]
-                hr = point["y"]
-                if units == UnitSystem.IP.value:
-                    t_db = (o_t_db - 32) / 1.8
-                else:
-                    t_db = o_t_db
-                # check if y <= 0
-                if hr <= 0:
-                    if (
-                        last_valid_annotation is not None
-                        and "annotations" in figure["layout"]
-                    ):
-                        figure["layout"]["annotations"][0][
-                            "text"
-                        ] = last_valid_annotation
-                    return figure
+        # calculations
+        psy_results = psy_ta_rh(t_db, rh)
+        t_wb_value = psy_results.t_wb
+        t_dp_value = psy_results.t_dp
+        wa = psy_results.hr * 1000  # convert to g/kgda
+        h = psy_results.h / 1000  # convert to kj/kg
 
-                # calculations
-                vp = (hr * 101325) / 1000 / (0.62198 + hr / 1000)
-                rh = (vp / p_sat(t_db)) * 100
-                psy_results = psy_ta_rh(t_db, rh)
-                t_wb_value = psy_results.t_wb
-                t_dp_value = psy_results.t_dp
-                h = psy_results.h / 1000  # convert to kj/kg
+        # Added unit judgment logic
+        if units == UnitSystem.SI.value:
+            annotation_text = (
+                f"t<sub>db</sub>: {o_t_db:.1f} °C<br>"
+                f"rh: {rh:.1f} %<br>"
+                f"W<sub>a</sub>: {wa:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
+                f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
+                f"h: {h:.1f} kJ/kg<br>"
+            )
+        else:  # IP
+            annotation_text = (
+                f"t<sub>db</sub>: {o_t_db:.1f} °F<br>"
+                f"rh: {rh:.1f} %<br>"
+                f"W<sub>a</sub>: {wa:.1f} lb<sub>w</sub>/klb<sub>da</sub><br>"
+                f"t<sub>wb</sub>: {t_wb_value*1.8+32:.1f} °F<br>"
+                f"t<sub>dp</sub>: {t_dp_value*1.8+32:.1f} °F<br>"
+                f"h: {h / 2.326:.1f} btu/lb<br>"  # kJ/kg to btu/lb
+            )
 
-                # Added unit judgment logic
-                if units == UnitSystem.SI.value:
-                    annotation_text = (
-                        f"t<sub>db</sub>: {o_t_db:.1f} °C<br>"
-                        f"rh: {rh:.1f} %<br>"
-                        f"W<sub>a</sub>: {hr:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
-                        f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
-                        f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
-                        f"h: {h:.1f} kJ/kg<br>"
-                    )
-                else:  # IP
-                    annotation_text = (
-                        f"t<sub>db</sub>: {o_t_db:.1f} °F<br>"
-                        f"rh: {rh:.1f} %<br>"
-                        f"W<sub>a</sub>: {hr:.1f} lb<sub>w</sub>/klb<sub>da</sub><br>"
-                        f"t<sub>wb</sub>: {t_wb_value*1.8+32:.1f} °F<br>"
-                        f"t<sub>dp</sub>: {t_dp_value*1.8+32:.1f} °F<br>"
-                        f"h: {h / 2.326:.1f} btu/lb<br>"  # kJ/kg to btu/lb
-                    )
-
-                if (
-                    "annotations" in figure["layout"]
-                    and len(figure["layout"]["annotations"]) > 0
-                ):
-                    figure["layout"]["annotations"][0]["text"] = annotation_text
-            else:
-                print("Unexpected hover data structure:", point)
+        if (
+            "annotations" in figure["layout"]
+            and len(figure["layout"]["annotations"]) > 0
+        ):
+            figure["layout"]["annotations"][0]["text"] = annotation_text
+    else:
+        print("Unexpected hover data structure:", point)
 
     return figure
 
