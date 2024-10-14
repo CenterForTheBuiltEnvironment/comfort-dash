@@ -4,16 +4,16 @@ from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
 
 from components.charts import (
-    t_rh_pmv,
+    # t_rh_pmv,
     chart_selector,
-    #adaptive_chart,
+    # adaptive_chart,
     generate_tdb_hr_chart,
-    #SET_outputs_chart,
-    #speed_temp_pmv,
-    #get_heat_losses,
+    # SET_outputs_chart,
+    # speed_temp_pmv,
+    # get_heat_losses,
     psy_ashrae_pmv,
-    #generate_operative_chart,
-    #psy_ashrae_pmv_operative,
+    # generate_operative_chart,
+    # psy_ashrae_pmv_operative,
 )
 
 from components.dropdowns import (
@@ -265,7 +265,7 @@ def update_hover_annotation(hover_data, figure, inputs):
 
         # not show annotation for adaptive methods
         if chart_selected in [
-            #Charts.psychrometric.value.name,
+            # Charts.psychrometric.value.name,
             Charts.t_rh.value.name,
             Charts.psychrometric_operative.value.name,
         ]:
@@ -275,7 +275,7 @@ def update_hover_annotation(hover_data, figure, inputs):
                 o_t_db = point["x"]
                 rh = point["y"]
                 if units == UnitSystem.IP.value:
-                    t_db = (o_t_db - 32)/1.8
+                    t_db = (o_t_db - 32) / 1.8
                 else:
                     t_db = o_t_db
                 # check if y <= 0
@@ -333,7 +333,7 @@ def update_hover_annotation(hover_data, figure, inputs):
                 o_t_db = point["x"]
                 hr = point["y"]
                 if units == UnitSystem.IP.value:
-                    t_db = (o_t_db - 32)/1.8
+                    t_db = (o_t_db - 32) / 1.8
                 else:
                     t_db = o_t_db
                 # check if y <= 0
@@ -407,28 +407,7 @@ def update_chart(inputs: dict, function_selection: str):
     )
     image = go.Figure()
 
-    if chart_selected == Charts.t_rh.value.name:
-        if (
-            selected_model == Models.PMV_EN.name
-            and function_selection != Functionalities.Ranges.value
-        ):
-            image = t_rh_pmv(
-                inputs=inputs,
-                model="iso",
-                function_selection=function_selection,
-                units=units,
-            )
-        elif (
-            selected_model == Models.PMV_ashrae.name
-            and function_selection == Functionalities.Default.value
-        ):
-            image = t_rh_pmv(
-                inputs=inputs,
-                model="ashrae",
-                function_selection=function_selection,
-                units=units,
-            )
-    elif chart_selected == Charts.psychrometric.value.name:
+    if chart_selected == Charts.psychrometric.value.name:
         if (
             selected_model == Models.PMV_ashrae.name
             and function_selection == Functionalities.Default.value
@@ -439,7 +418,7 @@ def update_chart(inputs: dict, function_selection: str):
             selected_model == Models.PMV_EN.name
             and function_selection == Functionalities.Default.value
         ):
-            image = generate_tdb_hr_chart(inputs=inputs, model="iso", units=units)
+            image = generate_tdb_hr_chart(inputs=inputs, units=units)
 
     note = ""
     chart: ChartsInfo
