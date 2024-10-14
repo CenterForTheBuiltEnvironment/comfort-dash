@@ -27,6 +27,7 @@ class ElementsIDs(Enum):
     charts_dropdown = "id-charts-dropdown"
     CHART_CONTAINER = "id-chart-container"
     URL = "url"
+    INITIAL_URL = "initial-url"
     FOOTER = "id-footer"
     INPUT_SECTION = "id-input-section"
     inputs_form = "id-inputs-form"
@@ -63,7 +64,6 @@ class ElementsIDs(Enum):
     PMV_ASHRAE_SPEED_SELECTION = "id-pmv-ashrae-speed-method"
     UNIT_TOGGLE = "id-unit-toggle"  # FOR IP / SI Unit system switch
     GRAPH_HOVER = "id-graph-hover"
-    INITIAL_URL = "id-initial-url"
 
 
 class Config(Enum):
@@ -447,7 +447,6 @@ class Models(Enum):
         charts=[
             # todo add the right charts
             Charts.psychrometric.value,
-            Charts.psychrometric_operative.value,
             Charts.t_rh.value,
         ],
         inputs=[
