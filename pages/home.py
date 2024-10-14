@@ -280,6 +280,8 @@ def update_hover_annotation(hover_data, figure, inputs):
             vp = (hr * 101325) / 1000 / (0.62198 + hr / 1000)
             rh = (vp / p_sat(t_db)) * 100
 
+        rh = max(0, min(rh, 100)) # boundary check
+
         # calculations
         psy_results = psy_ta_rh(t_db, rh)
         t_wb_value = psy_results.t_wb
