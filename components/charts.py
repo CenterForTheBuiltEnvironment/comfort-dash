@@ -121,6 +121,12 @@ def find_tdb_for_pmv(
         "Unable to find suitable t_db value within maximum number of iterations"
     )
 
+def curve_fit(x, y, num_points=50):
+    coefficients = np.polyfit(x, y, 2)
+    polynomial = np.poly1d(coefficients)
+    x_new = np.linspace(min(x), max(x), num_points)
+    y_new = polynomial(x_new)
+    return x_new, y_new
 
 def psy_pmv(
     inputs: dict = None,
@@ -175,22 +181,26 @@ def psy_pmv(
             tdb_array[j, i] = tdb_solution
 
     # calculate hr
-    rh_list = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
+    lower_rh_list = np.arange(0, 110, 10)
+    upper_rh_list = np.arange(100, -1, -10)
     if model == "ASHRAE":
-        lower_upper_tdb = np.append(tdb_array[0], tdb_array[1][::-1])
-        lower_upper_tdb = [
-            round(float(value), 1) for value in lower_upper_tdb.tolist()
-        ]  # convert to list & round to 1 decimal
-        # define
-        lower_upper_hr = []
-        for i in range(len(rh_list)):
-            lower_upper_hr.append(
-                psy_ta_rh(tdb=lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
+        lower_tdb = tdb_array[0]
+        upper_tdb = tdb_array[1][::-1]
+        lower_hr = []
+        upper_hr = []
+        for i in range(len(lower_rh_list)):
+            lower_hr.append(
+                psy_ta_rh(tdb=lower_tdb[i], rh=lower_rh_list[i])["hr"] * 1000
             )
+        for i in range(len(upper_rh_list)):
+            upper_hr.append(
+                psy_ta_rh(tdb=upper_tdb[i], rh=upper_rh_list[i])["hr"] * 1000
+            )
+        new_lower_tdb, new_lower_hr = curve_fit(lower_tdb, lower_hr)
+        new_upper_tdb, new_upper_hr = curve_fit(upper_tdb, upper_hr)
 
-        lower_upper_hr = [
-            round(float(value), 1) for value in lower_upper_hr
-        ]  # convert to list & round to 1 decimal
+        lower_upper_tdb = np.concatenate([new_lower_tdb, new_upper_tdb[::-1]])
+        lower_upper_hr = np.concatenate([new_lower_hr, new_upper_hr[::-1]])
 
         if units == UnitSystem.IP.value:
             lower_upper_tdb = list(
@@ -215,42 +225,53 @@ def psy_pmv(
             )
         )
     else:
-        iii_lower_upper_tdb = np.append(tdb_array[0], tdb_array[5][::-1])
-        ii_lower_upper_tdb = np.append(tdb_array[1], tdb_array[4][::-1])
-        i_lower_upper_tdb = np.append(tdb_array[2], tdb_array[3][::-1])
-        iii_lower_upper_tdb = [
-            round(float(value), 1) for value in iii_lower_upper_tdb.tolist()
-        ]  # convert to list & round to 1 decimal
-        ii_lower_upper_tdb = [
-            round(float(value), 1) for value in ii_lower_upper_tdb.tolist()
-        ]  # convert to list & round to 1 decimal
-        i_lower_upper_tdb = [
-            round(float(value), 1) for value in i_lower_upper_tdb.tolist()
-        ]  # convert to list & round to 1 decimal
-        # define
-        iii_lower_upper_hr = []
-        ii_lower_upper_hr = []
-        i_lower_upper_hr = []
-        for i in range(len(rh_list)):
-            iii_lower_upper_hr.append(
-                psy_ta_rh(tdb=iii_lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
+        iii_lower_tdb = tdb_array[0]
+        iii_upper_tdb = tdb_array[5][::-1]
+        ii_lower_tdb = tdb_array[1]
+        ii_upper_tdb = tdb_array[4][::-1]
+        i_lower_tdb = tdb_array[2]
+        i_upper_tdb = tdb_array[3][::-1]
+        iii_lower_hr = []
+        iii_upper_hr = []
+        ii_lower_hr = []
+        ii_upper_hr = []
+        i_lower_hr = []
+        i_upper_hr = []
+
+        for i in range(len(lower_rh_list)):
+            iii_lower_hr.append(
+                psy_ta_rh(tdb=iii_lower_tdb[i], rh=lower_rh_list[i])["hr"] * 1000
             )
-            ii_lower_upper_hr.append(
-                psy_ta_rh(tdb=ii_lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
+            ii_lower_hr.append(
+                psy_ta_rh(tdb=ii_lower_tdb[i], rh=lower_rh_list[i])["hr"] * 1000
             )
-            i_lower_upper_hr.append(
-                psy_ta_rh(tdb=i_lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
+            i_lower_hr.append(
+                psy_ta_rh(tdb=i_lower_tdb[i], rh=lower_rh_list[i])["hr"] * 1000
+            )
+        for i in range(len(upper_rh_list)):
+            iii_upper_hr.append(
+                psy_ta_rh(tdb=iii_upper_tdb[i], rh=upper_rh_list[i])["hr"] * 1000
+            )
+            ii_upper_hr.append(
+                psy_ta_rh(tdb=ii_upper_tdb[i], rh=upper_rh_list[i])["hr"] * 1000
+            )
+            i_upper_hr.append(
+                psy_ta_rh(tdb=i_upper_tdb[i], rh=upper_rh_list[i])["hr"] * 1000
             )
 
-        iii_lower_upper_hr = [
-            round(float(value), 1) for value in iii_lower_upper_hr
-        ]  # convert to list & round to 1 decimal
-        ii_lower_upper_hr = [
-            round(float(value), 1) for value in ii_lower_upper_hr
-        ]  # convert to list & round to 1 decimal
-        i_lower_upper_hr = [
-            round(float(value), 1) for value in i_lower_upper_hr
-        ]  # convert to list & round to 1 decimal
+        new_iii_lower_tdb, new_iii_lower_hr = curve_fit(iii_lower_tdb, iii_lower_hr)
+        new_ii_lower_tdb, new_ii_lower_hr = curve_fit(ii_lower_tdb, ii_lower_hr)
+        new_i_lower_tdb, new_i_lower_hr = curve_fit(i_lower_tdb, i_lower_hr)
+        new_iii_upper_tdb, new_iii_upper_hr = curve_fit(iii_upper_tdb, iii_upper_hr)
+        new_ii_upper_tdb, new_ii_upper_hr = curve_fit(ii_upper_tdb, ii_upper_hr)
+        new_i_upper_tdb, new_i_upper_hr = curve_fit(i_upper_tdb, i_upper_hr)
+
+        iii_lower_upper_tdb = np.concatenate([new_iii_lower_tdb, new_iii_upper_tdb[::-1]])
+        ii_lower_upper_tdb = np.concatenate([new_ii_lower_tdb, new_ii_upper_tdb[::-1]])
+        i_lower_upper_tdb = np.concatenate([new_i_lower_tdb, new_i_upper_tdb[::-1]])
+        iii_lower_upper_hr = np.concatenate([new_iii_lower_hr, new_iii_upper_hr[::-1]])
+        ii_lower_upper_hr = np.concatenate([new_ii_lower_hr, new_ii_upper_hr[::-1]])
+        i_lower_upper_hr = np.concatenate([new_i_lower_hr, new_i_upper_hr[::-1]])
 
         if units == UnitSystem.IP.value:
             iii_lower_upper_tdb = list(
