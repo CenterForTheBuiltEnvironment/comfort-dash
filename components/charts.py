@@ -248,162 +248,6 @@ def adaptive_en_chart(inputs, units):
     return fig
 
 
-# def t_rh_pmv(
-#     inputs: dict = None,
-#     model: str = "iso",
-#     function_selection: str = Functionalities.Default,
-#     units: str = "SI",
-# ):
-#     results = []
-#     pmv_limits = [-0.5, 0.5]
-
-#     met, clo, tr, t_db, v, rh = get_inputs(inputs)
-#     clo_d = clo_dynamic(clo, met)
-#     vr = v_relative(v, met)
-
-#     def calculate_pmv_results(tr, vr, met, clo):
-#         results = []
-#         for pmv_limit in pmv_limits:
-#             for rh in np.arange(0, 110, 10):
-
-#                 def function(x):
-#                     return (
-#                         pmv(
-#                             x,
-#                             tr=tr,
-#                             vr=vr,
-#                             rh=rh,
-#                             met=met,
-#                             clo=clo,
-#                             wme=0,
-#                             standard=model,
-#                             units=units,
-#                             limit_inputs=False,
-#                         )
-#                         - pmv_limit
-#                     )
-
-#                 temp = optimize.brentq(function, 10, 120)
-#                 results.append(
-#                     {
-#                         "rh": rh,
-#                         "temp": temp,
-#                         "pmv_limit": pmv_limit,
-#                     }
-#                 )
-#         return pd.DataFrame(results)
-
-#     df = calculate_pmv_results(
-#         tr=tr,
-#         vr=vr,
-#         met=met,
-#         clo=clo_d,
-#     )
-
-#     # Create the Plotly figure
-#     fig = go.Figure()
-
-#     # Add the filled area between PMV limits
-#     t1 = df[df["pmv_limit"] == pmv_limits[0]]
-#     t2 = df[df["pmv_limit"] == pmv_limits[1]]
-#     fig.add_trace(
-#         go.Scatter(
-#             x=t1["temp"],
-#             y=t1["rh"],
-#             fill=None,
-#             mode="lines",
-#             line=dict(color="rgba(59, 189, 237, 0.7)"),
-#             name=f"{model} Lower Limit",
-#         )
-#     )
-#     fig.add_trace(
-#         go.Scatter(
-#             x=t2["temp"],
-#             y=t2["rh"],
-#             fill="tonexty",
-#             mode="lines",
-#             fillcolor="rgba(59, 189, 237, 0.7)",
-#             line=dict(color="rgba(59, 189, 237, 0.7)"),
-#             name=f"{model} Upper Limit",
-#         )
-#     )
-
-#     # Add scatter point for the current input
-#     fig.add_trace(
-#         go.Scatter(
-#             x=[t_db],
-#             y=[rh],
-#             mode="markers",
-#             marker=dict(color="red", size=8),
-#             name="Current Input",
-#         )
-#     )
-
-#     if function_selection == Functionalities.Compare.value:
-#         met_2, clo_2, tr_2, t_db_2, v_2, rh_2 = compare_get_inputs(inputs)
-#         clo_d_compare = clo_dynamic(clo_2, met_2)
-#         vr_compare = v_relative(v_2, met_2)
-
-#         df_compare = calculate_pmv_results(
-#             tr_2,
-#             vr_compare,
-#             met_2,
-#             clo_d_compare,
-#         )
-#         t1_compare = df_compare[df_compare["pmv_limit"] == pmv_limits[0]]
-#         t2_compare = df_compare[df_compare["pmv_limit"] == pmv_limits[1]]
-#         fig.add_trace(
-#             go.Scatter(
-#                 x=t1_compare["temp"],
-#                 y=t1_compare["rh"],
-#                 fill=None,
-#                 mode="lines",
-#                 line=dict(color="rgba(30,70,100,0.5)"),
-#                 name=f"{model} Compare Lower Limit",
-#             )
-#         )
-#         fig.add_trace(
-#             go.Scatter(
-#                 x=t2_compare["temp"],
-#                 y=t2_compare["rh"],
-#                 fill="tonexty",
-#                 mode="lines",
-#                 fillcolor="rgba(30,70,100,0.5)",
-#                 line=dict(color="rgba(30,70,100,0.5)"),
-#                 name=f"{model} Compare Upper Limit",
-#             )
-#         )
-#         fig.add_trace(
-#             go.Scatter(
-#                 x=[t_db_2],
-#                 y=[rh_2],
-#                 mode="markers",
-#                 marker=dict(color="blue", size=8),
-#                 name="Compare Input",
-#             )
-#         )
-
-#     # Update layout
-#     fig.update_layout(
-#         yaxis=dict(title="Relative Humidity [%]", range=[0, 100], dtick=10),
-#         xaxis=dict(title="Dry-bulb Temperature (°C)", range=[10, 36], dtick=2),
-#         showlegend=False,
-#         plot_bgcolor="white",
-#         margin=dict(l=40, r=40, t=40, b=40),
-#     )
-
-#     if units == UnitSystem.IP.value:
-#         fig.update_layout(
-#             xaxis=dict(title="Dry-bulb Temperature [°F]", range=[50, 100], dtick=5),
-#         )
-
-#     # Add grid lines and make the spines invisible
-#     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
-#     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
-
-#     return fig
-
-
 def t_rh_pmv(
     inputs: dict = None,
     model: str = "iso",
@@ -512,11 +356,24 @@ def t_rh_pmv(
     )
     # Add hover area to allow hover interaction
 
-    x_range = np.linspace(10, 40, 100)
+    # x_range_blue = np.linspace(t2["temp"].min(), t2["temp"].max(), 100)
+    # y_range_blue = np.linspace(t2["rh"].min(), t2["rh"].max(), 100)
+    # xx_blue, yy_blue = np.meshgrid(x_range_blue, y_range_blue)
+    # fig.add_trace(
+    #     go.Scatter(
+    #         x=xx_blue.flatten(),
+    #         y=yy_blue.flatten(),
+    #         mode="markers",
+    #         marker=dict(color="rgba(0,0,0,0)"),
+    #         # hoverinfo="x+y",
+    #         hoverinfo="none",
+    #         name="Interactive Hover Area",
+    #     )
+    # )
 
+    x_range = np.linspace(10, 40, 100)
     if units == UnitSystem.IP.value:  # The X-axis range of gridlines in the IP state
         x_range = np.linspace(50, 100, 100)
-
     y_range = np.linspace(0, 100, 100)
     xx, yy = np.meshgrid(x_range, y_range)
     fig.add_trace(
@@ -525,7 +382,7 @@ def t_rh_pmv(
             y=yy.flatten(),
             mode="markers",
             marker=dict(color="rgba(0,0,0,0)"),
-            hoverinfo="x+y",
+            hoverinfo="none",
             name="Interactive Hover Area",
         )
     )
