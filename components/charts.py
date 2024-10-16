@@ -7,8 +7,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from pythermalcomfort.models import pmv
-from pythermalcomfort.utilities import v_relative, clo_dynamic
+from pythermalcomfort.utilities import v_relative, clo_dynamic, units_converter
 from scipy import optimize
+
+from scipy.optimize import fsolve
 
 from components.drop_down_inline import generate_dropdown_inline
 from utils.my_config_file import (
@@ -21,7 +23,7 @@ from utils.my_config_file import (
 from utils.website_text import TextHome
 import matplotlib
 from pythermalcomfort.models import adaptive_en
-from pythermalcomfort.psychrometrics import t_o
+from pythermalcomfort.psychrometrics import psy_ta_rh, t_o
 
 matplotlib.use("Agg")
 
@@ -401,4 +403,483 @@ def t_rh_pmv(
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor="rgba(0, 0, 0, 0.2)")
 
+    return fig
+
+# function in pmv_ppd()
+def _pmv_ppd_optimized(tdb, tr, vr, rh, met, clo, wme=0):
+    pa = rh * 10 * np.exp(16.6536 - 4030.183 / (tdb + 235))
+
+    icl = 0.155 * clo  # thermal insulation of the clothing in M2K/W
+    m = met * 58.15  # metabolic rate in W/M2
+    w = wme * 58.15  # external work in W/M2
+    mw = m - w  # internal heat production in the human body
+    # calculation of the clothing area factor
+    if icl <= 0.078:
+        f_cl = 1 + (1.29 * icl)  # ratio of surface clothed body over nude body
+    else:
+        f_cl = 1.05 + (0.645 * icl)
+
+    # heat transfer coefficient by forced convection
+    hcf = 12.1 * np.sqrt(vr)
+    hc = hcf  # initialize variable
+    taa = tdb + 273
+    tra = tr + 273
+    t_cla = taa + (35.5 - tdb) / (3.5 * icl + 0.1)
+
+    p1 = icl * f_cl
+    p2 = p1 * 3.96
+    p3 = p1 * 100
+    p4 = p1 * taa
+    p5 = (308.7 - 0.028 * mw) + (p2 * (tra / 100.0) ** 4)
+    xn = t_cla / 100
+    xf = t_cla / 50
+    eps = 0.00015
+
+    n = 0
+    while np.abs(xn - xf) > eps:
+        xf = (xf + xn) / 2
+        hcn = 2.38 * np.abs(100.0 * xf - taa) ** 0.25
+        if hcf > hcn:
+            hc = hcf
+        else:
+            hc = hcn
+        xn = (p5 + p4 * hc - p2 * xf**4) / (100 + p3 * hc)
+        n += 1
+        if n > 150:
+            raise StopIteration("Max iterations exceeded")
+
+    tcl = 100 * xn - 273
+
+    # heat loss diff. through skin
+    hl1 = 3.05 * 0.001 * (5733 - (6.99 * mw) - pa)
+    # heat loss by sweating
+    if mw > 58.15:
+        hl2 = 0.42 * (mw - 58.15)
+    else:
+        hl2 = 0
+    # latent respiration heat loss
+    hl3 = 1.7 * 0.00001 * m * (5867 - pa)
+    # dry respiration heat loss
+    hl4 = 0.0014 * m * (34 - tdb)
+    # heat loss by radiation
+    hl5 = 3.96 * f_cl * (xn**4 - (tra / 100.0) ** 4)
+    # heat loss by convection
+    hl6 = f_cl * hc * (tcl - tdb)
+
+    ts = 0.303 * np.exp(-0.036 * m) + 0.028
+    _pmv = ts * (mw - hl1 - hl2 - hl3 - hl4 - hl5 - hl6)
+
+    return _pmv
+
+def calculate_tdb(t_db_x, t_r, v_r, r_h, met, clo_d, pmv_y):
+    return (
+        _pmv_ppd_optimized(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d)
+        - pmv_y
+    )
+
+# Psychrometric(air temperature) of ASHRAE
+def psychrometric_ashrae(
+    inputs: dict = None,
+    model: str = "iso",
+    function_selection: str = Functionalities.Default,
+    units: str = "SI",
+    
+):
+
+    p_tdb = float(inputs[ElementsIDs.t_db_input.value])
+    tr = float(inputs[ElementsIDs.t_r_input.value])
+    vr = float(
+        v_relative(  # Ensure vr is scalar
+            v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
+        )
+    )
+    rh = float(inputs[ElementsIDs.rh_input.value])
+    met = float(inputs[ElementsIDs.met_input.value])
+    clo = float(
+        clo_dynamic(  # Ensure clo is scalar
+            clo=inputs[ElementsIDs.clo_input.value],
+            met=inputs[ElementsIDs.met_input.value],
+        )
+    )
+    # save original values for plotting
+    if units == UnitSystem.IP.value:
+        tdb = round(float(units_converter(tdb=p_tdb)[0]), 1)
+        tr = round(float(units_converter(tr=tr)[0]), 1)
+        vr = round(float(units_converter(vr=vr)[0]), 1)
+    else:
+        tdb = p_tdb
+
+    traces = []
+
+    # blue area
+
+    rh_values = np.arange(0, 110, 10)
+    tdb_guess = 22
+    pmv_list = [-0.5, 0.5]
+    tdb_array = np.zeros((len(pmv_list), len(rh_values)))
+    for j, pmv_value in enumerate(pmv_list):
+        for i, rh_value in enumerate(rh_values):
+            solution = fsolve(
+                lambda x: calculate_tdb(
+                    t_db_x=x,
+                    t_r=tr,
+                    v_r=vr,
+                    r_h=rh_value,
+                    met=met,
+                    clo_d=clo,
+                    pmv_y=pmv_value,
+                ),
+                tdb_guess,
+            )
+            tdb_solution = round(solution[0], 1)
+            tdb_guess = tdb_solution
+            tdb_array[j, i] = float(tdb_solution)
+
+    # calculate hr
+
+    lower_upper_tdb = np.append(tdb_array[0], tdb_array[1][::-1])
+    lower_upper_tdb = [
+        round(float(value), 1) for value in lower_upper_tdb.tolist()
+    ]  # convert to list & round to 1 decimal
+
+    rh_list = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
+
+
+    # define
+    lower_upper_hr = []
+    for i in range(len(rh_list)):
+        lower_upper_hr.append(
+            psy_ta_rh(tdb=lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
+        )
+
+    lower_upper_hr = [
+        round(float(value), 1) for value in lower_upper_hr
+    ]  # convert to list & round to 1 decimal
+
+    if units == UnitSystem.IP.value:
+        lower_upper_tdb = list(
+            map(
+                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                lower_upper_tdb,
+            )
+        )
+    
+    # grey area
+    if model == "ashrae" and function_selection == Functionalities.Compare.value:
+            
+            met_2, clo_2, tr_2, t_db_2, v_2, rh_2 = compare_get_inputs(inputs)
+            
+            print("Type of met_2:", type(met_2), "Value:", met_2)
+            print("Type of clo_2:", type(clo_2), "Value:", clo_2)
+            print("Type of tr_2:", type(tr_2), "Value:", tr_2)
+            print("Type of t_db_2:", type(t_db_2), "Value:", t_db_2)
+            print("Type of v_2:", type(v_2), "Value:", v_2)
+            print("Type of rh_2:", type(rh_2), "Value:", rh_2)
+
+            clo_d_compare = clo_dynamic(clo_2, met_2)
+            vr_compare = v_relative(v_2, met_2)
+            
+           
+            vr_2 = vr_compare
+            clo_2 = clo_d_compare
+             # save original values for plotting
+            
+            
+            if units == UnitSystem.IP.value:
+
+                t_db_2 = round(float(units_converter(tdb=t_db_2)[0]), 1)
+                tr_2 = round(float(units_converter(tr=tr_2)[0]), 1)
+                vr_2 = round(float(units_converter(vr=vr_2)[0]), 1)
+                print("Type of t_db_2:", type(t_db_2), "Value:", t_db_2)
+                print("Type of tr_2:", type(tr_2), "Value:", tr_2)
+                print("Type of vr_2:", type(vr_2), "Value:", vr_2)
+               
+            else:
+                t_db_2 = t_db_2
+            
+            
+                
+            print("Type of t_db_2:", type(t_db_2), "Value:", t_db_2)
+            print("Type of tr_2:", type(tr_2), "Value:", tr_2)
+            print("Type of vr_2:", type(vr_2), "Value:", vr_2)
+            
+        
+           
+            traces = []
+    
+    
+            
+            rh_values_2 = np.arange(0, 110, 10)
+            tdb_guess_2 = 22
+            pmv_list_2 = [-0.5, 0.5]
+            tdb_array_2 = np.zeros((len(pmv_list_2), len(rh_values_2)))
+            for j, pmv_value in enumerate(pmv_list_2):
+                for i, rh_value in enumerate(rh_values_2):
+                    solution_2 = fsolve(
+                        lambda x2: calculate_tdb(
+                            t_db_x=x2,
+                            t_r=tr_2,
+                            v_r=vr_2,
+                            r_h=rh_value,
+                            met=met_2,
+                            clo_d=clo_2,
+                            pmv_y=pmv_value,
+                        ),
+                        tdb_guess_2,
+                    )
+                    tdb_solution_2 = round(solution_2[0], 1)
+                    tdb_guess_2 = tdb_solution_2
+                    tdb_array_2[j, i] = float(tdb_solution_2)
+        
+            # calculate hr
+           
+            lower_upper_tdb_2 = np.append(tdb_array_2[0], tdb_array_2[1][::-1])
+            lower_upper_tdb_2 = [
+                round(float(value), 1) for value in lower_upper_tdb_2.tolist()
+            ]  # convert to list & round to 1 decimal
+        
+            rh_list_2 = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
+        
+        
+            # define
+            lower_upper_hr_2 = []
+            for i in range(len(rh_list_2)):
+                lower_upper_hr_2.append(
+                    psy_ta_rh(tdb=lower_upper_tdb_2[i], rh=rh_list_2[i])["hr"] * 1000
+                )
+        
+            lower_upper_hr_2 = [
+                round(float(value), 1) for value in lower_upper_hr_2
+            ]  # convert to list & round to 1 decimal
+        
+            if units == UnitSystem.IP.value:
+                lower_upper_tdb_2 = list(
+                    map(
+                        lambda x2: round(float(units_converter(tmp=x2, from_units="si")[0]), 1),
+                        lower_upper_tdb_2,
+                    )
+                )
+        
+            traces.append(
+                go.Scatter(
+                    x=lower_upper_tdb_2,
+                    y=lower_upper_hr_2,
+                    mode="lines",
+                    line=dict(color="rgba(0,0,0,0)"),
+                    fill="toself",
+                    fillcolor="rgba(200, 200, 200, 0.7)",
+                    showlegend=False,
+                    hoverinfo="none",
+                )
+            )
+        
+            # current point
+            # Red point
+        
+            psy_results = psy_ta_rh(t_db_2, rh_2)
+            hr_2 = round(float(psy_results["hr"]) * 1000, 1)
+            t_wb_2 = round(float(psy_results["t_wb"]), 1)
+            t_dp_2 = round(float(psy_results["t_dp"]), 1)
+            h = round(float(psy_results["h"]) / 1000, 1)
+        
+            if units == UnitSystem.IP.value:
+                t_wb_2 = round(float(units_converter(tmp=t_wb_2, from_units="si")[0]), 1)
+                t_dp_2 = round(float(units_converter(tmp=t_dp_2, from_units="si")[0]), 1)
+                h = round(float(h / 2.326), 1)  # kJ/kg => btu/lb
+                t_db_2 = (t_db_2 * 9/5) + 32
+            
+            print("Type of hr_2:", type(hr_2), "Value:", hr_2)
+            print("Type of t_wb_2:", type(t_wb_2), "Value:", t_wb_2)
+            print("Type of t_dp_2:", type(t_dp_2), "Value:", t_dp_2)
+            print("Type of h:", type(h), "Value:", h)
+            print("Type of t_db_2:", type(t_db_2), "Value:", t_db_2)
+            
+            
+            traces.append(
+                go.Scatter(
+                    x=[t_db_2],
+                    y=[hr_2],
+                    mode="markers",
+                    marker=dict(
+                        color="purple",
+                        size=6,
+                    ),
+                    showlegend=False,
+                )
+            )
+
+
+    traces.append(
+        go.Scatter(
+            x=lower_upper_tdb,
+            y=lower_upper_hr,
+            mode="lines",
+            line=dict(color="rgba(0,0,0,0)"),
+            fill="toself",
+            fillcolor="rgba(59, 189, 237, 0.7)",
+            showlegend=False,
+            hoverinfo="none",
+        )
+    )
+
+    # current point
+    # Red point
+
+    psy_results = psy_ta_rh(tdb, rh)
+    hr = round(float(psy_results["hr"]) * 1000, 1)
+    t_wb = round(float(psy_results["t_wb"]), 1)
+    t_dp = round(float(psy_results["t_dp"]), 1)
+    h = round(float(psy_results["h"]) / 1000, 1)
+
+    if units == UnitSystem.IP.value:
+        t_wb = round(float(units_converter(tmp=t_wb, from_units="si")[0]), 1)
+        t_dp = round(float(units_converter(tmp=t_dp, from_units="si")[0]), 1)
+        h = round(float(h / 2326), 1)  # kJ/kg => btu/lb
+        tdb = p_tdb
+
+    traces.append(
+        go.Scatter(
+            x=[tdb],
+            y=[hr],
+            mode="markers",
+            marker=dict(
+                color="red",
+                size=6,
+            ),
+            showlegend=False,
+        )
+    )
+
+       
+
+    # lines
+
+    rh_list = np.arange(0, 110, 10, dtype=float).tolist()
+    tdb_list = np.linspace(10, 36, 500, dtype=float).tolist()
+    if units == UnitSystem.IP.value:
+        tdb_list_conv = list(
+            map(
+                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                tdb_list,
+            )
+        )
+    else:
+        tdb_list_conv = tdb_list
+
+    for rh in rh_list:
+        hr_list = np.array(
+            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb_list]
+        )  # kg/kg => g/kg
+        trace = go.Scatter(
+            x=tdb_list_conv,
+            y=hr_list,
+            mode="lines",
+            line=dict(color="grey", width=1),
+            hoverinfo="x+y",
+            name=f"{rh}% RH",
+            showlegend=False,
+        )
+        traces.append(trace)
+
+    
+    
+    tdb = inputs[ElementsIDs.t_db_input.value]
+    rh = inputs[ElementsIDs.rh_input.value]
+    tr = inputs[ElementsIDs.t_r_input.value]
+
+   
+    
+
+    
+
+    if units == UnitSystem.SI.value:
+        temperature_unit = "°C"
+        hr_unit = "g<sub>w</sub>/kg<sub>da</sub>"
+        h_unit = "kJ/kg"
+        psy_results = psy_ta_rh(tdb, rh)
+        t_dp = psy_results.t_dp
+        h = psy_results.h/2326
+        print("Type of h:", type(h), "Value:", h)
+        print("Type of t_dp:", type(t_dp), "Value:", t_dp)
+    else:
+        temperature_unit = "°F"
+        hr_unit = "lb<sub>w</sub>/klb<sub>da</sub>" 
+        h_unit = "btu/lb"  
+        tdb = (tdb - 32)/1.8
+        psy_results = psy_ta_rh(tdb, rh)
+        
+        
+        t_dp = psy_results.t_dp
+        h = psy_results.h/2326 * 2.20462
+        h = round(h, 1)
+        print("Type of h:", type(h), "Value:", h)
+        print("Type of t_dp:", type(t_dp), "Value:", t_dp)
+    
+    if units == UnitSystem.SI.value:
+       tdb = tdb
+       t_dp = t_dp
+    else:
+       tdb = tdb * 1.8 + 32
+       t_dp = t_dp * 1.8 + 32
+
+         
+    #layout
+    layout = go.Layout(
+        margin=dict(l=10, t=0),
+        height=500,
+        width=680,
+        xaxis=dict(
+            title=(
+                "Dry-bulb Temperature [°C]"
+                if units == UnitSystem.SI.value
+                else "operative Temperature [°F]"
+            ),
+            range=[10, 36] if units == UnitSystem.SI.value else [50, 96.8],
+            dtick=2,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor="lightgrey",
+        ),
+        yaxis=dict(
+            title=(
+                "Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]"
+                if units == UnitSystem.SI.value
+                else "Humidity ratio [lb<sub>w</sub>/klb<sub>da</sub>]"  # 保持角标
+            ),
+            range=[0, 30],
+            dtick=5,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor="lightgrey",
+            side="right",
+        ),
+        annotations=[
+            dict(
+                x=14 if units == UnitSystem.SI.value else  57,
+                y=28,
+                xref="x",
+                yref="y",
+                text=(
+                    
+                    f"tₜdb: {tdb:.1f} {temperature_unit}<br>"
+                    f"rh: {rh:.1f} %<br>"
+                    f"Wₐ: {hr} {hr_unit}<br>"
+                    f"tₓwb: {t_wb} {temperature_unit}<br>"
+                    f"tₓdp: {t_dp:.1f} {temperature_unit}<br>" 
+                    f"h: {h:.2f} {h_unit}<br>"  
+                ),
+                showarrow=False,
+                align="left",
+                bgcolor="rgba(255,255,255,0.8)",
+                bordercolor="rgba(0,0,0,0)",
+                font=dict(size=10),
+            )
+        ],
+        showlegend=True,
+        plot_bgcolor="white",
+    )
+
+    fig = go.Figure(data=traces, layout=layout)
     return fig
