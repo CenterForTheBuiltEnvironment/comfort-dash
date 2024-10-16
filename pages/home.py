@@ -227,6 +227,7 @@ def update_note_model(selected_model, function_selection, chart_selected):
 #  double check the calculating method from pythermalcomfort lib, especially the units
 last_valid_annotation = None
 
+
 @callback(
     Output(ElementsIDs.GRAPH_HOVER.value, "figure"),
     Input(ElementsIDs.GRAPH_HOVER.value, "hoverData"),
@@ -240,13 +241,9 @@ def update_hover_annotation(hover_data, figure, inputs):
     # import units
     units = inputs[ElementsIDs.UNIT_TOGGLE.value]
 
-    if (
-        not hover_data
-        or "points" not in hover_data
-        or not hover_data["points"]
-    ):
+    if not hover_data or "points" not in hover_data or not hover_data["points"]:
         return figure
-    
+
     chart_selected = inputs[ElementsIDs.chart_selected.value]
 
     point = hover_data["points"][0]
@@ -260,13 +257,8 @@ def update_hover_annotation(hover_data, figure, inputs):
             t_db = o_t_db
         # check if y <= 0
         if y_value <= 0:
-            if (
-                last_valid_annotation is not None
-                and "annotations" in figure["layout"]
-            ):
-                figure["layout"]["annotations"][0][
-                    "text"
-                ] = last_valid_annotation
+            if last_valid_annotation is not None and "annotations" in figure["layout"]:
+                figure["layout"]["annotations"][0]["text"] = last_valid_annotation
             return figure
 
         if chart_selected in [
@@ -275,12 +267,12 @@ def update_hover_annotation(hover_data, figure, inputs):
             rh = y_value
         elif chart_selected in [
             Charts.psychrometric.value.name,
-        ]:  
+        ]:
             hr = y_value
             vp = (hr * 101325) / 1000 / (0.62198 + hr / 1000)
             rh = (vp / p_sat(t_db)) * 100
 
-        rh = max(0, min(rh, 100)) # boundary check
+        rh = max(0, min(rh, 100))  # boundary check
 
         # calculations
         psy_results = psy_ta_rh(t_db, rh)

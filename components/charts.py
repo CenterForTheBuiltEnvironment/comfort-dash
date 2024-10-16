@@ -121,12 +121,14 @@ def find_tdb_for_pmv(
         "Unable to find suitable t_db value within maximum number of iterations"
     )
 
+
 def curve_fit(x, y, num_points=50):
     coefficients = np.polyfit(x, y, 2)
     polynomial = np.poly1d(coefficients)
     x_new = np.linspace(min(x), max(x), num_points)
     y_new = polynomial(x_new)
     return x_new, y_new
+
 
 def psy_pmv(
     inputs: dict = None,
@@ -266,7 +268,9 @@ def psy_pmv(
         new_ii_upper_tdb, new_ii_upper_hr = curve_fit(ii_upper_tdb, ii_upper_hr)
         new_i_upper_tdb, new_i_upper_hr = curve_fit(i_upper_tdb, i_upper_hr)
 
-        iii_lower_upper_tdb = np.concatenate([new_iii_lower_tdb, new_iii_upper_tdb[::-1]])
+        iii_lower_upper_tdb = np.concatenate(
+            [new_iii_lower_tdb, new_iii_upper_tdb[::-1]]
+        )
         ii_lower_upper_tdb = np.concatenate([new_ii_lower_tdb, new_ii_upper_tdb[::-1]])
         i_lower_upper_tdb = np.concatenate([new_i_lower_tdb, new_i_upper_tdb[::-1]])
         iii_lower_upper_hr = np.concatenate([new_iii_lower_hr, new_iii_upper_hr[::-1]])
