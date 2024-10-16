@@ -2,7 +2,13 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
-from components.charts import t_rh_pmv, chart_selector, adaptive_en_chart
+from components.charts import (
+    t_rh_pmv,
+    chart_selector,
+    get_heat_losses,
+    SET_outputs_chart,
+    adaptive_chart,
+)
 from components.dropdowns import (
     model_selection,
 )
@@ -66,7 +72,9 @@ layout = dmc.Stack(
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
                             dcc.Location(id=ElementsIDs.URL.value, refresh=False),
-                            dcc.Store(id=ElementsIDs.INITIAL_URL.value, storage_type="memory"),
+                            dcc.Store(
+                                id=ElementsIDs.INITIAL_URL.value, storage_type="memory"
+                            ),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -86,6 +94,8 @@ layout = dmc.Stack(
     Input(ElementsIDs.inputs_form.value, "n_clicks"),
     Input(ElementsIDs.inputs_form.value, "children"),
     Input(ElementsIDs.clo_input.value, "value"),
+    ### V input
+    Input(ElementsIDs.v_input.value, "value"),
     Input(ElementsIDs.met_input.value, "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
     Input(ElementsIDs.chart_selected.value, "value"),
@@ -98,6 +108,7 @@ def update_store_inputs(
     form_content: dict,
     clo_value: float,
     met_value: float,
+    v_input: float,
     units_selection: str,
     chart_selected: str,
     functionality_selection: str,
@@ -129,9 +140,7 @@ def update_inputs(selected_model, units_selection, function_selection):
     if selected_model is None:
         return no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    return (
-        input_environmental_personal(selected_model, units, function_selection),
-    )
+    return (input_environmental_personal(selected_model, units, function_selection),)
 
 
 # once function: update_inputs via URL, update the value of the model dropdown, unit toggle and functionality dropdown and chart dropdown, and inputs, it only use once when the page is loaded
@@ -225,11 +234,10 @@ def update_chart(inputs: dict, function_selection: str):
         ]
     )
     image = go.Figure()
-
     if chart_selected == Charts.t_rh.value.name:
         if (
             selected_model == Models.PMV_EN.name
-            and function_selection != Functionalities.Ranges.value
+            and function_selection == Functionalities.Default.value
         ):
             image = t_rh_pmv(
                 inputs=inputs,
@@ -248,11 +256,34 @@ def update_chart(inputs: dict, function_selection: str):
                 units=units,
             )
 
-    if (
-        selected_model == Models.Adaptive_EN.name
-        and function_selection == Functionalities.Default.value
-    ):
-        image = adaptive_en_chart(inputs=inputs, units=units)
+    elif chart_selected == Charts.thl_psychrometric.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = get_heat_losses(
+                inputs=inputs,
+                model="ashrae",
+                units=units,
+            )
+
+    elif chart_selected == Charts.set_outputs.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = SET_outputs_chart(
+                inputs=inputs,
+                units=units,
+            )
+
+    elif chart_selected == Charts.adaptive_en.value.name:
+        if function_selection == Functionalities.Default.value:
+            image = adaptive_chart(inputs=inputs, model="iso", units=units)
+
+    elif chart_selected == Charts.adaptive_ashrae.value.name:
+        if function_selection == Functionalities.Default.value:
+            image = adaptive_chart(inputs=inputs, model="ashrae", units=units)
 
     note = ""
     chart: ChartsInfo
@@ -266,6 +297,7 @@ def update_chart(inputs: dict, function_selection: str):
         else dcc.Graph(
             id=ElementsIDs.GRAPH_HOVER.value,
             figure=image,  # Pass the Plotly figure object here
+            config={"displayModeBar": False},
         )
     )
 
