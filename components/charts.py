@@ -1121,21 +1121,30 @@ def psy_pmv(
             upper_hr.append(
                 psy_ta_rh(tdb=upper_tdb[i], rh=upper_rh_list[i])["hr"] * 1000
             )
+            
+        if units == UnitSystem.IP.value:
+            lower_tdb = list(
+                map(
+                    lambda x: round(
+                        float(units_converter(tmp=x, from_units="si")[0]), 1
+                    ),
+                    lower_tdb,
+                )
+            )
+            upper_tdb = list(
+                map(
+                    lambda x: round(
+                        float(units_converter(tmp=x, from_units="si")[0]), 1
+                    ),
+                    upper_tdb,
+                )
+            )
+        
         new_lower_tdb, new_lower_hr = curve_fit(lower_tdb, lower_hr)
         new_upper_tdb, new_upper_hr = curve_fit(upper_tdb, upper_hr)
 
         lower_upper_tdb = np.concatenate([new_lower_tdb, new_upper_tdb[::-1]])
         lower_upper_hr = np.concatenate([new_lower_hr, new_upper_hr[::-1]])
-
-        if units == UnitSystem.IP.value:
-            lower_upper_tdb = list(
-                map(
-                    lambda x: round(
-                        float(units_converter(tmp=x, from_units="si")[0]), 1
-                    ),
-                    lower_upper_tdb,
-                )
-            )
 
         traces.append(
             go.Scatter(
@@ -1184,6 +1193,56 @@ def psy_pmv(
                 psy_ta_rh(tdb=i_upper_tdb[i], rh=upper_rh_list[i])["hr"] * 1000
             )
 
+        if units == UnitSystem.IP.value:
+            iii_lower_tdb = list(
+                map(
+                    lambda x: round(
+                        float(units_converter(tmp=x, from_units="si")[0]), 1
+                    ),
+                    iii_lower_tdb,
+                )
+            )
+            iii_upper_tdb = list(
+                map(
+                    lambda x: round(
+                        float(units_converter(tmp=x, from_units="si")[0]), 1
+                    ),
+                    iii_upper_tdb,
+                )
+            )
+            ii_lower_tdb = list(
+                map(
+                    lambda x: round(
+                        float(units_converter(tmp=x, from_units="si")[0]), 1
+                    ),
+                    ii_lower_tdb,
+                )
+            )
+            ii_upper_tdb = list(
+                map(
+                    lambda x: round(
+                        float(units_converter(tmp=x, from_units="si")[0]), 1
+                    ),
+                    ii_upper_tdb,
+                )
+            )
+            i_lower_tdb = list(
+                map(
+                    lambda x: round(
+                        float(units_converter(tmp=x, from_units="si")[0]), 1
+                    ),
+                    i_lower_tdb,
+                )
+            )
+            i_upper_tdb = list(
+                map(
+                    lambda x: round(
+                        float(units_converter(tmp=x, from_units="si")[0]), 1
+                    ),
+                    i_upper_tdb,
+                )
+            )
+
         new_iii_lower_tdb, new_iii_lower_hr = curve_fit(iii_lower_tdb, iii_lower_hr)
         new_ii_lower_tdb, new_ii_lower_hr = curve_fit(ii_lower_tdb, ii_lower_hr)
         new_i_lower_tdb, new_i_lower_hr = curve_fit(i_lower_tdb, i_lower_hr)
@@ -1199,32 +1258,6 @@ def psy_pmv(
         iii_lower_upper_hr = np.concatenate([new_iii_lower_hr, new_iii_upper_hr[::-1]])
         ii_lower_upper_hr = np.concatenate([new_ii_lower_hr, new_ii_upper_hr[::-1]])
         i_lower_upper_hr = np.concatenate([new_i_lower_hr, new_i_upper_hr[::-1]])
-
-        if units == UnitSystem.IP.value:
-            iii_lower_upper_tdb = list(
-                map(
-                    lambda x: round(
-                        float(units_converter(tmp=x, from_units="si")[0]), 1
-                    ),
-                    iii_lower_upper_tdb,
-                )
-            )
-            ii_lower_upper_tdb = list(
-                map(
-                    lambda x: round(
-                        float(units_converter(tmp=x, from_units="si")[0]), 1
-                    ),
-                    ii_lower_upper_tdb,
-                )
-            )
-            i_lower_upper_tdb = list(
-                map(
-                    lambda x: round(
-                        float(units_converter(tmp=x, from_units="si")[0]), 1
-                    ),
-                    i_lower_upper_tdb,
-                )
-            )
 
         # category III
         traces.append(
