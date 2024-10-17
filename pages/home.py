@@ -2,19 +2,14 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
-
 from components.charts import (
-    # t_rh_pmv,
+    t_rh_pmv,
     chart_selector,
-    # adaptive_chart,
-    # SET_outputs_chart,
-    # speed_temp_pmv,
-    # get_heat_losses,
+    get_heat_losses,
+    SET_outputs_chart,
+    adaptive_chart,
     psy_pmv,
-    # generate_operative_chart,
-    # psy_ashrae_pmv_operative,
 )
-
 from components.dropdowns import (
     model_selection,
 )
@@ -101,6 +96,8 @@ layout = dmc.Stack(
     Input(ElementsIDs.inputs_form.value, "n_clicks"),
     Input(ElementsIDs.inputs_form.value, "children"),
     Input(ElementsIDs.clo_input.value, "value"),
+    ### V input
+    Input(ElementsIDs.v_input.value, "value"),
     Input(ElementsIDs.met_input.value, "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
     Input(ElementsIDs.chart_selected.value, "value"),
@@ -113,6 +110,7 @@ def update_store_inputs(
     form_content: dict,
     clo_value: float,
     met_value: float,
+    v_input: float,
     units_selection: str,
     chart_selected: str,
     functionality_selection: str,
@@ -332,14 +330,63 @@ def update_chart(inputs: dict, function_selection: str):
         ]
     )
     image = go.Figure()
+if chart_selected == Charts.t_rh.value.name:
+        if (
+            selected_model == Models.PMV_EN.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = t_rh_pmv(
+                inputs=inputs,
+                model="iso",
+                function_selection=function_selection,
+                units=units,
+            )
+        elif (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection != Functionalities.Ranges.value
+        ):
+            image = t_rh_pmv(
+                inputs=inputs,
+                model="ashrae",
+                function_selection=function_selection,
+                units=units,
+            )
 
-    if chart_selected == Charts.psychrometric.value.name:
+    elif chart_selected == Charts.thl_psychrometric.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = get_heat_losses(
+                inputs=inputs,
+                model="ashrae",
+                units=units,
+            )
+
+    elif chart_selected == Charts.set_outputs.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = SET_outputs_chart(
+                inputs=inputs,
+                units=units,
+            )
+
+    elif chart_selected == Charts.adaptive_en.value.name:
+        if function_selection == Functionalities.Default.value:
+            image = adaptive_chart(inputs=inputs, model="iso", units=units)
+
+    elif chart_selected == Charts.adaptive_ashrae.value.name:
+        if function_selection == Functionalities.Default.value:
+            image = adaptive_chart(inputs=inputs, model="ashrae", units=units)
+
+    elif chart_selected == Charts.psychrometric.value.name:
         if (
             selected_model == Models.PMV_ashrae.name
             and function_selection == Functionalities.Default.value
         ):
             image = psy_pmv(inputs=inputs, model="ASHRAE", units=units)
-
         elif (
             selected_model == Models.PMV_EN.name
             and function_selection == Functionalities.Default.value
@@ -358,6 +405,7 @@ def update_chart(inputs: dict, function_selection: str):
         else dcc.Graph(
             id=ElementsIDs.GRAPH_HOVER.value,
             figure=image,  # Pass the Plotly figure object here
+            config={"displayModeBar": False},
         )
     )
 
