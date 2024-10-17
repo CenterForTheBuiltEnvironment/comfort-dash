@@ -4,7 +4,7 @@ import pandas as pd
 from pythermalcomfort.psychrometrics import t_o, psy_ta_rh
 from pythermalcomfort.models import pmv, cooling_effect, adaptive_en, adaptive_ashrae, two_nodes
 from pythermalcomfort.utilities import v_relative, clo_dynamic, units_converter
-from scipy import optimize, fsolve
+from scipy import optimize
 
 from components.drop_down_inline import generate_dropdown_inline
 from utils.my_config_file import (

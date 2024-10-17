@@ -330,7 +330,7 @@ def update_chart(inputs: dict, function_selection: str):
         ]
     )
     image = go.Figure()
-if chart_selected == Charts.t_rh.value.name:
+    if chart_selected == Charts.t_rh.value.name:
         if (
             selected_model == Models.PMV_EN.name
             and function_selection == Functionalities.Default.value
