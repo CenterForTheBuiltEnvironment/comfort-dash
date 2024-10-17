@@ -132,6 +132,7 @@ def adaptive_chart(
                 line=dict(color="rgba(0,0,0,0)", shape="linear"),
                 name=name,
                 mode="lines",
+                hoverinfo="skip",
             )
         )
 
@@ -153,6 +154,7 @@ def adaptive_chart(
             ),
             name="current input",
             showlegend=False,
+            hoverinfo="skip",
         )
     )
 
@@ -284,6 +286,7 @@ def t_rh_pmv(
             mode="lines",
             line=dict(color="rgba(59, 189, 237, 0.7)"),
             name=f"{model} Lower Limit",
+            hoverinfo="skip",
         )
     )
     fig.add_trace(
@@ -295,6 +298,7 @@ def t_rh_pmv(
             fillcolor="rgba(59, 189, 237, 0.7)",
             line=dict(color="rgba(59, 189, 237, 0.7)"),
             name=f"{model} Upper Limit",
+            hoverinfo="skip",
         )
     )
 
@@ -306,6 +310,7 @@ def t_rh_pmv(
             mode="markers",
             marker=dict(color="red", size=8),
             name="Current Input",
+            hoverinfo="skip",
         )
     )
 
@@ -330,6 +335,7 @@ def t_rh_pmv(
                 mode="lines",
                 line=dict(color="rgba(30,70,100,0.5)"),
                 name=f"{model} Compare Lower Limit",
+                hoverinfo="skip",
             )
         )
         fig.add_trace(
@@ -341,6 +347,7 @@ def t_rh_pmv(
                 fillcolor="rgba(30,70,100,0.5)",
                 line=dict(color="rgba(30,70,100,0.5)"),
                 name=f"{model} Compare Upper Limit",
+                hoverinfo="skip",
             )
         )
         fig.add_trace(
@@ -350,6 +357,7 @@ def t_rh_pmv(
                 mode="markers",
                 marker=dict(color="blue", size=8),
                 name="Compare Input",
+                hoverinfo="skip",
             )
         )
 
@@ -555,6 +563,7 @@ def get_heat_losses(inputs: dict = None, model: str = "ashrae", units: str = "SI
                 name=name,
                 visible=visible,
                 line=dict(color=color),
+                hoverinfo="skip",
             )
         )
 
@@ -809,6 +818,7 @@ def SET_outputs_chart(
             name="SET temperature",
             line=dict(color="blue"),
             yaxis="y1",
+            hoverinfo="skip",
         )
     )
     fig.add_trace(
@@ -818,6 +828,7 @@ def SET_outputs_chart(
             mode="lines",
             name="Skin temperature",
             line=dict(color="cyan"),
+            hoverinfo="skip",
         )
     )
 
@@ -830,6 +841,7 @@ def SET_outputs_chart(
             name="Core temperature",
             line=dict(color="limegreen"),
             yaxis="y1",  # Use a second y-axis
+            hoverinfo="skip",
         )
     )
 
@@ -842,6 +854,7 @@ def SET_outputs_chart(
             name="Clothing temperature",
             line=dict(color="lightgreen"),
             yaxis="y1",  # Use a second y-axis
+            hoverinfo="skip",
         )
     )
 
@@ -855,6 +868,7 @@ def SET_outputs_chart(
             visible="legendonly",
             line=dict(color="green"),
             yaxis="y1",  # Use a second y-axis
+            hoverinfo="skip",
         )
     )
 
@@ -868,6 +882,7 @@ def SET_outputs_chart(
             visible="legendonly",
             line=dict(color="lightgrey"),
             yaxis="y2",  # Use a second y-axis
+            hoverinfo="skip",
         )
     )
     # sweat evaporation skin heat loss
@@ -880,6 +895,7 @@ def SET_outputs_chart(
             visible="legendonly",
             line=dict(color="orange"),
             yaxis="y2",  # Use a second y-axis
+            hoverinfo="skip",
         )
     )
 
@@ -893,6 +909,7 @@ def SET_outputs_chart(
             visible="legendonly",
             line=dict(color="darkorange"),
             yaxis="y2",  # Use a second y-axis
+            hoverinfo="skip",
         )
     )
 
@@ -906,6 +923,7 @@ def SET_outputs_chart(
             visible="legendonly",
             line=dict(color="darkgrey"),
             yaxis="y2",  # Use a second y-axis
+            hoverinfo="skip",
         )
     )
 
@@ -918,6 +936,7 @@ def SET_outputs_chart(
             name="Total skin heat loss",
             line=dict(color="black"),
             yaxis="y2",  # Use a second y-axis
+            hoverinfo="skip",
         )
     )
 
@@ -930,6 +949,7 @@ def SET_outputs_chart(
             name="Heat loss respiration",
             line=dict(color="black", dash="dash"),
             yaxis="y2",  # Use a second y-axis
+            hoverinfo="skip",
         )
     )
 
@@ -943,6 +963,7 @@ def SET_outputs_chart(
             visible="legendonly",
             line=dict(color="yellow"),
             yaxis="y2",  # Use a second y-axis
+            hoverinfo="skip",
         )
     )
 
