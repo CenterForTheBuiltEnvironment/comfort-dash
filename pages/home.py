@@ -2,7 +2,18 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
+<<<<<<< HEAD
 from components.charts import t_rh_pmv, chart_selector, adaptive_en_chart, psychrometric_ashrae
+=======
+from components.charts import (
+    t_rh_pmv,
+    chart_selector,
+    get_heat_losses,
+    SET_outputs_chart,
+    adaptive_chart,
+    psy_pmv,
+)
+>>>>>>> comfort-dash/development
 from components.dropdowns import (
     model_selection,
 )
@@ -23,6 +34,7 @@ from utils.my_config_file import (
     Functionalities,
 )
 import plotly.graph_objects as go
+from pythermalcomfort.psychrometrics import psy_ta_rh, p_sat
 from urllib.parse import parse_qs, urlencode
 
 dash.register_page(__name__, path=URLS.HOME.value)
@@ -66,7 +78,9 @@ layout = dmc.Stack(
                             ),
                             dmc.Text(id=ElementsIDs.note_model.value),
                             dcc.Location(id=ElementsIDs.URL.value, refresh=False),
-                            dcc.Store(id=ElementsIDs.INITIAL_URL.value, storage_type="memory"),
+                            dcc.Store(
+                                id=ElementsIDs.INITIAL_URL.value, storage_type="memory"
+                            ),
                         ],
                     ),
                     span={"base": 12, "sm": Dimensions.right_container_width.value},
@@ -86,6 +100,8 @@ layout = dmc.Stack(
     Input(ElementsIDs.inputs_form.value, "n_clicks"),
     Input(ElementsIDs.inputs_form.value, "children"),
     Input(ElementsIDs.clo_input.value, "value"),
+    ### V input
+    Input(ElementsIDs.v_input.value, "value"),
     Input(ElementsIDs.met_input.value, "value"),
     Input(ElementsIDs.UNIT_TOGGLE.value, "checked"),
     Input(ElementsIDs.chart_selected.value, "value"),
@@ -98,6 +114,7 @@ def update_store_inputs(
     form_content: dict,
     clo_value: float,
     met_value: float,
+    v_input: float,
     units_selection: str,
     chart_selected: str,
     functionality_selection: str,
@@ -107,6 +124,12 @@ def update_store_inputs(
     inputs = get_inputs(
         selected_model, form_content, units, functionality_selection, type="input"
     )
+    if ctx.triggered:
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if triggered_id == ElementsIDs.clo_input.value and clo_value != "":
+            inputs[ElementsIDs.clo_input.value] = float(clo_value)
+        if triggered_id == ElementsIDs.met_input.value and met_value != "":
+            inputs[ElementsIDs.met_input.value] = float(met_value)
 
     inputs[ElementsIDs.UNIT_TOGGLE.value] = units
     inputs[ElementsIDs.MODEL_SELECTION.value] = selected_model
@@ -129,9 +152,7 @@ def update_inputs(selected_model, units_selection, function_selection):
     if selected_model is None:
         return no_update
     units = UnitSystem.IP.value if units_selection else UnitSystem.SI.value
-    return (
-        input_environmental_personal(selected_model, units, function_selection),
-    )
+    return (input_environmental_personal(selected_model, units, function_selection),)
 
 
 # once function: update_inputs via URL, update the value of the model dropdown, unit toggle and functionality dropdown and chart dropdown, and inputs, it only use once when the page is loaded
@@ -205,6 +226,94 @@ def update_note_model(selected_model, function_selection, chart_selected):
     )
 
 
+#  double check the calculating method from pythermalcomfort lib, especially the units
+last_valid_annotation = None
+
+
+@callback(
+    Output(ElementsIDs.GRAPH_HOVER.value, "figure"),
+    Input(ElementsIDs.GRAPH_HOVER.value, "hoverData"),
+    State(ElementsIDs.GRAPH_HOVER.value, "figure"),
+    State(MyStores.input_data.value, "data"),
+)
+def update_hover_annotation(hover_data, figure, inputs):
+    # For ensure tdp never shown as nan value
+    global last_valid_annotation
+
+    # import units
+    units = inputs[ElementsIDs.UNIT_TOGGLE.value]
+
+    if not hover_data or "points" not in hover_data or not hover_data["points"]:
+        return figure
+
+    chart_selected = inputs[ElementsIDs.chart_selected.value]
+
+    point = hover_data["points"][0]
+
+    if "x" in point and "y" in point:
+        o_t_db = point["x"]
+        y_value = point["y"]
+        if units == UnitSystem.IP.value:
+            t_db = (o_t_db - 32) / 1.8
+        else:
+            t_db = o_t_db
+        # check if y <= 0
+        if y_value <= 0:
+            if last_valid_annotation is not None and "annotations" in figure["layout"]:
+                figure["layout"]["annotations"][0]["text"] = last_valid_annotation
+            return figure
+
+        if chart_selected in [
+            Charts.t_rh.value.name,
+        ]:
+            rh = y_value
+        elif chart_selected in [
+            Charts.psychrometric.value.name,
+        ]:
+            hr = y_value
+            vp = (hr * 101325) / 1000 / (0.62198 + hr / 1000)
+            rh = (vp / p_sat(t_db)) * 100
+
+        rh = max(0, min(rh, 100))  # boundary check
+
+        # calculations
+        psy_results = psy_ta_rh(t_db, rh)
+        t_wb_value = psy_results.t_wb
+        t_dp_value = psy_results.t_dp
+        wa = psy_results.hr * 1000  # convert to g/kgda
+        h = psy_results.h / 1000  # convert to kj/kg
+
+        # Added unit judgment logic
+        if units == UnitSystem.SI.value:
+            annotation_text = (
+                f"t<sub>db</sub>: {o_t_db:.1f} °C<br>"
+                f"rh: {rh:.1f} %<br>"
+                f"W<sub>a</sub>: {wa:.1f} g<sub>w</sub>/kg<sub>da</sub><br>"
+                f"t<sub>wb</sub>: {t_wb_value:.1f} °C<br>"
+                f"t<sub>dp</sub>: {t_dp_value:.1f} °C<br>"
+                f"h: {h:.1f} kJ/kg<br>"
+            )
+        else:  # IP
+            annotation_text = (
+                f"t<sub>db</sub>: {o_t_db:.1f} °F<br>"
+                f"rh: {rh:.1f} %<br>"
+                f"W<sub>a</sub>: {wa:.1f} lb<sub>w</sub>/klb<sub>da</sub><br>"
+                f"t<sub>wb</sub>: {t_wb_value*1.8+32:.1f} °F<br>"
+                f"t<sub>dp</sub>: {t_dp_value*1.8+32:.1f} °F<br>"
+                f"h: {h / 2.326:.1f} btu/lb<br>"  # kJ/kg to btu/lb
+            )
+
+        if (
+            "annotations" in figure["layout"]
+            and len(figure["layout"]["annotations"]) > 0
+        ):
+            figure["layout"]["annotations"][0]["text"] = annotation_text
+    else:
+        print("Unexpected hover data structure:", point)
+
+    return figure
+
+
 @callback(
     Output(ElementsIDs.CHART_CONTAINER.value, "children"),
     Input(MyStores.input_data.value, "data"),
@@ -225,6 +334,7 @@ def update_chart(inputs: dict, function_selection: str):
         ]
     )
     image = go.Figure()
+<<<<<<< HEAD
 
      #add 'if' condition to identify whether user want to enter the compare.
     if chart_selected == Charts.psychrometric.value.name:
@@ -247,10 +357,12 @@ def update_chart(inputs: dict, function_selection: str):
             )
 
 
+=======
+>>>>>>> comfort-dash/development
     if chart_selected == Charts.t_rh.value.name:
         if (
             selected_model == Models.PMV_EN.name
-            and function_selection != Functionalities.Ranges.value
+            and function_selection == Functionalities.Default.value
         ):
             image = t_rh_pmv(
                 inputs=inputs,
@@ -269,11 +381,46 @@ def update_chart(inputs: dict, function_selection: str):
                 units=units,
             )
 
-    if (
-        selected_model == Models.Adaptive_EN.name
-        and function_selection == Functionalities.Default.value
-    ):
-        image = adaptive_en_chart(inputs=inputs, units=units)
+    elif chart_selected == Charts.thl_psychrometric.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = get_heat_losses(
+                inputs=inputs,
+                model="ashrae",
+                units=units,
+            )
+
+    elif chart_selected == Charts.set_outputs.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = SET_outputs_chart(
+                inputs=inputs,
+                units=units,
+            )
+
+    elif chart_selected == Charts.adaptive_en.value.name:
+        if function_selection == Functionalities.Default.value:
+            image = adaptive_chart(inputs=inputs, model="iso", units=units)
+
+    elif chart_selected == Charts.adaptive_ashrae.value.name:
+        if function_selection == Functionalities.Default.value:
+            image = adaptive_chart(inputs=inputs, model="ashrae", units=units)
+
+    elif chart_selected == Charts.psychrometric.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = psy_pmv(inputs=inputs, model="ASHRAE", units=units)
+        elif (
+            selected_model == Models.PMV_EN.name
+            and function_selection == Functionalities.Default.value
+        ):
+            image = psy_pmv(inputs=inputs, model="ISO", units=units)
 
     note = ""
     chart: ChartsInfo
@@ -287,6 +434,7 @@ def update_chart(inputs: dict, function_selection: str):
         else dcc.Graph(
             id=ElementsIDs.GRAPH_HOVER.value,
             figure=image,  # Pass the Plotly figure object here
+            config={"displayModeBar": False},
         )
     )
 

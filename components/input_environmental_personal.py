@@ -13,6 +13,7 @@ from utils.my_config_file import (
     ClothingSelection,
     Functionalities,
     AdaptiveENSpeeds,
+    AdaptiveAshraeSpeeds,
 )
 from utils.website_text import (
     TextWarning,
@@ -20,7 +21,6 @@ from utils.website_text import (
 import dash
 from components.show_results import display_results
 import time
-
 
 
 def modal_custom_ensemble():
@@ -355,7 +355,7 @@ def input_environmental_personal(
                 selected_model == Models.Adaptive_EN.name
                 or selected_model == Models.Adaptive_ASHRAE.name
             ) and input_id == ElementsIDs.v_input.value:
-                default_input = create_select_component(values)
+                default_input = create_select_component(values, selected_model)
             else:
                 default_input = dmc.NumberInput(
                     value=values.value,
@@ -536,26 +536,39 @@ def create_autocomplete(values: ModelInputsInfo):
     )
 
 
-def create_select_component(values: ModelInputsInfo):
-    air_speed_box = {
-        "id": ElementsIDs.v_input.value,
-        "question": None,
-        "options": [speed.value for speed in AdaptiveENSpeeds],
-        "multi": False,
-        "default": values.value,
+def create_select_component(values: ModelInputsInfo, model_name):
+    air_speed_box = {}
+    speed_options = {
+        Models.Adaptive_EN.name: [speed.value for speed in AdaptiveENSpeeds],
+        Models.Adaptive_ASHRAE.name: [speed.value for speed in AdaptiveAshraeSpeeds],
     }
+
+    if model_name in speed_options:
+        air_speed_box = {
+            "id": ElementsIDs.v_input.value,
+            "question": None,
+            "options": speed_options[model_name],
+            "multi": False,
+            "default": values.value,
+        }
+
     return generate_dropdown_selection(
         air_speed_box, clearable=False, only_dropdown=True
     )
 
 
-
 def get_min_max_range(model, input_type):
     model_info = Models[model].value
     for input_info in model_info.inputs:
-        if input_type == "metabolic_rate" and input_info.id == ElementsIDs.met_input.value:
+        if (
+            input_type == "metabolic_rate"
+            and input_info.id == ElementsIDs.met_input.value
+        ):
             return input_info.min, input_info.max
-        elif input_type == "clothing_level" and input_info.id == ElementsIDs.clo_input.value:
+        elif (
+            input_type == "clothing_level"
+            and input_info.id == ElementsIDs.clo_input.value
+        ):
             return input_info.min, input_info.max
     return None
 
@@ -628,5 +641,3 @@ update_metabolic_rate_options_input2 = create_and_update_callback(
 update_clothing_level_options_input2 = create_and_update_callback(
     ElementsIDs.clo_input_input2.value, ClothingSelection, "clothing_level"
 )
-
-
