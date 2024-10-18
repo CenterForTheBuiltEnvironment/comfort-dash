@@ -2,9 +2,7 @@ import dash
 import dash_mantine_components as dmc
 from dash import html, callback, Output, Input, no_update, State, ctx, dcc
 
-<<<<<<< HEAD
-from components.charts import t_rh_pmv, chart_selector, adaptive_en_chart, psychrometric_ashrae
-=======
+
 from components.charts import (
     t_rh_pmv,
     chart_selector,
@@ -12,8 +10,9 @@ from components.charts import (
     SET_outputs_chart,
     adaptive_chart,
     psy_pmv,
+    psychrometric_ashrae,
 )
->>>>>>> comfort-dash/development
+
 from components.dropdowns import (
     model_selection,
 )
@@ -334,7 +333,6 @@ def update_chart(inputs: dict, function_selection: str):
         ]
     )
     image = go.Figure()
-<<<<<<< HEAD
 
      #add 'if' condition to identify whether user want to enter the compare.
     if chart_selected == Charts.psychrometric.value.name:
@@ -357,8 +355,6 @@ def update_chart(inputs: dict, function_selection: str):
             )
 
 
-=======
->>>>>>> comfort-dash/development
     if chart_selected == Charts.t_rh.value.name:
         if (
             selected_model == Models.PMV_EN.name
