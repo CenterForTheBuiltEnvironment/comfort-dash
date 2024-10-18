@@ -159,7 +159,7 @@ The application is deployed automatically using a GitHub action.
 If you want to deploy the application manually, you can run the following command:
 
 ```
-gcloud components update
+gcloud components update --quiet
 pipenv requirements > requirements.txt
 pipenv requirements --dev > dev-requirements.txt
 gcloud config set account federicotartarini@gmail.com
