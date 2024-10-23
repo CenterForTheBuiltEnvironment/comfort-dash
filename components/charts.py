@@ -818,7 +818,6 @@ def SET_outputs_chart(
         t_op = (h_r * tr + h_cc * tdb) / h_t
 
         while n_simulation < length_time_simulation:
-
             n_simulation += 1
 
             iteration_limit = 150  # for following while loop
@@ -1115,7 +1114,6 @@ def find_tdb_for_pmv(
     tol=1e-2,
     max_iter=100,
 ):
-
     if units == UnitSystem.SI.value:
         low, high = 10, 40
     else:
@@ -1168,7 +1166,6 @@ def psy_pmv(
     model: str = "ASHRAE",
     units: str = "SI",
 ):
-
     p_tdb = float(inputs[ElementsIDs.t_db_input.value])
     tr = float(inputs[ElementsIDs.t_r_input.value])
     vr = float(
@@ -1693,4 +1690,366 @@ def speed_temp_pmv(
             mirror=True,
         ),
     )
+    return fig
+
+
+def calculate_tdb(t_db_x, t_r, v_r, r_h, met, clo_d, pmv_y):
+    return pmv(tdb=t_db_x, tr=t_r, vr=v_r, rh=r_h, met=met, clo=clo_d) - pmv_y
+
+
+# Psychrometric(air temperature) of ASHRAE
+def psychrometric_ashrae(
+    inputs: dict = None,
+    model: str = "iso",
+    function_selection: str = Functionalities.Default,
+    units: str = "SI",
+):
+    p_tdb = float(inputs[ElementsIDs.t_db_input.value])
+    tr = float(inputs[ElementsIDs.t_r_input.value])
+    vr = float(
+        v_relative(  # Ensure vr is scalar
+            v=inputs[ElementsIDs.v_input.value], met=inputs[ElementsIDs.met_input.value]
+        )
+    )
+    rh = float(inputs[ElementsIDs.rh_input.value])
+    met = float(inputs[ElementsIDs.met_input.value])
+    clo = float(
+        clo_dynamic(  # Ensure clo is scalar
+            clo=inputs[ElementsIDs.clo_input.value],
+            met=inputs[ElementsIDs.met_input.value],
+        )
+    )
+    # save original values for plotting
+    if units == UnitSystem.IP.value:
+        tdb = round(float(units_converter(tdb=p_tdb)[0]), 1)
+        tr = round(float(units_converter(tr=tr)[0]), 1)
+        vr = round(float(units_converter(vr=vr)[0]), 1)
+    else:
+        tdb = p_tdb
+
+    traces = []
+
+    # blue area
+
+    rh_values = np.arange(0, 110, 10)
+    # tdb_guess = 22
+    pmv_list = [-0.5, 0.5]
+    tdb_array = np.zeros((len(pmv_list), len(rh_values)))
+    for j, pmv_value in enumerate(pmv_list):
+        for i, rh_value in enumerate(rh_values):
+            tdb_solution = find_tdb_for_pmv(
+                target_pmv=pmv_value,
+                tr=tr,
+                vr=vr,
+                rh=rh_value,
+                met=met,
+                clo=clo,
+                standard=model,
+            )
+            tdb_array[j, i] = tdb_solution
+
+    lower_upper_tdb = np.append(tdb_array[0], tdb_array[1][::-1])
+    lower_upper_tdb = [
+        round(float(value), 1) for value in lower_upper_tdb.tolist()
+    ]  # convert to list & round to 1 decimal
+
+    rh_list = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
+
+    # define
+    lower_upper_hr = []
+    for i in range(len(rh_list)):
+        lower_upper_hr.append(
+            psy_ta_rh(tdb=lower_upper_tdb[i], rh=rh_list[i])["hr"] * 1000
+        )
+
+    lower_upper_hr = [
+        round(float(value), 1) for value in lower_upper_hr
+    ]  # convert to list & round to 1 decimal
+    print("lower_upper_tdb type:", type(lower_upper_tdb), "value:", lower_upper_tdb)
+    print("lower_upper_hr type:", type(lower_upper_hr), "value:", lower_upper_hr)
+
+    if units == UnitSystem.IP.value:
+        lower_upper_tdb = list(
+            map(
+                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                lower_upper_tdb,
+            )
+        )
+
+    # grey area
+    if model == "ashrae" and function_selection == Functionalities.Compare.value:
+        met_2, clo_2, tr_2, t_db_2, v_2, rh_2 = compare_get_inputs(inputs)
+
+        clo_d_compare = clo_dynamic(clo_2, met_2)
+        vr_compare = v_relative(v_2, met_2)
+
+        vr_2 = vr_compare
+        clo_2 = clo_d_compare
+        # save original values for plotting
+
+        if units == UnitSystem.IP.value:
+            t_db_2 = round(float(units_converter(tdb=t_db_2)[0]), 1)
+            tr_2 = round(float(units_converter(tr=tr_2)[0]), 1)
+            vr_2 = round(float(units_converter(vr=vr_2)[0]), 1)
+
+        else:
+            t_db_2 = t_db_2
+
+        traces = []
+
+        rh_values_2 = np.arange(0, 110, 10)
+        # tdb_guess_2 = 22
+        pmv_list_2 = [-0.5, 0.5]
+        tdb_array_2 = np.zeros((len(pmv_list_2), len(rh_values_2)))
+
+        for j, pmv_value2 in enumerate(pmv_list_2):
+            for i, rh_value2 in enumerate(rh_values_2):
+                tdb_solution_2 = find_tdb_for_pmv(
+                    target_pmv=pmv_value2,
+                    tr=tr_2,
+                    vr=vr_2,
+                    rh=rh_value2,
+                    met=met_2,
+                    clo=clo_2,
+                    standard=model,
+                )
+                tdb_array_2[j, i] = tdb_solution_2
+
+        lower_upper_tdb_2 = np.append(tdb_array_2[0], tdb_array_2[1][::-1])
+        lower_upper_tdb_2 = [
+            round(float(value), 1) for value in lower_upper_tdb_2.tolist()
+        ]  # convert to list & round to 1 decimal
+
+        rh_list_2 = np.append(np.arange(0, 110, 10), np.arange(100, -1, -10))
+
+        # define
+        lower_upper_hr_2 = []
+        for i in range(len(rh_list_2)):
+            lower_upper_hr_2.append(
+                psy_ta_rh(tdb=lower_upper_tdb_2[i], rh=rh_list_2[i])["hr"] * 1000
+            )
+
+        lower_upper_hr_2 = [
+            round(float(value), 1) for value in lower_upper_hr_2
+        ]  # convert to list & round to 1 decimal
+
+        print(
+            "lower_upper_tdb_2 type:",
+            type(lower_upper_tdb_2),
+            "value:",
+            lower_upper_tdb_2,
+        )
+        print(
+            "lower_upper_hr_2 type:", type(lower_upper_hr_2), "value:", lower_upper_hr_2
+        )
+
+        if units == UnitSystem.IP.value:
+            lower_upper_tdb_2 = list(
+                map(
+                    lambda x2: round(
+                        float(units_converter(tmp=x2, from_units="si")[0]), 1
+                    ),
+                    lower_upper_tdb_2,
+                )
+            )
+
+        traces.append(
+            go.Scatter(
+                x=lower_upper_tdb_2,
+                y=lower_upper_hr_2,
+                mode="lines",
+                line=dict(color="rgba(0,0,0,0)"),
+                fill="toself",
+                fillcolor="rgba(200, 200, 200, 0.7)",
+                showlegend=False,
+                hoverinfo="skip",
+            )
+        )
+
+        # current point
+        # Red point
+
+        psy_results = psy_ta_rh(t_db_2, rh_2)
+        hr_2 = round(float(psy_results["hr"]) * 1000, 1)
+        t_wb_2 = round(float(psy_results["t_wb"]), 1)
+        t_dp_2 = round(float(psy_results["t_dp"]), 1)
+        h = round(float(psy_results["h"]) / 1000, 1)
+
+        if units == UnitSystem.IP.value:
+            t_wb_2 = round(float(units_converter(tmp=t_wb_2, from_units="si")[0]), 1)
+            t_dp_2 = round(float(units_converter(tmp=t_dp_2, from_units="si")[0]), 1)
+            h = round(float(h / 2.326), 1)  # kJ/kg => btu/lb
+            t_db_2 = (t_db_2 * 9 / 5) + 32
+
+        traces.append(
+            go.Scatter(
+                x=[t_db_2],
+                y=[hr_2],
+                mode="markers",
+                marker=dict(
+                    color="darkblue",
+                    size=10,
+                ),
+                showlegend=False,
+            )
+        )
+
+    traces.append(
+        go.Scatter(
+            x=lower_upper_tdb,
+            y=lower_upper_hr,
+            mode="lines",
+            line=dict(color="rgba(0,0,0,0)"),
+            fill="toself",
+            fillcolor="rgba(59, 189, 237, 0.7)",
+            showlegend=False,
+            hoverinfo="none",
+        )
+    )
+
+    # current point
+    # Red point
+
+    psy_results = psy_ta_rh(tdb, rh)
+    hr = round(float(psy_results["hr"]) * 1000, 1)
+    t_wb = round(float(psy_results["t_wb"]), 1)
+    t_dp = round(float(psy_results["t_dp"]), 1)
+    h = round(float(psy_results["h"]) / 1000, 1)
+
+    if units == UnitSystem.IP.value:
+        t_wb = round(float(units_converter(tmp=t_wb, from_units="si")[0]), 1)
+        t_dp = round(float(units_converter(tmp=t_dp, from_units="si")[0]), 1)
+        h = round(float(h / 2.326), 1)  # kJ/kg => btu/lb
+        tdb = p_tdb
+
+    traces.append(
+        go.Scatter(
+            x=[tdb],
+            y=[hr],
+            mode="markers",
+            marker=dict(
+                color="lightblue",
+                size=10,
+            ),
+            showlegend=False,
+        )
+    )
+
+    # lines
+
+    rh_list = np.arange(0, 110, 10, dtype=float).tolist()
+    tdb_list = np.linspace(10, 36, 500, dtype=float).tolist()
+    if units == UnitSystem.IP.value:
+        tdb_list_conv = list(
+            map(
+                lambda x: round(float(units_converter(tmp=x, from_units="si")[0]), 1),
+                tdb_list,
+            )
+        )
+    else:
+        tdb_list_conv = tdb_list
+
+    for rh in rh_list:
+        hr_list = np.array(
+            [psy_ta_rh(tdb=t, rh=rh, p_atm=101325)["hr"] * 1000 for t in tdb_list]
+        )  # kg/kg => g/kg
+        trace = go.Scatter(
+            x=tdb_list_conv,
+            y=hr_list,
+            mode="lines",
+            line=dict(color="grey", width=1),
+            hoverinfo="none",
+            name=f"{rh}% RH",
+            showlegend=False,
+        )
+        traces.append(trace)
+
+    tdb = inputs[ElementsIDs.t_db_input.value]
+    rh = inputs[ElementsIDs.rh_input.value]
+    tr = inputs[ElementsIDs.t_r_input.value]
+
+    if units == UnitSystem.SI.value:
+        temperature_unit = "°C"
+        hr_unit = "g<sub>w</sub>/kg<sub>da</sub>"
+        h_unit = "kJ/kg"
+        psy_results = psy_ta_rh(tdb, rh)
+        t_dp = psy_results.t_dp
+        h = psy_results.h / 2326
+
+    else:
+        temperature_unit = "°F"
+        hr_unit = "lb<sub>w</sub>/klb<sub>da</sub>"
+        h_unit = "btu/lb"
+        tdb = (tdb - 32) / 1.8
+        psy_results = psy_ta_rh(tdb, rh)
+
+        t_dp = psy_results.t_dp
+        h = psy_results.h / 2326 * 2.20462
+        h = round(h, 1)
+
+    if units == UnitSystem.SI.value:
+        tdb = tdb
+        t_dp = t_dp
+    else:
+        tdb = tdb * 1.8 + 32
+        t_dp = t_dp * 1.8 + 32
+
+    # layout
+    layout = go.Layout(
+        margin=dict(l=10, t=0),
+        height=500,
+        width=680,
+        xaxis=dict(
+            title=(
+                "Dry-bulb Temperature [°C]"
+                if units == UnitSystem.SI.value
+                else "operative Temperature [°F]"
+            ),
+            range=[10, 36] if units == UnitSystem.SI.value else [50, 96.8],
+            dtick=2,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor="lightgrey",
+        ),
+        yaxis=dict(
+            title=(
+                "Humidity Ratio [g<sub>w</sub>/kg<sub>da</sub>]"
+                if units == UnitSystem.SI.value
+                else "Humidity ratio [lb<sub>w</sub>/klb<sub>da</sub>]"
+            ),
+            range=[0, 30],
+            dtick=5,
+            showgrid=True,
+            showline=True,
+            linewidth=1.5,
+            linecolor="lightgrey",
+            side="right",
+        ),
+        annotations=[
+            dict(
+                x=14 if units == UnitSystem.SI.value else 57,
+                y=22,
+                xref="x",
+                yref="y",
+                text=(
+                    f"tₜdb: {tdb:.1f} {temperature_unit}<br>"
+                    f"rh: {rh:.1f} %<br>"
+                    f"Wₐ: {hr} {hr_unit}<br>"
+                    f"tₓwb: {t_wb} {temperature_unit}<br>"
+                    f"tₓdp: {t_dp:.1f} {temperature_unit}<br>"
+                    f"h: {h:.2f} {h_unit}<br>"
+                ),
+                showarrow=False,
+                align="left",
+                bgcolor="rgba(255,255,255,0.8)",
+                bordercolor="rgba(0,0,0,0)",
+                font=dict(size=14),
+            )
+        ],
+        showlegend=True,
+        plot_bgcolor="white",
+    )
+
+    fig = go.Figure(data=traces, layout=layout)
     return fig

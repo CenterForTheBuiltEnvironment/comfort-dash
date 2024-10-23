@@ -10,6 +10,7 @@ from components.charts import (
     adaptive_chart,
     psy_pmv,
     speed_temp_pmv,
+    psychrometric_ashrae,
 )
 from components.dropdowns import (
     model_selection,
@@ -360,6 +361,24 @@ def update_chart(inputs: dict, function_selection: str):
         ]
     )
     image = go.Figure()
+    if chart_selected == Charts.psychrometric.value.name:
+        if (
+            selected_model == Models.PMV_ashrae.name
+            and function_selection == Functionalities.Compare.value
+        ):
+            image = psychrometric_ashrae(
+                inputs=inputs,
+                model="ashrae",
+                function_selection=function_selection,
+                units=units,
+            )
+
+            image = psychrometric_ashrae(
+                inputs=inputs,
+                model="ashrae",
+                function_selection=function_selection,
+                units=units,
+            )
     if chart_selected == Charts.t_rh.value.name:
         if (
             selected_model == Models.PMV_EN.name

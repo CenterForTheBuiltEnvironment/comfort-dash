@@ -195,7 +195,6 @@ def display_results(inputs: dict):
             == Functionalities.Compare.value
             and selected_model == Models.PMV_ashrae.name
         ):
-
             if units == UnitSystem.SI.value:
                 results_title = [
                     dmc.Stack(
@@ -247,13 +246,11 @@ def display_results(inputs: dict):
 
             temp_unit = "°F" if units == UnitSystem.IP.value else "°C"
             if units == UnitSystem.SI.value:
-
                 results[0].children.append(
                     dmc.Center(dmc.Text(f"{r_set_tmp:.1f} {temp_unit}"))
                 )
 
             else:
-
                 results[0].children.append(
                     dmc.Center(dmc.Text(f"{r_set_tmp:.1f} {temp_unit}"))
                 )
@@ -268,7 +265,6 @@ def display_results(inputs: dict):
 
             for i in range(0, len(results)):
                 if i == 0:
-
                     color = CompareInputColor.InputColor1.value
                     for child in results[i].children[1:]:
                         if isinstance(child, dmc.Center) and isinstance(
@@ -370,13 +366,11 @@ def display_results(inputs: dict):
 
             temp_unit = "°F" if units == UnitSystem.IP.value else "°C"
             if units == UnitSystem.SI.value:
-
                 results2[0].children.append(
                     dmc.Center(dmc.Text(f"{r_set_tmp_input2:.1f} {temp_unit}"))
                 )
 
             else:
-
                 results2[0].children.append(
                     dmc.Center(dmc.Text(f"{r_set_tmp_input2:.1f} {temp_unit}"))
                 )
@@ -393,7 +387,6 @@ def display_results(inputs: dict):
 
             for i in range(0, len(results2)):
                 if i == 0:
-
                     color = CompareInputColor.InputColor2.value
                     for child in results2[i].children[1:]:
                         if isinstance(child, dmc.Center) and isinstance(
