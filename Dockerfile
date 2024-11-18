@@ -1,26 +1,23 @@
-# Use the official lightweight Python image.
-# https://hub.docker.com/_/python
-FROM python:3.11-slim
+# Use the official Python 3.12 slim base image
+FROM python:3.12-slim
 
-# Allow statements and log messages to immediately appear in the Knative logs
-ENV PYTHONUNBUFFERED True
+# Set environment variables to prevent Python from creating `.pyc` files and to enable unbuffered output
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-RUN apt-get update \
-&& apt-get install gcc -y \
-&& apt-get clean
+# Set the working directory
+WORKDIR /app
 
-# Copy local code to the container image.
-ENV APP_HOME /app
-WORKDIR $APP_HOME
-COPY . ./
-
-# Install production dependencies.
-RUN python -m pip install --upgrade pip
+# Copy `requirements.txt` and install Python dependencies
+COPY requirements.txt .
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 8080
+# Copy project code into the container
+COPY . .
 
-ENV DEBUG_DASH False
-ENV PORT_APP 8080
+# Expose the port on which the application will run (modify according to your app's needs)
+EXPOSE 8100
 
-CMD python app.py
+# Set the startup command
+CMD ["python", "app.py"]
